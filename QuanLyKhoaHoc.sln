@@ -1,0 +1,51 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.34916.146
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuanLyKhoaHoc.Server", "QuanLyKhoaHoc.Server\QuanLyKhoaHoc.Server.csproj", "{62A27877-245F-4C11-B674-7DEAB03EED30}"
+EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "quanlykhoahoc.client", "quanlykhoahoc.client\quanlykhoahoc.client.esproj", "{296223B8-F7E8-4B56-8385-217CB21AA0E2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuanLyKhoaHoc.Domain", "QuanLyKhoaHoc.Domain\QuanLyKhoaHoc.Domain.csproj", "{3D56D3AB-4DAA-4C09-BEFF-EE4C24631D7D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuanLyKhoaHoc.Infrastructure", "QuanLyKhoaHoc.Infrastructure\QuanLyKhoaHoc.Infrastructure.csproj", "{65A7D286-CF07-4C79-B669-465294087175}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuanLyKhoaHoc.Application", "QuanLyKhoaHoc.Application\QuanLyKhoaHoc.Application.csproj", "{CF5C2F68-525C-40DC-8275-F53614A734AE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{62A27877-245F-4C11-B674-7DEAB03EED30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62A27877-245F-4C11-B674-7DEAB03EED30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62A27877-245F-4C11-B674-7DEAB03EED30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62A27877-245F-4C11-B674-7DEAB03EED30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{296223B8-F7E8-4B56-8385-217CB21AA0E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{296223B8-F7E8-4B56-8385-217CB21AA0E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{296223B8-F7E8-4B56-8385-217CB21AA0E2}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{296223B8-F7E8-4B56-8385-217CB21AA0E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{296223B8-F7E8-4B56-8385-217CB21AA0E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{296223B8-F7E8-4B56-8385-217CB21AA0E2}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{3D56D3AB-4DAA-4C09-BEFF-EE4C24631D7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D56D3AB-4DAA-4C09-BEFF-EE4C24631D7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D56D3AB-4DAA-4C09-BEFF-EE4C24631D7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D56D3AB-4DAA-4C09-BEFF-EE4C24631D7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65A7D286-CF07-4C79-B669-465294087175}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65A7D286-CF07-4C79-B669-465294087175}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65A7D286-CF07-4C79-B669-465294087175}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65A7D286-CF07-4C79-B669-465294087175}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF5C2F68-525C-40DC-8275-F53614A734AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF5C2F68-525C-40DC-8275-F53614A734AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF5C2F68-525C-40DC-8275-F53614A734AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF5C2F68-525C-40DC-8275-F53614A734AE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8E582072-1D33-4642-BC01-BF0ECB57F72F}
+	EndGlobalSection
+EndGlobal
