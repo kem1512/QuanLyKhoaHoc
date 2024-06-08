@@ -1,23 +1,23 @@
 "use client";
 
 import { Alert, Center, SimpleGrid } from "@mantine/core";
-import RootLayout from "../components/Layout/RootLayout";
-import { CourseCard } from "../components/Card/CourseCard/CourseCard";
+import RootLayout from "../../components/Layout/RootLayout";
 import useSWR from "swr";
-import { CourseClient } from "./web-api-client";
-import { useQuery } from "../lib/helper";
-import Loading from "../components/Loading/Loading";
-import AppPagination from "../components/AppPagination/AppPagination";
+import { BlogClient } from "../web-api-client";
+import { useQuery } from "../../lib/helper";
+import Loading from "../../components/Loading/Loading";
+import AppPagination from "../../components/AppPagination/AppPagination";
+import { BlogCard } from "../../components/Card/BlogCard/BlogCard";
 
-export default function Home() {
-  const CourseService = new CourseClient();
+export default function Blog() {
+  const BlogService = new BlogClient();
 
   const query = useQuery();
 
   const { data, isLoading } = useSWR(
-    `/api/course/${new URLSearchParams(query as any)}`,
+    `/api/blog/${new URLSearchParams(query as any)}`,
     () =>
-      CourseService.getEntities(
+      BlogService.getEntities(
         query.filters,
         query.sorts,
         query.page ? parseInt(query.page) : 1,
@@ -31,9 +31,9 @@ export default function Home() {
         <Loading />
       ) : data?.items?.length && data.items.length >= 0 ? (
         <>
-          <SimpleGrid cols={{ base: 1, lg: 3 }} spacing={"xs"} mb={"sm"}>
+          <SimpleGrid spacing={"xs"}>
             {data.items.map((item) => {
-              return <CourseCard key={item.code} data={item} />;
+              return <BlogCard key={item.id} data={item} />;
             })}
           </SimpleGrid>
           <Center>

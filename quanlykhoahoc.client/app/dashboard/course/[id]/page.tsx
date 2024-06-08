@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, Button, SimpleGrid, TextInput } from "@mantine/core";
+import { Alert, SimpleGrid, TextInput } from "@mantine/core";
 import DashboardLayout from "../../../../components/Layout/DashboardLayout";
 import {
   ICourseUpdate,
@@ -11,6 +11,7 @@ import { handleSubmit } from "../../../../lib/helper";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { SubjectSelect } from "../../../../components/Helper/AppSelect";
+import ActionButton from "../../../../components/Helper/ActionButton";
 
 export default function CourseCreate({ params }: { params: { id: number } }) {
   const { id } = params;
@@ -19,7 +20,7 @@ export default function CourseCreate({ params }: { params: { id: number } }) {
 
   const { data } = useSWR(
     `/api/course/${id}`,
-    () => CourseService.getCourse(id),
+    () => CourseService.getEntity(id),
     {
       revalidateIfStale: false,
       revalidateOnFocus: false,
@@ -139,12 +140,12 @@ export default function CourseCreate({ params }: { params: { id: number } }) {
             }
             labelProps={{ style: { marginBottom: 6 } }}
           />
-          <Button
+          <ActionButton
             size="xs"
             ms={"auto"}
-            onClick={() =>
+            action={() =>
               handleSubmit(() => {
-                return CourseService.updateCourse(
+                return CourseService.updateEntity(
                   course.id,
                   course as CourseUpdate
                 );
@@ -152,7 +153,7 @@ export default function CourseCreate({ params }: { params: { id: number } }) {
             }
           >
             Xác Nhận
-          </Button>
+          </ActionButton>
         </SimpleGrid>
       ) : (
         <Alert>Không Có Gì Ở Đây Cả</Alert>

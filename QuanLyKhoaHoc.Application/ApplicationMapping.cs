@@ -20,6 +20,14 @@ namespace QuanLyKhoaHoc.Application
             CreateMap<Blog, BlogCreate>().ReverseMap();
             CreateMap<Blog, BlogUpdate>().ReverseMap();
 
+            CreateMap<Province, ProvinceMapping>().ReverseMap();
+            CreateMap<Province, ProvinceCreate>().ReverseMap();
+            CreateMap<Province, ProvinceUpdate>().ReverseMap();
+
+            CreateMap<District, DistrictMapping>().ReverseMap();
+            CreateMap<District, DistrictCreate>().ReverseMap();
+            CreateMap<District, DistrictUpdate>().ReverseMap();
+
             CreateMap<CourseSubject, CourseSubjectMapping>().ReverseMap();
         }
     }

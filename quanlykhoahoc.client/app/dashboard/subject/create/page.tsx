@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Checkbox, SimpleGrid, TextInput } from "@mantine/core";
+import { Checkbox, SimpleGrid, TextInput } from "@mantine/core";
 import DashboardLayout from "../../../../components/Layout/DashboardLayout";
 import {
   ISubjectCreate,
@@ -9,6 +9,7 @@ import {
 } from "../../../web-api-client";
 import { handleSubmit } from "../../../../lib/helper";
 import { useState } from "react";
+import ActionButton from "../../../../components/Helper/ActionButton";
 
 export default function DashboardSubjectCreate() {
   const SubjectService = new SubjectClient();
@@ -48,22 +49,22 @@ export default function DashboardSubjectCreate() {
             setSubject((prev) => ({ ...prev, isActive: !subject.isActive }))
           }
         />
-        <Button
+        <ActionButton
           size="xs"
           ms={"auto"}
-          onClick={() =>
+          action={() =>
             handleSubmit(() => {
               setSubject({
                 name: "",
                 symbol: "",
                 isActive: true,
               });
-              return SubjectService.createSubject(subject as SubjectCreate);
+              return SubjectService.createEntity(subject as SubjectCreate);
             }, "Thêm Thành Công")
           }
         >
           Xác Nhận
-        </Button>
+        </ActionButton>
       </SimpleGrid>
     </DashboardLayout>
   );

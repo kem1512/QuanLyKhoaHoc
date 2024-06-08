@@ -12,9 +12,9 @@ export default function DashboardBlog() {
       fields={Object.keys(new BlogMapping().toJSON()).filter(
         (c) => c !== "creator"
       )}
-      deleteAction={(id) => BlogService.deleteBlog(id)}
+      deleteAction={(id) => BlogService.deleteEntity(id)}
       fetchAction={(filters, sorts, page, pageSize) =>
-        BlogService.getBlogs(filters, sorts, page, pageSize)
+        BlogService.getEntities(filters, sorts, page, pageSize)
       }
     />
   );

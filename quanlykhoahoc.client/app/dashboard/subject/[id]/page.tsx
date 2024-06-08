@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, Button, Checkbox, SimpleGrid, TextInput } from "@mantine/core";
+import { Alert, Checkbox, SimpleGrid, TextInput } from "@mantine/core";
 import DashboardLayout from "../../../../components/Layout/DashboardLayout";
 import {
   ISubjectUpdate,
@@ -10,6 +10,7 @@ import {
 import { handleSubmit } from "../../../../lib/helper";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
+import ActionButton from "../../../../components/Helper/ActionButton";
 
 export default function DashboardSubjectUpdate({
   params,
@@ -21,7 +22,7 @@ export default function DashboardSubjectUpdate({
   const SubjectService = new SubjectClient();
 
   const { data } = useSWR(`/api/subject/${id}`, () =>
-    SubjectService.getSubject(id)
+    SubjectService.getEntity(id)
   );
 
   const [subject, setSubject] = useState<ISubjectUpdate>({
@@ -64,12 +65,12 @@ export default function DashboardSubjectUpdate({
               setSubject((prev) => ({ ...prev, isActive: !subject.isActive }))
             }
           />
-          <Button
+          <ActionButton
             size="xs"
             ms={"auto"}
-            onClick={() =>
-              handleSubmit( () => {
-                return SubjectService.updateSubject(
+            action={() =>
+              handleSubmit(() => {
+                return SubjectService.updateEntity(
                   subject.id,
                   subject as SubjectUpdate
                 );
@@ -77,7 +78,7 @@ export default function DashboardSubjectUpdate({
             }
           >
             Xác Nhận
-          </Button>
+          </ActionButton>
         </SimpleGrid>
       ) : (
         <Alert>Không Có Gì Ở Đây Cả</Alert>

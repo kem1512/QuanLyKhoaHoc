@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, SimpleGrid, TextInput } from "@mantine/core";
+import { SimpleGrid, TextInput } from "@mantine/core";
 import DashboardLayout from "../../../../components/Layout/DashboardLayout";
 import {
   CourseClient,
@@ -10,6 +10,7 @@ import {
 import { handleSubmit } from "../../../../lib/helper";
 import { useState } from "react";
 import { SubjectSelect } from "../../../../components/Helper/AppSelect";
+import ActionButton from "../../../../components/Helper/ActionButton";
 
 export default function DashboardCourseCreate() {
   const CourseService = new CourseClient();
@@ -117,17 +118,17 @@ export default function DashboardCourseCreate() {
           }
           labelProps={{ style: { marginBottom: 6 } }}
         />
-        <Button
+        <ActionButton
           size="xs"
           me={"auto"}
-          onClick={() =>
+          action={() =>
             handleSubmit(() => {
-              return CourseService.createCourse(course as CourseCreate);
+              return CourseService.createEntity(course as CourseCreate);
             }, "Thêm Thành Công")
           }
         >
           Xác Nhận
-        </Button>
+        </ActionButton>
       </SimpleGrid>
     </DashboardLayout>
   );

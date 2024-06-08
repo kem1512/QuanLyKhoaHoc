@@ -11,6 +11,57 @@
 import followIfLoginRedirect from '../components/api-authorization/followIfLoginRedirect';
 import store from "../lib/store"
 
+export class AddressClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : (typeof window !== 'undefined' ? window : { fetch }) as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    post(): Promise<FileResponse> {
+        let url_ = this.baseUrl + "/api/Address";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/octet-stream",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processPost(_response);
+        });
+    }
+
+    protected processPost(response: Response): Promise<FileResponse> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
+            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+            if (fileName) {
+                fileName = decodeURIComponent(fileName);
+            } else {
+                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            }
+            return response.blob().then(blob => { return { fileName: fileName, data: blob, status: status, headers: _headers }; });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FileResponse>(null as any);
+    }
+}
+
 export class AuthClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -192,7 +243,7 @@ export class BlogClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    getBlogs(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfBlogMapping> {
+    getEntities(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfBlogMapping> {
         let url_ = this.baseUrl + "/api/Blog?";
         if (filters !== undefined && filters !== null)
             url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
@@ -213,11 +264,11 @@ export class BlogClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetBlogs(_response);
+            return this.processGetEntities(_response);
         });
     }
 
-    protected processGetBlogs(response: Response): Promise<PagingModelOfBlogMapping> {
+    protected processGetEntities(response: Response): Promise<PagingModelOfBlogMapping> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -236,7 +287,7 @@ export class BlogClient {
         return Promise.resolve<PagingModelOfBlogMapping>(null as any);
     }
 
-    createBlog(entity: BlogCreate): Promise<Result> {
+    createEntity(entity: BlogCreate): Promise<Result> {
         let url_ = this.baseUrl + "/api/Blog";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -253,11 +304,11 @@ export class BlogClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processCreateBlog(_response);
+            return this.processCreateEntity(_response);
         });
     }
 
-    protected processCreateBlog(response: Response): Promise<Result> {
+    protected processCreateEntity(response: Response): Promise<Result> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -276,91 +327,7 @@ export class BlogClient {
         return Promise.resolve<Result>(null as any);
     }
 
-    updateBlog(id: number | undefined, entity: BlogUpdate): Promise<Result> {
-        let url_ = this.baseUrl + "/api/Blog?";
-        if (id === null)
-            throw new Error("The parameter 'id' cannot be null.");
-        else if (id !== undefined)
-            url_ += "id=" + encodeURIComponent("" + id) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(entity);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                "Authorization": `Bearer ${store.getState().auth.accessToken}`
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processUpdateBlog(_response);
-        });
-    }
-
-    protected processUpdateBlog(response: Response): Promise<Result> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = Result.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<Result>(null as any);
-    }
-
-    deleteBlog(id: number | undefined): Promise<Result> {
-        let url_ = this.baseUrl + "/api/Blog?";
-        if (id === null)
-            throw new Error("The parameter 'id' cannot be null.");
-        else if (id !== undefined)
-            url_ += "id=" + encodeURIComponent("" + id) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "DELETE",
-            headers: {
-                "Accept": "application/json",
-                "Authorization": `Bearer ${store.getState().auth.accessToken}`
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processDeleteBlog(_response);
-        });
-    }
-
-    protected processDeleteBlog(response: Response): Promise<Result> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = Result.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<Result>(null as any);
-    }
-
-    getBlog(id: number): Promise<BlogMapping> {
+    getEntity(id: number): Promise<BlogMapping> {
         let url_ = this.baseUrl + "/api/Blog/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -376,11 +343,11 @@ export class BlogClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetBlog(_response);
+            return this.processGetEntity(_response);
         });
     }
 
-    protected processGetBlog(response: Response): Promise<BlogMapping> {
+    protected processGetEntity(response: Response): Promise<BlogMapping> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -398,6 +365,88 @@ export class BlogClient {
         }
         return Promise.resolve<BlogMapping>(null as any);
     }
+
+    updateEntity(id: number, entity: BlogUpdate): Promise<Result> {
+        let url_ = this.baseUrl + "/api/Blog/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(entity);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateEntity(_response);
+        });
+    }
+
+    protected processUpdateEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    deleteEntity(id: number): Promise<Result> {
+        let url_ = this.baseUrl + "/api/Blog/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteEntity(_response);
+        });
+    }
+
+    protected processDeleteEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
 }
 
 export class CourseClient {
@@ -410,7 +459,7 @@ export class CourseClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    getCourses(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfCourseMapping> {
+    getEntities(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfCourseMapping> {
         let url_ = this.baseUrl + "/api/Course?";
         if (filters !== undefined && filters !== null)
             url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
@@ -431,11 +480,11 @@ export class CourseClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetCourses(_response);
+            return this.processGetEntities(_response);
         });
     }
 
-    protected processGetCourses(response: Response): Promise<PagingModelOfCourseMapping> {
+    protected processGetEntities(response: Response): Promise<PagingModelOfCourseMapping> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -454,7 +503,7 @@ export class CourseClient {
         return Promise.resolve<PagingModelOfCourseMapping>(null as any);
     }
 
-    createCourse(entity: CourseCreate): Promise<Result> {
+    createEntity(entity: CourseCreate): Promise<Result> {
         let url_ = this.baseUrl + "/api/Course";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -471,11 +520,11 @@ export class CourseClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processCreateCourse(_response);
+            return this.processCreateEntity(_response);
         });
     }
 
-    protected processCreateCourse(response: Response): Promise<Result> {
+    protected processCreateEntity(response: Response): Promise<Result> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -494,91 +543,7 @@ export class CourseClient {
         return Promise.resolve<Result>(null as any);
     }
 
-    updateCourse(id: number | undefined, entity: CourseUpdate): Promise<Result> {
-        let url_ = this.baseUrl + "/api/Course?";
-        if (id === null)
-            throw new Error("The parameter 'id' cannot be null.");
-        else if (id !== undefined)
-            url_ += "id=" + encodeURIComponent("" + id) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(entity);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                "Authorization": `Bearer ${store.getState().auth.accessToken}`
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processUpdateCourse(_response);
-        });
-    }
-
-    protected processUpdateCourse(response: Response): Promise<Result> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = Result.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<Result>(null as any);
-    }
-
-    deleteCourse(id: number | undefined): Promise<Result> {
-        let url_ = this.baseUrl + "/api/Course?";
-        if (id === null)
-            throw new Error("The parameter 'id' cannot be null.");
-        else if (id !== undefined)
-            url_ += "id=" + encodeURIComponent("" + id) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "DELETE",
-            headers: {
-                "Accept": "application/json",
-                "Authorization": `Bearer ${store.getState().auth.accessToken}`
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processDeleteCourse(_response);
-        });
-    }
-
-    protected processDeleteCourse(response: Response): Promise<Result> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = Result.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<Result>(null as any);
-    }
-
-    getCourse(id: number): Promise<CourseMapping> {
+    getEntity(id: number): Promise<CourseMapping> {
         let url_ = this.baseUrl + "/api/Course/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -594,11 +559,11 @@ export class CourseClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetCourse(_response);
+            return this.processGetEntity(_response);
         });
     }
 
-    protected processGetCourse(response: Response): Promise<CourseMapping> {
+    protected processGetEntity(response: Response): Promise<CourseMapping> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -616,6 +581,88 @@ export class CourseClient {
         }
         return Promise.resolve<CourseMapping>(null as any);
     }
+
+    updateEntity(id: number, entity: CourseUpdate): Promise<Result> {
+        let url_ = this.baseUrl + "/api/Course/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(entity);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateEntity(_response);
+        });
+    }
+
+    protected processUpdateEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    deleteEntity(id: number): Promise<Result> {
+        let url_ = this.baseUrl + "/api/Course/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteEntity(_response);
+        });
+    }
+
+    protected processDeleteEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
 }
 
 export class SubjectClient {
@@ -628,7 +675,7 @@ export class SubjectClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    getSubjects(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfSubjectMapping> {
+    getEntities(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfSubjectMapping> {
         let url_ = this.baseUrl + "/api/Subject?";
         if (filters !== undefined && filters !== null)
             url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
@@ -649,11 +696,11 @@ export class SubjectClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetSubjects(_response);
+            return this.processGetEntities(_response);
         });
     }
 
-    protected processGetSubjects(response: Response): Promise<PagingModelOfSubjectMapping> {
+    protected processGetEntities(response: Response): Promise<PagingModelOfSubjectMapping> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -672,7 +719,7 @@ export class SubjectClient {
         return Promise.resolve<PagingModelOfSubjectMapping>(null as any);
     }
 
-    createSubject(entity: SubjectCreate): Promise<Result> {
+    createEntity(entity: SubjectCreate): Promise<Result> {
         let url_ = this.baseUrl + "/api/Subject";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -689,11 +736,11 @@ export class SubjectClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processCreateSubject(_response);
+            return this.processCreateEntity(_response);
         });
     }
 
-    protected processCreateSubject(response: Response): Promise<Result> {
+    protected processCreateEntity(response: Response): Promise<Result> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -712,91 +759,7 @@ export class SubjectClient {
         return Promise.resolve<Result>(null as any);
     }
 
-    updateSubject(id: number | undefined, entity: SubjectUpdate): Promise<Result> {
-        let url_ = this.baseUrl + "/api/Subject?";
-        if (id === null)
-            throw new Error("The parameter 'id' cannot be null.");
-        else if (id !== undefined)
-            url_ += "id=" + encodeURIComponent("" + id) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(entity);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                "Authorization": `Bearer ${store.getState().auth.accessToken}`
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processUpdateSubject(_response);
-        });
-    }
-
-    protected processUpdateSubject(response: Response): Promise<Result> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = Result.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<Result>(null as any);
-    }
-
-    deleteSubject(id: number | undefined): Promise<Result> {
-        let url_ = this.baseUrl + "/api/Subject?";
-        if (id === null)
-            throw new Error("The parameter 'id' cannot be null.");
-        else if (id !== undefined)
-            url_ += "id=" + encodeURIComponent("" + id) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "DELETE",
-            headers: {
-                "Accept": "application/json",
-                "Authorization": `Bearer ${store.getState().auth.accessToken}`
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processDeleteSubject(_response);
-        });
-    }
-
-    protected processDeleteSubject(response: Response): Promise<Result> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = Result.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<Result>(null as any);
-    }
-
-    getSubject(id: number): Promise<SubjectMapping> {
+    getEntity(id: number): Promise<SubjectMapping> {
         let url_ = this.baseUrl + "/api/Subject/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -812,11 +775,11 @@ export class SubjectClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetSubject(_response);
+            return this.processGetEntity(_response);
         });
     }
 
-    protected processGetSubject(response: Response): Promise<SubjectMapping> {
+    protected processGetEntity(response: Response): Promise<SubjectMapping> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -833,6 +796,88 @@ export class SubjectClient {
             });
         }
         return Promise.resolve<SubjectMapping>(null as any);
+    }
+
+    updateEntity(id: number, entity: SubjectUpdate): Promise<Result> {
+        let url_ = this.baseUrl + "/api/Subject/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(entity);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateEntity(_response);
+        });
+    }
+
+    protected processUpdateEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    deleteEntity(id: number): Promise<Result> {
+        let url_ = this.baseUrl + "/api/Subject/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteEntity(_response);
+        });
+    }
+
+    protected processDeleteEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
     }
 }
 
@@ -1030,7 +1075,6 @@ export interface IPagingModelOfBlogMapping {
 
 export class BlogMapping implements IBlogMapping {
     id?: number;
-    creatorId?: number;
     content?: string;
     title?: string;
     numberOfLikes?: number;
@@ -1053,7 +1097,6 @@ export class BlogMapping implements IBlogMapping {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
-            this.creatorId = _data["creatorId"];
             this.content = _data["content"];
             this.title = _data["title"];
             this.numberOfLikes = _data["numberOfLikes"];
@@ -1084,7 +1127,6 @@ export class BlogMapping implements IBlogMapping {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
-        data["creatorId"] = this.creatorId;
         data["content"] = this.content;
         data["title"] = this.title;
         data["numberOfLikes"] = this.numberOfLikes;
@@ -1108,7 +1150,6 @@ export class BlogMapping implements IBlogMapping {
 
 export interface IBlogMapping {
     id?: number;
-    creatorId?: number;
     content?: string;
     title?: string;
     numberOfLikes?: number;
@@ -3437,7 +3478,6 @@ export interface IBlogCreate {
 
 export class BlogUpdate implements IBlogUpdate {
     id?: number;
-    creatorId?: number;
     content?: string;
     title?: string;
     numberOfLikes?: number;
@@ -3456,7 +3496,6 @@ export class BlogUpdate implements IBlogUpdate {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
-            this.creatorId = _data["creatorId"];
             this.content = _data["content"];
             this.title = _data["title"];
             this.numberOfLikes = _data["numberOfLikes"];
@@ -3475,7 +3514,6 @@ export class BlogUpdate implements IBlogUpdate {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
-        data["creatorId"] = this.creatorId;
         data["content"] = this.content;
         data["title"] = this.title;
         data["numberOfLikes"] = this.numberOfLikes;
@@ -3487,7 +3525,6 @@ export class BlogUpdate implements IBlogUpdate {
 
 export interface IBlogUpdate {
     id?: number;
-    creatorId?: number;
     content?: string;
     title?: string;
     numberOfLikes?: number;

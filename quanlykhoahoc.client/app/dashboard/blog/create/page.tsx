@@ -1,12 +1,13 @@
 "use client";
 
-import { Button, Grid, SimpleGrid, TextInput } from "@mantine/core";
+import { Grid, TextInput } from "@mantine/core";
 import DashboardLayout from "../../../../components/Layout/DashboardLayout";
 import { BlogClient, BlogCreate, IBlogCreate } from "../../../web-api-client";
 import { handleSubmit } from "../../../../lib/helper";
 import { useState } from "react";
 import { DateTimePicker } from "@mantine/dates";
 import Editor from "../../../../components/Editor/Editor";
+import ActionButton from "../../../../components/Helper/ActionButton";
 
 export default function DashboardBlogCreate() {
   const BlogService = new BlogClient();
@@ -69,6 +70,13 @@ export default function DashboardBlogCreate() {
             withSeconds
             label="Ngày Tạo"
             placeholder="Chọn Ngày Tạo"
+            defaultValue={new Date()}
+            onChange={(e) =>
+              setBlog((prev) => ({
+                ...prev,
+                createTime: e,
+              }))
+            }
             labelProps={{ style: { marginBottom: 6 } }}
           />
         </Grid.Col>
@@ -79,16 +87,16 @@ export default function DashboardBlogCreate() {
           />
         </Grid.Col>
         <Grid.Col span={12}>
-          <Button
+          <ActionButton
             size="xs"
-            onClick={() =>
+            action={() =>
               handleSubmit(() => {
-                return BlogService.createBlog(blog as BlogCreate);
+                return BlogService.createEntity(blog as BlogCreate);
               }, "Thêm Thành Công")
             }
           >
             Xác Nhận
-          </Button>
+          </ActionButton>
         </Grid.Col>
       </Grid>
     </DashboardLayout>

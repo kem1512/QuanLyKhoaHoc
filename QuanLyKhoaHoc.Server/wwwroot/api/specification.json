@@ -6,6 +6,27 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/api/Address": {
+      "get": {
+        "tags": [
+          "Address"
+        ],
+        "operationId": "Address_Post",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Auth/login": {
       "post": {
         "tags": [
@@ -126,7 +147,7 @@
         "tags": [
           "Blog"
         ],
-        "operationId": "Blog_GetBlogs",
+        "operationId": "Blog_GetEntities",
         "parameters": [
           {
             "name": "Filters",
@@ -188,7 +209,7 @@
         "tags": [
           "Blog"
         ],
-        "operationId": "Blog_CreateBlog",
+        "operationId": "Blog_CreateEntity",
         "requestBody": {
           "x-name": "entity",
           "content": {
@@ -213,16 +234,49 @@
             }
           }
         }
+      }
+    },
+    "/api/Blog/{id}": {
+      "get": {
+        "tags": [
+          "Blog"
+        ],
+        "operationId": "Blog_GetEntity",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlogMapping"
+                }
+              }
+            }
+          }
+        }
       },
       "put": {
         "tags": [
           "Blog"
         ],
-        "operationId": "Blog_UpdateBlog",
+        "operationId": "Blog_UpdateEntity",
         "parameters": [
           {
             "name": "id",
-            "in": "query",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "integer",
               "format": "int32"
@@ -259,11 +313,12 @@
         "tags": [
           "Blog"
         ],
-        "operationId": "Blog_DeleteBlog",
+        "operationId": "Blog_DeleteEntity",
         "parameters": [
           {
             "name": "id",
-            "in": "query",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "integer",
               "format": "int32"
@@ -285,44 +340,12 @@
         }
       }
     },
-    "/api/Blog/{id}": {
-      "get": {
-        "tags": [
-          "Blog"
-        ],
-        "operationId": "Blog_GetBlog",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BlogMapping"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/Course": {
       "get": {
         "tags": [
           "Course"
         ],
-        "operationId": "Course_GetCourses",
+        "operationId": "Course_GetEntities",
         "parameters": [
           {
             "name": "Filters",
@@ -384,7 +407,7 @@
         "tags": [
           "Course"
         ],
-        "operationId": "Course_CreateCourse",
+        "operationId": "Course_CreateEntity",
         "requestBody": {
           "x-name": "entity",
           "content": {
@@ -409,16 +432,49 @@
             }
           }
         }
+      }
+    },
+    "/api/Course/{id}": {
+      "get": {
+        "tags": [
+          "Course"
+        ],
+        "operationId": "Course_GetEntity",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseMapping"
+                }
+              }
+            }
+          }
+        }
       },
       "put": {
         "tags": [
           "Course"
         ],
-        "operationId": "Course_UpdateCourse",
+        "operationId": "Course_UpdateEntity",
         "parameters": [
           {
             "name": "id",
-            "in": "query",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "integer",
               "format": "int32"
@@ -455,11 +511,12 @@
         "tags": [
           "Course"
         ],
-        "operationId": "Course_DeleteCourse",
+        "operationId": "Course_DeleteEntity",
         "parameters": [
           {
             "name": "id",
-            "in": "query",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "integer",
               "format": "int32"
@@ -481,44 +538,12 @@
         }
       }
     },
-    "/api/Course/{id}": {
-      "get": {
-        "tags": [
-          "Course"
-        ],
-        "operationId": "Course_GetCourse",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CourseMapping"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/Subject": {
       "get": {
         "tags": [
           "Subject"
         ],
-        "operationId": "Subject_GetSubjects",
+        "operationId": "Subject_GetEntities",
         "parameters": [
           {
             "name": "Filters",
@@ -580,7 +605,7 @@
         "tags": [
           "Subject"
         ],
-        "operationId": "Subject_CreateSubject",
+        "operationId": "Subject_CreateEntity",
         "requestBody": {
           "x-name": "entity",
           "content": {
@@ -605,16 +630,49 @@
             }
           }
         }
+      }
+    },
+    "/api/Subject/{id}": {
+      "get": {
+        "tags": [
+          "Subject"
+        ],
+        "operationId": "Subject_GetEntity",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubjectMapping"
+                }
+              }
+            }
+          }
+        }
       },
       "put": {
         "tags": [
           "Subject"
         ],
-        "operationId": "Subject_UpdateSubject",
+        "operationId": "Subject_UpdateEntity",
         "parameters": [
           {
             "name": "id",
-            "in": "query",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "integer",
               "format": "int32"
@@ -651,38 +709,7 @@
         "tags": [
           "Subject"
         ],
-        "operationId": "Subject_DeleteSubject",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Result"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Subject/{id}": {
-      "get": {
-        "tags": [
-          "Subject"
-        ],
-        "operationId": "Subject_GetSubject",
+        "operationId": "Subject_DeleteEntity",
         "parameters": [
           {
             "name": "id",
@@ -701,7 +728,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SubjectMapping"
+                  "$ref": "#/components/schemas/Result"
                 }
               }
             }
@@ -790,10 +817,6 @@
         "additionalProperties": false,
         "properties": {
           "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "creatorId": {
             "type": "integer",
             "format": "int32"
           },
@@ -2048,10 +2071,6 @@
         "additionalProperties": false,
         "properties": {
           "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "creatorId": {
             "type": "integer",
             "format": "int32"
           },

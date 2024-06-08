@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Grid, TextInput } from "@mantine/core";
+import { Grid, TextInput } from "@mantine/core";
 import DashboardLayout from "../../../../components/Layout/DashboardLayout";
 import { BlogClient, BlogUpdate, IBlogUpdate } from "../../../web-api-client";
 import { handleSubmit } from "../../../../lib/helper";
@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { DateTimePicker } from "@mantine/dates";
 import Editor from "../../../../components/Editor/Editor";
+import ActionButton from "../../../../components/Helper/ActionButton";
 
 export default function DashboardBlogUpdate({
   params,
@@ -18,7 +19,7 @@ export default function DashboardBlogUpdate({
 
   const BlogService = new BlogClient();
 
-  const { data } = useSWR(`/api/course/${id}`, () => BlogService.getBlog(id), {
+  const { data } = useSWR(`/api/course/${id}`, () => BlogService.getEntity(id), {
     revalidateIfStale: false,
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
@@ -86,6 +87,13 @@ export default function DashboardBlogUpdate({
             withSeconds
             label="Ngày Tạo"
             placeholder="Chọn Ngày Tạo"
+            value={blog.createTime}
+            onChange={(e) =>
+              setBlog((prev) => ({
+                ...prev,
+                createTime: e,
+              }))
+            }
             labelProps={{ style: { marginBottom: 6 } }}
           />
         </Grid.Col>
@@ -96,16 +104,16 @@ export default function DashboardBlogUpdate({
           />
         </Grid.Col>
         <Grid.Col span={12}>
-          <Button
+          <ActionButton
             size="xs"
-            onClick={() =>
+            action={() =>
               handleSubmit(() => {
-                return BlogService.updateBlog(blog.id, blog as BlogUpdate);
+                return BlogService.updateEntity(blog.id, blog as BlogUpdate);
               }, "Thêm Thành Công")
             }
           >
             Xác Nhận
-          </Button>
+          </ActionButton>
         </Grid.Col>
       </Grid>
     </DashboardLayout>

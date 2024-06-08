@@ -23,6 +23,7 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import ActionButton from "../../components/Helper/ActionButton";
 
 export default function Login() {
   const AuthService = new AuthClient();
@@ -179,10 +180,10 @@ export default function Login() {
                     ? "Đã Có Tài Khoản? Đăng Nhập"
                     : "Chưa Có Tài Khoản? Đăng Ký"}
                 </Anchor>
-                <Button
+                <ActionButton
                   type="submit"
                   radius="xl"
-                  onClick={() =>
+                  action={() =>
                     toast.promise(handleSubmit, {
                       pending: "Đợi Xíu",
                       error: "Vui Lòng Kiểm Tra Lại",
@@ -190,7 +191,7 @@ export default function Login() {
                   }
                 >
                   {upperFirst(type === "login" ? "Đăng Nhập" : "Đăng Ký")}
-                </Button>
+                </ActionButton>
               </Group>
             </form>
           </Paper>

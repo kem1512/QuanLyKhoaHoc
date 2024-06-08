@@ -11,6 +11,7 @@ import {
   ScrollArea,
   rem,
   Avatar,
+  ActionIcon,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import classes from "./RootHeader.module.css";
@@ -18,11 +19,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSelector } from "react-redux";
 import Logo from "../Logo/Logo";
+import { IconNotification, IconSchoolBell } from "@tabler/icons-react";
 
 const mockdata = [
   { label: "Trang Chủ", value: "/" },
-  { label: "Giới Thiệu", value: "/about" },
   { label: "Khóa Học", value: "/course" },
+  { label: "Blog", value: "/blog" },
   { label: "Quản Trị", value: "/dashboard" },
 ];
 
@@ -55,7 +57,12 @@ export function RootHeader() {
 
           <Group visibleFrom="sm">
             {user ? (
-              <Avatar src={user.avatar} />
+              <Group>
+                <ActionIcon variant="transparent">
+                  <IconSchoolBell />
+                </ActionIcon>
+                <Avatar src={user.avatar} />
+              </Group>
             ) : (
               <Link href={"/login"}>
                 <Button size="xs">Đăng Nhập</Button>
@@ -83,21 +90,18 @@ export function RootHeader() {
         <ScrollArea h={`calc(100vh - ${rem(80)})`} mx="-md">
           <Divider my="sm" />
 
-          <a href="#" className={classes.link}>
-            Home
-          </a>
-          <a href="#" className={classes.link}>
-            Learn
-          </a>
-          <a href="#" className={classes.link}>
-            Academy
-          </a>
+          {mockdata.map((item) => {
+            return (
+              <Link key={item.value} href={item.value} className={classes.link}>
+                {item.label}
+              </Link>
+            );
+          })}
 
           <Divider my="sm" />
 
           <Group justify="center" grow pb="xl" px="md">
-            <Button variant="default">Log in</Button>
-            <Button>Sign up</Button>
+            <Button>Đăng Nhập</Button>
           </Group>
         </ScrollArea>
       </Drawer>

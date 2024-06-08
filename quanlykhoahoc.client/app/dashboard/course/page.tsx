@@ -11,10 +11,10 @@ export default function DashboardCourse() {
       url="/api/course"
       fields={Object.keys(new CourseMapping().toJSON())}
       deleteAction={(id) =>
-        CourseService.deleteCourse(id)
+        CourseService.deleteEntity(id)
       }
       fetchAction={(filters, sorts, page, pageSize) =>
-        CourseService.getCourses(filters, sorts, page, pageSize)
+        CourseService.getEntities(filters, sorts, page, pageSize)
       }
     />
   );

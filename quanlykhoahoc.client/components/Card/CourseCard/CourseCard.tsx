@@ -11,8 +11,8 @@ import {
   ActionIcon,
 } from "@mantine/core";
 import classes from "./CourseCard.module.css";
-import { CourseMapping } from "../../app/web-api-client";
-import { formatCurrencyVND } from "../../lib/helper";
+import { CourseMapping } from "../../../app/web-api-client";
+import { formatCurrencyVND } from "../../../lib/helper";
 import Link from "next/link";
 
 export function CourseCard({ data }: { data: CourseMapping }) {
