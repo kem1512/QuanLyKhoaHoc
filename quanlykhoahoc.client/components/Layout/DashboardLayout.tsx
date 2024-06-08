@@ -1,9 +1,11 @@
-"use client"
+"use client";
 
-import { AppShell, Avatar, Burger, Group } from "@mantine/core";
+import { AppShell, Breadcrumbs, Burger, Group, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import React, { Suspense } from "react";
 import { DashboardNavbar } from "../Navbar/Dashboard/DashboardNavbar";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 export default function DashboardLayout({
   children,
@@ -12,27 +14,49 @@ export default function DashboardLayout({
 }) {
   const [opened, { toggle }] = useDisclosure();
 
+  const pathname = usePathname();
+
+  const pathSegments = pathname.split("/").slice(1);
+
+  let accumulatedPath = "";
+
   return (
     <AppShell
       layout="alt"
       header={{ height: 60 }}
-      footer={{ height: 60 }}
       navbar={{ width: 300, breakpoint: "sm", collapsed: { mobile: !opened } }}
       padding="md"
     >
       <AppShell.Header>
         <Group h="100%" px="md">
+          <Breadcrumbs>
+            {pathSegments.map((segment, index) => {
+              accumulatedPath += `/${segment}`;
+              return (
+                <Link key={index} href={accumulatedPath} className="text-decoration-none">
+                  {segment}
+                </Link>
+              );
+            })}
+          </Breadcrumbs>
           <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-          <Avatar ms={"auto"} />
         </Group>
       </AppShell.Header>
-      <AppShell.Navbar p="md">
-        <DashboardNavbar />
+      <AppShell.Navbar p="md" pb={0}>
+        <DashboardNavbar
+          burger={
+            <Burger
+              opened={opened}
+              onClick={toggle}
+              hiddenFrom="sm"
+              size="sm"
+            />
+          }
+        />
       </AppShell.Navbar>
       <AppShell.Main>
         <Suspense>{children}</Suspense>
       </AppShell.Main>
-      <AppShell.Footer p="md">Footer</AppShell.Footer>
     </AppShell>
   );
 }

@@ -1,6 +1,9 @@
 import "@mantine/core/styles.css";
 import "react-toastify/dist/ReactToastify.css";
 import "@mantine/charts/styles.css";
+import "@mantine/dates/styles.css";
+import '@mantine/tiptap/styles.css';
+import "./app.css"
 import React from "react";
 import { MantineProvider, ColorSchemeScript } from "@mantine/core";
 import { theme } from "../theme";

@@ -17,6 +17,7 @@ import classes from "./RootHeader.module.css";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSelector } from "react-redux";
+import Logo from "../Logo/Logo";
 
 const mockdata = [
   { label: "Trang Chủ", value: "/" },
@@ -35,11 +36,7 @@ export function RootHeader() {
     <Box>
       <header className={classes.header}>
         <Group justify="space-between" h="100%">
-          <Link href={"/"} style={{ textDecoration: " none" }}>
-            <Text fw={"bold"} color="dark">
-              Quản Lý Khóa Học
-            </Text>
-          </Link>
+          <Logo />
 
           <Group h="100%" gap={0} visibleFrom="sm">
             {mockdata.map((item) => {

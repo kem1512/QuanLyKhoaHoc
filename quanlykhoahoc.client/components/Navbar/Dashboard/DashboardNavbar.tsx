@@ -19,8 +19,9 @@ import {
 } from "@tabler/icons-react";
 import classes from "./DashboardNavbar.module.css";
 import { MantineLogo } from "@mantinex/mantine-logo";
-import { useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
+import Logo from "../../Logo/Logo";
 
 const mockdata = [
   { label: "Quản Trị", icon: IconGauge, link: "/dashboard" },
@@ -132,7 +133,7 @@ export function LinksGroup({
   );
 }
 
-export function DashboardNavbar() {
+export function DashboardNavbar({ burger }: { burger: React.ReactNode }) {
   const links = mockdata.map((item) => (
     <LinksGroup {...item} key={item.label} />
   ));
@@ -141,8 +142,8 @@ export function DashboardNavbar() {
     <nav className={classes.navbar}>
       <div className={classes.header}>
         <Group justify="space-between">
-          <MantineLogo style={{ width: rem(120) }} />
-          <Code fw={700}>v3.1.2</Code>
+          <Logo />
+          {burger}
         </Group>
       </div>
 
