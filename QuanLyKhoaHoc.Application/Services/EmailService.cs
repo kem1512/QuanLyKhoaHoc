@@ -1,7 +1,4 @@
-﻿using QuanLyKhoaHoc.Application.Common.Interfaces;
-using System.Net.Mail;
-
-namespace QuanLyKhoaHoc.Application.Services
+﻿namespace QuanLyKhoaHoc.Application.Services
 {
     internal class EmailService : IEmailService
     {

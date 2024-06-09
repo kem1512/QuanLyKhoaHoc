@@ -1,9 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using QuanLyKhoaHoc.Application.Common.Interfaces;
-using QuanLyKhoaHoc.Infrastructure.Data;
-
-namespace Microsoft.Extensions.DependencyInjection;
+﻿namespace Microsoft.Extensions.DependencyInjection;
 
 public static class DependencyInjection
 {

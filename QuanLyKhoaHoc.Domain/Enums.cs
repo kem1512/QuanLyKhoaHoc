@@ -2,21 +2,33 @@
 {
     public enum UserStatus
     {
-        Active
+        Active,
+        Inactive,
+        Banned,
+        Pending
     }
 
     public enum Level
     {
-
+        Beginner,
+        Intermediate,
+        Advanced,
+        Expert
     }
 
     public enum HomeworkStatus
     {
-
+        NotStarted,
+        InProgress,
+        Completed,
+        Overdue
     }
 
     public enum ResultStatus
     {
-        Succeess, Failure, NotFound, Forbidden
+        Success,
+        Failure,
+        NotFound,
+        Forbidden
     }
 }

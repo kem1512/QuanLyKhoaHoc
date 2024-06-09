@@ -1,13 +1,4 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using Microsoft.EntityFrameworkCore;
-using QuanLyKhoaHoc.Application.Common.Extension;
-using QuanLyKhoaHoc.Application.Common.Interfaces;
-using QuanLyKhoaHoc.Application.Common.Mappings;
-using QuanLyKhoaHoc.Application.Common.Models;
-using QuanLyKhoaHoc.Domain.Entities;
-
-namespace QuanLyKhoaHoc.Application.Services
+﻿namespace QuanLyKhoaHoc.Application.Services
 {
     public class UserService : ApplicationServiceBase<UserMapping, UserQuery, UserCreate, UserUpdate>
     {
@@ -55,7 +46,7 @@ namespace QuanLyKhoaHoc.Application.Services
 
                 if (user.Id != int.Parse(_user.Id))
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Xóa Bài Viết Này");
+                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Xóa");
                 }
 
                 _context.Users.Remove(user);

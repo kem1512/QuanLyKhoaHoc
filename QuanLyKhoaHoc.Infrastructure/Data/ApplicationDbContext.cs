@@ -1,9 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using QuanLyKhoaHoc.Application.Common.Interfaces;
-using QuanLyKhoaHoc.Domain.Entities;
-using System.Reflection;
-
-namespace QuanLyKhoaHoc.Infrastructure.Data
+﻿namespace QuanLyKhoaHoc.Infrastructure.Data
 {
     public class ApplicationDbContext : DbContext, IApplicationDbContext
     {

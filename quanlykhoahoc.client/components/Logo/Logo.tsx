@@ -13,7 +13,7 @@ export default function Logo() {
         fw={"bold"}
         color="light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-1))"
       >
-        Quản Lý Khóa Học
+        Khóa Học Việt
       </Text>
     </Link>
   );

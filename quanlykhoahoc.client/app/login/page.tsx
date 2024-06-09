@@ -59,11 +59,18 @@ export default function Login() {
         }
 
         await AuthService.register(new RegisterRequest({ email, password }));
+
+        router.push("/")
       }
 
       const response = await AuthService.login(
         new LoginRequest({ email, password })
       );
+
+      if(!response){
+        toast.error("Vui Lòng Kiểm Tra Lại Thông Tin Đăng Nhập")
+        return;
+      }
 
       const { refreshToken } = response;
 

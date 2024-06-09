@@ -1,13 +1,4 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using Microsoft.EntityFrameworkCore;
-using QuanLyKhoaHoc.Application.Common.Extension;
-using QuanLyKhoaHoc.Application.Common.Interfaces;
-using QuanLyKhoaHoc.Application.Common.Mappings;
-using QuanLyKhoaHoc.Application.Common.Models;
-using QuanLyKhoaHoc.Domain.Entities;
-
-namespace QuanLyKhoaHoc.Application.Services
+﻿namespace QuanLyKhoaHoc.Application.Services
 {
     public class CertificateTypeService : ApplicationServiceBase<CertificateTypeMapping, CertificateTypeQuery, CertificateTypeCreate, CertificateTypeUpdate>
     {

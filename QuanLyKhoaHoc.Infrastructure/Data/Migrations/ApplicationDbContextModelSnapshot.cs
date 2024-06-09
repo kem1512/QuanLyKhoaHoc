@@ -52,7 +52,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Answers", (string)null);
+                    b.ToTable("Answers");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.Bill", b =>
@@ -88,7 +88,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Bills", (string)null);
+                    b.ToTable("Bills");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.BillStatus", b =>
@@ -105,7 +105,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BillStatuses", (string)null);
+                    b.ToTable("BillStatuses");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.Blog", b =>
@@ -143,7 +143,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasIndex("CreatorId");
 
-                    b.ToTable("Blogs", (string)null);
+                    b.ToTable("Blogs");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.Certificate", b =>
@@ -173,7 +173,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasIndex("CertificateTypeId");
 
-                    b.ToTable("Certificates", (string)null);
+                    b.ToTable("Certificates");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.CertificateType", b =>
@@ -190,7 +190,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CertificateTypes", (string)null);
+                    b.ToTable("CertificateTypes");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.CommentBlog", b =>
@@ -206,7 +206,8 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(123)
+                        .HasColumnType("nvarchar(123)");
 
                     b.Property<bool>("Edited")
                         .HasColumnType("bit");
@@ -220,7 +221,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("CommentBlogs", (string)null);
+                    b.ToTable("CommentBlogs");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.ConfirmEmail", b =>
@@ -248,7 +249,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ConfirmEmails", (string)null);
+                    b.ToTable("ConfirmEmails");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.Course", b =>
@@ -294,7 +295,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasIndex("CreatorId");
 
-                    b.ToTable("Courses", (string)null);
+                    b.ToTable("Courses");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.CourseSubject", b =>
@@ -317,7 +318,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasIndex("SubjectId");
 
-                    b.ToTable("CourseSubjects", (string)null);
+                    b.ToTable("CourseSubjects");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.District", b =>
@@ -339,7 +340,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasIndex("ProvinceId");
 
-                    b.ToTable("Districts", (string)null);
+                    b.ToTable("Districts");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.DoHomework", b =>
@@ -380,7 +381,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("DoHomeworks", (string)null);
+                    b.ToTable("DoHomeworks");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.LearningProgress", b =>
@@ -408,7 +409,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("LearningProgress", (string)null);
+                    b.ToTable("LearningProgress");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.LikeBlog", b =>
@@ -440,7 +441,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("LikeBlogs", (string)null);
+                    b.ToTable("LikeBlogs");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.MakeQuestion", b =>
@@ -476,7 +477,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("MakeQuestions", (string)null);
+                    b.ToTable("MakeQuestions");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.Notification", b =>
@@ -512,7 +513,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Notifications", (string)null);
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.Permission", b =>
@@ -535,7 +536,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Permissions", (string)null);
+                    b.ToTable("Permissions");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.Practice", b =>
@@ -592,7 +593,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasIndex("SubjectDetailId");
 
-                    b.ToTable("Practices", (string)null);
+                    b.ToTable("Practices");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.ProgramingLanguage", b =>
@@ -609,7 +610,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProgramingLanguages", (string)null);
+                    b.ToTable("ProgramingLanguages");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.Province", b =>
@@ -626,7 +627,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Provinces", (string)null);
+                    b.ToTable("Provinces");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.RefreshToken", b =>
@@ -651,7 +652,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens", (string)null);
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.RegisterStudy", b =>
@@ -694,7 +695,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RegisterStudys", (string)null);
+                    b.ToTable("RegisterStudys");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.Role", b =>
@@ -715,7 +716,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.RunTestCase", b =>
@@ -745,7 +746,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasIndex("TestCaseId");
 
-                    b.ToTable("RunTestCases", (string)null);
+                    b.ToTable("RunTestCases");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.Subject", b =>
@@ -769,7 +770,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Subjects", (string)null);
+                    b.ToTable("Subjects");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.SubjectDetail", b =>
@@ -801,7 +802,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasIndex("SubjectId");
 
-                    b.ToTable("SubjectDetails", (string)null);
+                    b.ToTable("SubjectDetails");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.TestCase", b =>
@@ -832,7 +833,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasIndex("ProgramingLanguageId");
 
-                    b.ToTable("TestCases", (string)null);
+                    b.ToTable("TestCases");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.User", b =>
@@ -844,11 +845,9 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Address")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Avatar")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("CertificateId")
@@ -904,7 +903,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasIndex("WardId");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.Ward", b =>
@@ -926,7 +925,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasIndex("DistrictId");
 
-                    b.ToTable("Wards", (string)null);
+                    b.ToTable("Wards");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.Answers", b =>

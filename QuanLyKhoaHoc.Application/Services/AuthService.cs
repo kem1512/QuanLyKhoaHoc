@@ -1,18 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using QuanLyKhoaHoc.Application.Common.Interfaces;
-using QuanLyKhoaHoc.Application.Common.Mappings;
-using QuanLyKhoaHoc.Application.Common.Models;
-using QuanLyKhoaHoc.Domain.Entities;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
-
-namespace QuanLyKhoaHoc.Application.Services
+﻿namespace QuanLyKhoaHoc.Application.Services
 {
     public class AuthService : IAuthService
     {
@@ -84,37 +70,49 @@ namespace QuanLyKhoaHoc.Application.Services
             return Result.Success();
         }
 
-        public async Task<UserMapping> UserInfo(CancellationToken cancellation)
+        public async Task<UserMapping?> UserInfo(CancellationToken cancellation)
         {
             var user = await _context.Users.Include(c => c.Province).Include(c => c.District).Include(c => c.Ward).AsNoTracking().FirstOrDefaultAsync(c => c.Id.ToString() == _user.Id, cancellation);
 
-            if (user == null) return new UserMapping();
+            if (user == null) return null;
 
             return _mapper.Map<UserMapping>(user);
         }
 
-        public async Task<TokenRequest> RefreshAccessToken(string token, CancellationToken cancellation)
+        public async Task<TokenRequest?> RefreshAccessToken(string token, CancellationToken cancellation)
         {
             var refreshToken = await _context.RefreshTokens.AsNoTracking().FirstOrDefaultAsync(c => c.Token == token, cancellation);
 
             if (refreshToken == null || refreshToken.ExpiryTime < DateTime.UtcNow)
-                return new TokenRequest();
+                return null;
 
             return new TokenRequest { AccessToken = GenerateAccessToken(refreshToken.UserId.ToString()), RefreshToken = refreshToken.Token };
         }
 
-        public string GenerateAccessToken(string userId)
+        public string GenerateAccessToken(string userId, List<string>? roles = null)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_jwtSettings.Secret);
+
+            var claims = new List<Claim> { new Claim("id", userId) };
+            
+            if(roles != null)
+            {
+                foreach (var role in roles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role));
+                }
+            }
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[] { new Claim("id", userId) }),
+                Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes),
                 Issuer = _jwtSettings.Issuer,
                 Audience = _jwtSettings.Audience,
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
             };
+
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
@@ -129,9 +127,9 @@ namespace QuanLyKhoaHoc.Application.Services
             }
         }
 
-        public async Task<TokenRequest> Login(LoginRequest request, CancellationToken cancellation)
+        public async Task<TokenRequest?> Login(LoginRequest request, CancellationToken cancellation)
         {
-            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(c => c.Email == request.Email, cancellation);
+            var user = await _context.Users.Include(c => c.Permissions).AsNoTracking().FirstOrDefaultAsync(c => c.Email == request.Email, cancellation);
 
             if (user != null && BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
             {
@@ -146,27 +144,29 @@ namespace QuanLyKhoaHoc.Application.Services
 
                 await _context.SaveChangesAsync(cancellation);
 
-                return new TokenRequest { AccessToken = GenerateAccessToken(user.Id.ToString()), RefreshToken = refreshToken };
+                return new TokenRequest { AccessToken = GenerateAccessToken(user.Id.ToString(), user.Permissions.Select(c => c.Role.RoleName).ToList()), RefreshToken = refreshToken };
             }
 
-            return new TokenRequest();
+            return null;
         }
 
         public async Task<Result> Register(RegisterRequest request, CancellationToken cancellation)
         {
-            if (_context.Users.Any(c => c.Username == request.Username || c.Email == request.Email))
+            if (_context.Users.Any(c => c.Email == request.Email))
             {
                 return Result.Failure("Tên Người Dùng Hoặc Email Đã Tồn Tại");
             }
 
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
+            var userName = request.Email.Split('@')[0];
+
             await _context.Users.AddAsync(new User
             {
                 Email = request.Email,
-                Username = request.Username,
+                Username = userName,
                 Password = hashedPassword,
-                FullName = request.Username,
+                FullName = userName,
             }, cancellation);
 
             await _context.SaveChangesAsync(cancellation);

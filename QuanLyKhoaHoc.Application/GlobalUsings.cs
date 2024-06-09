@@ -1,0 +1,16 @@
+﻿global using AutoMapper;
+global using AutoMapper.QueryableExtensions;
+global using Microsoft.EntityFrameworkCore;
+global using QuanLyKhoaHoc.Application.Common.Interfaces;
+global using QuanLyKhoaHoc.Application.Common.Models;
+global using Microsoft.AspNetCore.Http;
+global using QuanLyKhoaHoc.Application.Common.Mappings;
+global using Microsoft.Extensions.Options;
+global using QuanLyKhoaHoc.Domain.Entities;
+global using System.IdentityModel.Tokens.Jwt;
+global using Microsoft.IdentityModel.Tokens;
+global using System.Security.Claims;
+global using System.Security.Cryptography;
+global using System.Text;
+global using QuanLyKhoaHoc.Application.Common.Extension;
+global using System.Net.Mail;

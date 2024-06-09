@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using QuanLyKhoaHoc.Application.Common.Interfaces;
-using QuanLyKhoaHoc.Application.Common.Models;
-namespace QuanLyKhoaHoc.Server.Controllers
+﻿namespace QuanLyKhoaHoc.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

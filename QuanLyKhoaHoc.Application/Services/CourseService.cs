@@ -1,13 +1,4 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using Microsoft.EntityFrameworkCore;
-using QuanLyKhoaHoc.Application.Common.Extension;
-using QuanLyKhoaHoc.Application.Common.Interfaces;
-using QuanLyKhoaHoc.Application.Common.Mappings;
-using QuanLyKhoaHoc.Application.Common.Models;
-using QuanLyKhoaHoc.Domain.Entities;
-
-namespace QuanLyKhoaHoc.Application.Services
+﻿namespace QuanLyKhoaHoc.Application.Services
 {
     public class CourseService : ApplicationServiceBase<CourseMapping, CourseQuery, CourseCreate, CourseUpdate>
     {
@@ -57,7 +48,7 @@ namespace QuanLyKhoaHoc.Application.Services
 
                 if (course.CreatorId != int.Parse(_user.Id))
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Xóa Khóa Học Này");
+                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Xóa");
                 }
 
                 _context.Courses.Remove(course);
@@ -123,7 +114,7 @@ namespace QuanLyKhoaHoc.Application.Services
 
                 if (course.CreatorId != int.Parse(_user.Id))
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Sửa Khóa Học Này");
+                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Sửa");
                 }
 
                 // Xóa những CourseSubject không còn trong entity

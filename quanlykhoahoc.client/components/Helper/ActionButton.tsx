@@ -10,11 +10,14 @@ export default function ActionButton({
 }) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const handleAction = () => {
+  const handleAction = async () => {
     setIsLoading(true);
-    action().then(() => {
+    try {
+      await action();
+    } catch (error) {
+    } finally {
       setIsLoading(false);
-    });
+    }
   };
 
   return (
