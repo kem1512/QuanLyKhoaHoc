@@ -8,7 +8,7 @@ export default function DashboardBlog() {
 
   return (
     <DataTable
-      url="/api/blog"
+      url="/blog"
       fields={Object.keys(new BlogMapping().toJSON()).filter(
         (c) => c !== "creator"
       )}

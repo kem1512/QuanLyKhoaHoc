@@ -7,9 +7,9 @@ namespace QuanLyKhoaHoc.Server.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IJwtService _jwtService;
+        private readonly IAuthService _jwtService;
 
-        public AuthController(IJwtService jwtService)
+        public AuthController(IAuthService jwtService)
         {
             _jwtService = jwtService;
         }

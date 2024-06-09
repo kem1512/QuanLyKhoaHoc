@@ -126,9 +126,7 @@ namespace QuanLyKhoaHoc.Application.Services
                     return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Sửa Khóa Học Này");
                 }
 
-                _mapper.Map(entity, blog);
-
-                _context.Blogs.Update(blog);
+                _context.Blogs.Update(_mapper.Map(entity, blog));
 
                 var result = await _context.SaveChangesAsync(cancellation);
 

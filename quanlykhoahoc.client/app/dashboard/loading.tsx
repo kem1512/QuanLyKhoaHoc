@@ -1,6 +1,6 @@
 "use client";
 
-import DashboardLayout from "../../components/Layout/DashboardLayout";
+import DashboardLayout from "../../components/Layout/DashboardLayout/DashboardLayout";
 import Loading from "../../components/Loading/Loading";
 
 export default function DashboardLoading() {

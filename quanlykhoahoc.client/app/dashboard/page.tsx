@@ -9,7 +9,7 @@ import {
   Text,
   rem,
 } from "@mantine/core";
-import DashboardLayout from "../../components/Layout/DashboardLayout";
+import DashboardLayout from "../../components/Layout/DashboardLayout/DashboardLayout";
 import { IconArrowUpRight, IconArrowDownRight } from "@tabler/icons-react";
 import { BarChart, DonutChart } from "@mantine/charts";
 

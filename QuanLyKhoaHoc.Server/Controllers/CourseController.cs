@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using QuanLyKhoaHoc.Application;
 using QuanLyKhoaHoc.Application.Common.Mappings;
-using QuanLyKhoaHoc.Application.Common.Models;
 
 namespace QuanLyKhoaHoc.Server.Controllers
 {

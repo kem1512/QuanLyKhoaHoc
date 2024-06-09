@@ -1,6 +1,5 @@
 import {
   Group,
-  Code,
   ScrollArea,
   rem,
   UnstyledButton,
@@ -14,17 +13,22 @@ import {
   IconNotes,
   IconCalendarStats,
   IconGauge,
-  IconLock,
   IconChevronRight,
+  IconAddressBook,
+  IconUser,
 } from "@tabler/icons-react";
 import classes from "./DashboardNavbar.module.css";
-import { MantineLogo } from "@mantinex/mantine-logo";
 import React, { useState } from "react";
 import Link from "next/link";
 import Logo from "../../Logo/Logo";
 
 const mockdata = [
   { label: "Quản Trị", icon: IconGauge, link: "/dashboard" },
+  {
+    label: "Người Dùng",
+    icon: IconUser,
+    link: "/dashboard/user",
+  },
   {
     label: "Khóa Học",
     icon: IconNotes,
@@ -35,17 +39,22 @@ const mockdata = [
     ],
   },
   {
-    label: "Blog",
+    label: "Chứng Chỉ",
     icon: IconCalendarStats,
+    links: [
+      { label: "Loại Chứng Chỉ", link: "/dashboard/certificate-type" },
+      { label: "Chứng Chỉ", link: "/dashboard/certificate" },
+    ],
+  },
+  {
+    label: "Vai Trò",
+    icon: IconCalendarStats,
+    link: "/dashboard/role",
+  },
+  {
+    label: "Blog",
+    icon: IconAddressBook,
     link: "/dashboard/blog",
-  },
-  {
-    label: "Học Viên",
-    icon: IconLock,
-  },
-  {
-    label: "Người Dùng",
-    icon: IconLock,
   },
 ];
 

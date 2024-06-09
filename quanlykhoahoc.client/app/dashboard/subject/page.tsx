@@ -8,7 +8,7 @@ export default function DashboardSubject() {
 
   return (
     <DataTable
-      url="/api/Subject"
+      url="/subject"
       fields={Object.keys(new SubjectMapping().toJSON())}
       deleteAction={(id) => SubjectService.deleteEntity(id)}
       fetchAction={(filters, sorts, page, pageSize) =>

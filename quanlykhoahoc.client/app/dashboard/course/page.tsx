@@ -8,7 +8,7 @@ export default function DashboardCourse() {
 
   return (
     <DataTable
-      url="/api/course"
+      url="/course"
       fields={Object.keys(new CourseMapping().toJSON())}
       deleteAction={(id) =>
         CourseService.deleteEntity(id)

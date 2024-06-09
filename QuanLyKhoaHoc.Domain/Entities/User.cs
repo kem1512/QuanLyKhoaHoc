@@ -16,7 +16,7 @@
 
         public DateTime CreateTime { get; set; }
 
-        public string Avatar { get; set; } = default!;
+        public string? Avatar { get; set; } = default!;
 
         public string Email { get; set; } = default!;
 
@@ -30,7 +30,7 @@
 
         public bool IsActive { get; set; }
 
-        public string Address { get; set; } = default!;
+        public string? Address { get; set; } = default!;
 
         public UserStatus UserStatus { get; set; }
 

@@ -11,7 +11,10 @@ namespace QuanLyKhoaHoc.Application.Common.Mappings
         public string Name { get; set; } = default!;
     }
 
-    public class DistrictQuery : QueryModel { }
+    public class DistrictQuery : QueryModel
+    {
+        public int? ProvinceId { get; set; }
+    }
 
     public class DistrictCreate
     {

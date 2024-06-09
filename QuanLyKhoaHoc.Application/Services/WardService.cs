@@ -69,6 +69,11 @@ namespace QuanLyKhoaHoc.Application.Services
         {
             var wards = _context.Wards.AsNoTracking();
 
+            if (query.DistrictId != null)
+            {
+                wards = wards.Where(c => c.Id == query.DistrictId);
+            }
+
             var totalCount = await wards.ApplyQuery(query, applyPagination: false).CountAsync();
 
             var data = await wards

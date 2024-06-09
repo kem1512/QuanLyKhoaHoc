@@ -1,13 +1,13 @@
 "use client";
 
 import { Alert, Center, SimpleGrid } from "@mantine/core";
-import RootLayout from "../../components/Layout/RootLayout";
 import useSWR from "swr";
 import { BlogClient } from "../web-api-client";
 import { useQuery } from "../../lib/helper";
 import Loading from "../../components/Loading/Loading";
 import AppPagination from "../../components/AppPagination/AppPagination";
 import { BlogCard } from "../../components/Card/BlogCard/BlogCard";
+import RootLayout from "../../components/Layout/RootLayout/RootLayout";
 
 export default function Blog() {
   const BlogService = new BlogClient();

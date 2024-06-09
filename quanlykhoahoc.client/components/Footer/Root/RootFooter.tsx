@@ -7,17 +7,13 @@ import {
   IconBrandInstagram,
 } from "@tabler/icons-react";
 import classes from "./RootFooter.module.css";
-import Link from "next/link";
+import Logo from "../../Logo/Logo";
 
 export function RootFooter() {
   return (
     <div className={classes.footer}>
       <Container className={classes.inner} size={"xl"}>
-        <Link href={"/"} style={{ textDecoration: " none" }}>
-          <Text fw={"bold"} color="dark">
-            Quản Lý Khóa Học
-          </Text>
-        </Link>
+        <Logo />
         <Group
           gap={0}
           className={classes.links}

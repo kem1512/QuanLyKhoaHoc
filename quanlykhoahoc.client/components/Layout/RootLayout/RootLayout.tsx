@@ -2,8 +2,8 @@
 
 import { AppShell, Container } from "@mantine/core";
 import React, { Suspense } from "react";
-import { RootHeader } from "../Header/RootHeader";
-import { RootFooter } from "../Footer/Root/RootFooter";
+import { RootHeader } from "../../Header/RootHeader";
+import { RootFooter } from "../../Footer/Root/RootFooter";
 
 export default function RootLayout({
   children,

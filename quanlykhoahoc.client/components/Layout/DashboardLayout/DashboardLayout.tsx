@@ -3,9 +3,10 @@
 import { AppShell, Breadcrumbs, Burger, Group, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import React, { Suspense } from "react";
-import { DashboardNavbar } from "../Navbar/Dashboard/DashboardNavbar";
+import { DashboardNavbar } from "../../Navbar/Dashboard/DashboardNavbar";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import ColorSchemeToggle from "../../ColorSchemeToggle/ColorSchemeToggle";
 
 export default function DashboardLayout({
   children,
@@ -28,17 +29,22 @@ export default function DashboardLayout({
       padding="md"
     >
       <AppShell.Header>
-        <Group h="100%" px="md">
+        <Group h="100%" px="md" justify="space-between">
           <Breadcrumbs>
             {pathSegments.map((segment, index) => {
               accumulatedPath += `/${segment}`;
               return (
-                <Link key={index} href={accumulatedPath} className="text-decoration-none">
+                <Link
+                  key={index}
+                  href={accumulatedPath}
+                  className="text-decoration-none"
+                >
                   {segment}
                 </Link>
               );
             })}
           </Breadcrumbs>
+          <ColorSchemeToggle />
           <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
         </Group>
       </AppShell.Header>

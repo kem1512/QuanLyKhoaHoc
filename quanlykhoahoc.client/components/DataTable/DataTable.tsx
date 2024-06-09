@@ -13,7 +13,7 @@ import {
   Text,
 } from "@mantine/core";
 import useSWR from "swr";
-import DashboardLayout from "../../components/Layout/DashboardLayout";
+import DashboardLayout from "../Layout/DashboardLayout/DashboardLayout";
 import Link from "next/link";
 import { IconDots } from "@tabler/icons-react";
 import { modals } from "@mantine/modals";
@@ -65,7 +65,7 @@ export default function DataTable({
   };
 
   const { data, isLoading, mutate } = useSWR(
-    `${url}${new URLSearchParams(query as any)}`,
+    `/api${url}${new URLSearchParams(query as any)}`,
     () => fetch(),
     {
       revalidateIfStale: false,
@@ -152,7 +152,15 @@ export default function DataTable({
               data.items.map((item) => (
                 <Table.Tr key={item.id}>
                   {fields.map((field) => (
-                    <Table.Td key={field} py={"md"}>
+                    <Table.Td
+                      key={field}
+                      py={"md"}
+                      style={{
+                        maxWidth: "100px",
+                        wordBreak: "break-word",
+                        whiteSpace: "normal",
+                      }}
+                    >
                       {Object.prototype.toString.call(item[field]) ===
                       "[object Date]"
                         ? item[field].toDateString()
@@ -168,7 +176,7 @@ export default function DataTable({
                       </Menu.Target>
                       <Menu.Dropdown>
                         <Link
-                          href={`/dashboard/blog/${item.id}`}
+                          href={`/dashboard/${url}/${item.id}`}
                           style={{ textDecoration: "none" }}
                         >
                           <Menu.Item>Sửa</Menu.Item>

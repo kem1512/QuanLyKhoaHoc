@@ -93,9 +93,7 @@ namespace QuanLyKhoaHoc.Application.Services
 
         public override async Task<CourseMapping?> Get(int id, CancellationToken cancellation)
         {
-            var course = await _context.Courses
-                                       .Include(c => c.CourseSubjects).ThenInclude(c => c.Subject)
-                                       .FirstOrDefaultAsync(c => c.Id == id, cancellation);
+            var course = await _context.Courses.Include(c => c.CourseSubjects).ThenInclude(c => c.Subject).FirstOrDefaultAsync(c => c.Id == id, cancellation);
 
             if (course == null)
             {

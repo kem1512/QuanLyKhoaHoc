@@ -1,8 +1,8 @@
 "use client";
 
 import Editor from "@monaco-editor/react";
-import RootLayout from "../../components/Layout/RootLayout";
 import { Paper } from "@mantine/core";
+import RootLayout from "../../components/Layout/RootLayout/RootLayout";
 
 const defaultValue = `
 using System;

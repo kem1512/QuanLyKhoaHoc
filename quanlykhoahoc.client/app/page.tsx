@@ -1,13 +1,13 @@
 "use client";
 
 import { Alert, Center, SimpleGrid } from "@mantine/core";
-import RootLayout from "../components/Layout/RootLayout";
 import { CourseCard } from "../components/Card/CourseCard/CourseCard";
 import useSWR from "swr";
 import { CourseClient } from "./web-api-client";
 import { useQuery } from "../lib/helper";
 import Loading from "../components/Loading/Loading";
 import AppPagination from "../components/AppPagination/AppPagination";
+import RootLayout from "../components/Layout/RootLayout/RootLayout";
 
 export default function Home() {
   const CourseService = new CourseClient();

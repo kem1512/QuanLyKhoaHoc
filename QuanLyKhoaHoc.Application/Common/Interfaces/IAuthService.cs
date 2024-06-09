@@ -1,8 +1,9 @@
-﻿using QuanLyKhoaHoc.Application.Common.Models;
+﻿using QuanLyKhoaHoc.Application.Common.Mappings;
+using QuanLyKhoaHoc.Application.Common.Models;
 
 namespace QuanLyKhoaHoc.Application.Common.Interfaces
 {
-    public interface IJwtService
+    public interface IAuthService
     {
         Task<TokenRequest> RefreshAccessToken(string refreshToken, CancellationToken cancellation);
 
@@ -10,6 +11,6 @@ namespace QuanLyKhoaHoc.Application.Common.Interfaces
 
         Task<Result> Register(RegisterRequest request, CancellationToken cancellation);
 
-        Task<UserInfo> UserInfo(CancellationToken cancellation);
+        Task<UserMapping> UserInfo(CancellationToken cancellation);
     }
 }
