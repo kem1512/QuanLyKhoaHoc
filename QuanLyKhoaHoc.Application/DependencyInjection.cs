@@ -48,6 +48,8 @@ public static class DependencyInjection
 
         services.AddTransient<IAuthService, AuthService>();
 
+        services.AddTransient<ITokenService, TokenService>();
+
         return services;
     }
 }

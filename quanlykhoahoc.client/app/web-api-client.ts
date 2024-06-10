@@ -11,57 +11,6 @@
 import followIfLoginRedirect from '../components/api-authorization/followIfLoginRedirect';
 import store from "../lib/store"
 
-export class AddressClient {
-    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
-    private baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
-
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : (typeof window !== 'undefined' ? window : { fetch }) as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
-    }
-
-    post(): Promise<FileResponse> {
-        let url_ = this.baseUrl + "/api/Address";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/octet-stream",
-                "Authorization": `Bearer ${store.getState().auth.accessToken}`
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processPost(_response);
-        });
-    }
-
-    protected processPost(response: Response): Promise<FileResponse> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
-            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-            if (fileName) {
-                fileName = decodeURIComponent(fileName);
-            } else {
-                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            }
-            return response.blob().then(blob => { return { fileName: fileName, data: blob, status: status, headers: _headers }; });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<FileResponse>(null as any);
-    }
-}
-
 export class AuthClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -110,6 +59,42 @@ export class AuthClient {
             });
         }
         return Promise.resolve<TokenRequest>(null as any);
+    }
+
+    logout(token: string | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/Auth/logout?";
+        if (token === null)
+            throw new Error("The parameter 'token' cannot be null.");
+        else if (token !== undefined)
+            url_ += "token=" + encodeURIComponent("" + token) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processLogout(_response);
+        });
+    }
+
+    protected processLogout(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
     }
 
     register(request: RegisterRequest): Promise<FileResponse> {
@@ -1747,6 +1732,54 @@ export class RoleClient {
     }
 }
 
+export class StatisticalClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : (typeof window !== 'undefined' ? window : { fetch }) as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    check(): Promise<boolean> {
+        let url_ = this.baseUrl + "/api/Statistical";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCheck(_response);
+        });
+    }
+
+    protected processCheck(response: Response): Promise<boolean> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<boolean>(null as any);
+    }
+}
+
 export class SubjectClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -2479,7 +2512,6 @@ export interface ILoginRequest {
 
 export class RegisterRequest implements IRegisterRequest {
     email?: string;
-    username?: string;
     password?: string;
 
     constructor(data?: IRegisterRequest) {
@@ -2494,7 +2526,6 @@ export class RegisterRequest implements IRegisterRequest {
     init(_data?: any) {
         if (_data) {
             this.email = _data["email"];
-            this.username = _data["username"];
             this.password = _data["password"];
         }
     }
@@ -2509,7 +2540,6 @@ export class RegisterRequest implements IRegisterRequest {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["email"] = this.email;
-        data["username"] = this.username;
         data["password"] = this.password;
         return data;
     }
@@ -2517,7 +2547,6 @@ export class RegisterRequest implements IRegisterRequest {
 
 export interface IRegisterRequest {
     email?: string;
-    username?: string;
     password?: string;
 }
 
@@ -2959,6 +2988,9 @@ export interface IUser {
 
 export enum UserStatus {
     Active = "Active",
+    Inactive = "Inactive",
+    Banned = "Banned",
+    Pending = "Pending",
 }
 
 export class District implements IDistrict {
@@ -3941,7 +3973,7 @@ export class DoHomework implements IDoHomework {
     id?: number;
     practiceId?: number;
     userId?: number;
-    homeworkStatus?: string;
+    homeworkStatus?: HomeworkStatus;
     isFinished?: boolean;
     actualOutput?: string;
     doneTime?: Date;
@@ -4014,7 +4046,7 @@ export interface IDoHomework {
     id?: number;
     practiceId?: number;
     userId?: number;
-    homeworkStatus?: string;
+    homeworkStatus?: HomeworkStatus;
     isFinished?: boolean;
     actualOutput?: string;
     doneTime?: Date;
@@ -4025,10 +4057,17 @@ export interface IDoHomework {
     runTestCases?: RunTestCase[];
 }
 
+export enum HomeworkStatus {
+    NotStarted = "NotStarted",
+    InProgress = "InProgress",
+    Completed = "Completed",
+    Overdue = "Overdue",
+}
+
 export class Practice implements IPractice {
     id?: number;
     subjectDetailId?: number;
-    level?: string;
+    level?: Level;
     practiceCode?: string;
     title?: string;
     topic?: string;
@@ -4124,7 +4163,7 @@ export class Practice implements IPractice {
 export interface IPractice {
     id?: number;
     subjectDetailId?: number;
-    level?: string;
+    level?: Level;
     practiceCode?: string;
     title?: string;
     topic?: string;
@@ -4139,6 +4178,13 @@ export interface IPractice {
     programingLanguage?: ProgramingLanguage;
     doHomeworks?: DoHomework[];
     testCases?: TestCase[];
+}
+
+export enum Level {
+    Beginner = "Beginner",
+    Intermediate = "Intermediate",
+    Advanced = "Advanced",
+    Expert = "Expert",
 }
 
 export class ProgramingLanguage implements IProgramingLanguage {
@@ -4934,7 +4980,7 @@ export interface IResult {
 }
 
 export enum ResultStatus {
-    Succeess = "Succeess",
+    Success = "Success",
     Failure = "Failure",
     NotFound = "NotFound",
     Forbidden = "Forbidden",
@@ -6668,6 +6714,7 @@ export class UserMapping implements IUserMapping {
     id?: number;
     districtId?: number | undefined;
     provinceId?: number | undefined;
+    certificateId?: number | undefined;
     wardId?: number | undefined;
     username?: string;
     createTime?: Date;
@@ -6678,8 +6725,10 @@ export class UserMapping implements IUserMapping {
     dateOfBirth?: Date;
     isActive?: boolean;
     address?: string | undefined;
-    province?: ProvinceMapping;
+    userStatus?: UserStatus;
     district?: DistrictMapping;
+    province?: ProvinceMapping;
+    certificate?: CertificateMapping;
     ward?: WardMapping;
 
     constructor(data?: IUserMapping) {
@@ -6696,6 +6745,7 @@ export class UserMapping implements IUserMapping {
             this.id = _data["id"];
             this.districtId = _data["districtId"];
             this.provinceId = _data["provinceId"];
+            this.certificateId = _data["certificateId"];
             this.wardId = _data["wardId"];
             this.username = _data["username"];
             this.createTime = _data["createTime"] ? new Date(_data["createTime"].toString()) : <any>undefined;
@@ -6706,8 +6756,10 @@ export class UserMapping implements IUserMapping {
             this.dateOfBirth = _data["dateOfBirth"] ? new Date(_data["dateOfBirth"].toString()) : <any>undefined;
             this.isActive = _data["isActive"];
             this.address = _data["address"];
-            this.province = _data["province"] ? ProvinceMapping.fromJS(_data["province"]) : <any>undefined;
+            this.userStatus = _data["userStatus"];
             this.district = _data["district"] ? DistrictMapping.fromJS(_data["district"]) : <any>undefined;
+            this.province = _data["province"] ? ProvinceMapping.fromJS(_data["province"]) : <any>undefined;
+            this.certificate = _data["certificate"] ? CertificateMapping.fromJS(_data["certificate"]) : <any>undefined;
             this.ward = _data["ward"] ? WardMapping.fromJS(_data["ward"]) : <any>undefined;
         }
     }
@@ -6724,6 +6776,7 @@ export class UserMapping implements IUserMapping {
         data["id"] = this.id;
         data["districtId"] = this.districtId;
         data["provinceId"] = this.provinceId;
+        data["certificateId"] = this.certificateId;
         data["wardId"] = this.wardId;
         data["username"] = this.username;
         data["createTime"] = this.createTime ? this.createTime.toISOString() : <any>undefined;
@@ -6734,8 +6787,10 @@ export class UserMapping implements IUserMapping {
         data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
         data["isActive"] = this.isActive;
         data["address"] = this.address;
-        data["province"] = this.province ? this.province.toJSON() : <any>undefined;
+        data["userStatus"] = this.userStatus;
         data["district"] = this.district ? this.district.toJSON() : <any>undefined;
+        data["province"] = this.province ? this.province.toJSON() : <any>undefined;
+        data["certificate"] = this.certificate ? this.certificate.toJSON() : <any>undefined;
         data["ward"] = this.ward ? this.ward.toJSON() : <any>undefined;
         return data;
     }
@@ -6745,6 +6800,7 @@ export interface IUserMapping {
     id?: number;
     districtId?: number | undefined;
     provinceId?: number | undefined;
+    certificateId?: number | undefined;
     wardId?: number | undefined;
     username?: string;
     createTime?: Date;
@@ -6755,8 +6811,10 @@ export interface IUserMapping {
     dateOfBirth?: Date;
     isActive?: boolean;
     address?: string | undefined;
-    province?: ProvinceMapping;
+    userStatus?: UserStatus;
     district?: DistrictMapping;
+    province?: ProvinceMapping;
+    certificate?: CertificateMapping;
     ward?: WardMapping;
 }
 
@@ -6819,6 +6877,8 @@ export class UserCreate implements IUserCreate {
     dateOfBirth?: Date;
     isActive?: boolean;
     address?: string | undefined;
+    userStatus?: UserStatus;
+    permissions?: Permission[];
 
     constructor(data?: IUserCreate) {
         if (data) {
@@ -6845,6 +6905,12 @@ export class UserCreate implements IUserCreate {
             this.dateOfBirth = _data["dateOfBirth"] ? new Date(_data["dateOfBirth"].toString()) : <any>undefined;
             this.isActive = _data["isActive"];
             this.address = _data["address"];
+            this.userStatus = _data["userStatus"];
+            if (Array.isArray(_data["permissions"])) {
+                this.permissions = [] as any;
+                for (let item of _data["permissions"])
+                    this.permissions!.push(Permission.fromJS(item));
+            }
         }
     }
 
@@ -6871,6 +6937,12 @@ export class UserCreate implements IUserCreate {
         data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
         data["isActive"] = this.isActive;
         data["address"] = this.address;
+        data["userStatus"] = this.userStatus;
+        if (Array.isArray(this.permissions)) {
+            data["permissions"] = [];
+            for (let item of this.permissions)
+                data["permissions"].push(item.toJSON());
+        }
         return data;
     }
 }
@@ -6890,6 +6962,8 @@ export interface IUserCreate {
     dateOfBirth?: Date;
     isActive?: boolean;
     address?: string | undefined;
+    userStatus?: UserStatus;
+    permissions?: Permission[];
 }
 
 export class UserUpdate implements IUserUpdate {
@@ -6898,11 +6972,18 @@ export class UserUpdate implements IUserUpdate {
     provinceId?: number | undefined;
     certificateId?: number | undefined;
     wardId?: number | undefined;
+    username?: string;
+    createTime?: Date;
     avatar?: string | undefined;
+    email?: string;
+    updateTime?: Date;
+    password?: string;
     fullName?: string;
     dateOfBirth?: Date;
     isActive?: boolean;
     address?: string | undefined;
+    userStatus?: UserStatus;
+    permissions?: Permission[];
 
     constructor(data?: IUserUpdate) {
         if (data) {
@@ -6920,11 +7001,22 @@ export class UserUpdate implements IUserUpdate {
             this.provinceId = _data["provinceId"];
             this.certificateId = _data["certificateId"];
             this.wardId = _data["wardId"];
+            this.username = _data["username"];
+            this.createTime = _data["createTime"] ? new Date(_data["createTime"].toString()) : <any>undefined;
             this.avatar = _data["avatar"];
+            this.email = _data["email"];
+            this.updateTime = _data["updateTime"] ? new Date(_data["updateTime"].toString()) : <any>undefined;
+            this.password = _data["password"];
             this.fullName = _data["fullName"];
             this.dateOfBirth = _data["dateOfBirth"] ? new Date(_data["dateOfBirth"].toString()) : <any>undefined;
             this.isActive = _data["isActive"];
             this.address = _data["address"];
+            this.userStatus = _data["userStatus"];
+            if (Array.isArray(_data["permissions"])) {
+                this.permissions = [] as any;
+                for (let item of _data["permissions"])
+                    this.permissions!.push(Permission.fromJS(item));
+            }
         }
     }
 
@@ -6942,11 +7034,22 @@ export class UserUpdate implements IUserUpdate {
         data["provinceId"] = this.provinceId;
         data["certificateId"] = this.certificateId;
         data["wardId"] = this.wardId;
+        data["username"] = this.username;
+        data["createTime"] = this.createTime ? this.createTime.toISOString() : <any>undefined;
         data["avatar"] = this.avatar;
+        data["email"] = this.email;
+        data["updateTime"] = this.updateTime ? this.updateTime.toISOString() : <any>undefined;
+        data["password"] = this.password;
         data["fullName"] = this.fullName;
         data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
         data["isActive"] = this.isActive;
         data["address"] = this.address;
+        data["userStatus"] = this.userStatus;
+        if (Array.isArray(this.permissions)) {
+            data["permissions"] = [];
+            for (let item of this.permissions)
+                data["permissions"].push(item.toJSON());
+        }
         return data;
     }
 }
@@ -6957,11 +7060,18 @@ export interface IUserUpdate {
     provinceId?: number | undefined;
     certificateId?: number | undefined;
     wardId?: number | undefined;
+    username?: string;
+    createTime?: Date;
     avatar?: string | undefined;
+    email?: string;
+    updateTime?: Date;
+    password?: string;
     fullName?: string;
     dateOfBirth?: Date;
     isActive?: boolean;
     address?: string | undefined;
+    userStatus?: UserStatus;
+    permissions?: Permission[];
 }
 
 export class PagingModelOfWardMapping implements IPagingModelOfWardMapping {

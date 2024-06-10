@@ -6,27 +6,6 @@
     "version": "1.0.0"
   },
   "paths": {
-    "/api/Address": {
-      "get": {
-        "tags": [
-          "Address"
-        ],
-        "operationId": "Address_Post",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/octet-stream": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/Auth/login": {
       "post": {
         "tags": [
@@ -55,6 +34,29 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/Auth/logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "Auth_Logout",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
           }
         }
       }
@@ -1538,6 +1540,26 @@
         }
       }
     },
+    "/api/Statistical": {
+      "get": {
+        "tags": [
+          "Statistical"
+        ],
+        "operationId": "Statistical_Check",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Subject": {
       "get": {
         "tags": [
@@ -2176,9 +2198,6 @@
           "email": {
             "type": "string"
           },
-          "username": {
-            "type": "string"
-          },
           "password": {
             "type": "string"
           }
@@ -2433,10 +2452,16 @@
         "type": "string",
         "description": "",
         "x-enumNames": [
-          "Active"
+          "Active",
+          "Inactive",
+          "Banned",
+          "Pending"
         ],
         "enum": [
-          "Active"
+          "Active",
+          "Inactive",
+          "Banned",
+          "Pending"
         ]
       },
       "District": {
@@ -2977,7 +3002,19 @@
       },
       "HomeworkStatus": {
         "type": "string",
-        "description": ""
+        "description": "",
+        "x-enumNames": [
+          "NotStarted",
+          "InProgress",
+          "Completed",
+          "Overdue"
+        ],
+        "enum": [
+          "NotStarted",
+          "InProgress",
+          "Completed",
+          "Overdue"
+        ]
       },
       "Practice": {
         "type": "object",
@@ -3050,7 +3087,19 @@
       },
       "Level": {
         "type": "string",
-        "description": ""
+        "description": "",
+        "x-enumNames": [
+          "Beginner",
+          "Intermediate",
+          "Advanced",
+          "Expert"
+        ],
+        "enum": [
+          "Beginner",
+          "Intermediate",
+          "Advanced",
+          "Expert"
+        ]
       },
       "ProgramingLanguage": {
         "type": "object",
@@ -3438,13 +3487,13 @@
         "type": "string",
         "description": "",
         "x-enumNames": [
-          "Succeess",
+          "Success",
           "Failure",
           "NotFound",
           "Forbidden"
         ],
         "enum": [
-          "Succeess",
+          "Success",
           "Failure",
           "NotFound",
           "Forbidden"
@@ -4239,6 +4288,11 @@
             "format": "int32",
             "nullable": true
           },
+          "certificateId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
           "wardId": {
             "type": "integer",
             "format": "int32",
@@ -4276,11 +4330,17 @@
             "type": "string",
             "nullable": true
           },
-          "province": {
-            "$ref": "#/components/schemas/ProvinceMapping"
+          "userStatus": {
+            "$ref": "#/components/schemas/UserStatus"
           },
           "district": {
             "$ref": "#/components/schemas/DistrictMapping"
+          },
+          "province": {
+            "$ref": "#/components/schemas/ProvinceMapping"
+          },
+          "certificate": {
+            "$ref": "#/components/schemas/CertificateMapping"
           },
           "ward": {
             "$ref": "#/components/schemas/WardMapping"
@@ -4362,6 +4422,15 @@
           "address": {
             "type": "string",
             "nullable": true
+          },
+          "userStatus": {
+            "$ref": "#/components/schemas/UserStatus"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Permission"
+            }
           }
         }
       },
@@ -4393,9 +4462,26 @@
             "format": "int32",
             "nullable": true
           },
+          "username": {
+            "type": "string"
+          },
+          "createTime": {
+            "type": "string",
+            "format": "date-time"
+          },
           "avatar": {
             "type": "string",
             "nullable": true
+          },
+          "email": {
+            "type": "string"
+          },
+          "updateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "password": {
+            "type": "string"
           },
           "fullName": {
             "type": "string"
@@ -4410,6 +4496,15 @@
           "address": {
             "type": "string",
             "nullable": true
+          },
+          "userStatus": {
+            "$ref": "#/components/schemas/UserStatus"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Permission"
+            }
           }
         }
       },

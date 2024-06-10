@@ -1,6 +1,6 @@
 "use client";
 
-import { Checkbox, SimpleGrid, TextInput } from "@mantine/core";
+import { Grid, TextInput } from "@mantine/core";
 import DashboardLayout from "../../components/Layout/DashboardLayout/DashboardLayout";
 import {
   ICertificateMapping,
@@ -30,34 +30,38 @@ export default function CertificateHandler({ id }: { id?: number }) {
 
   return (
     <DashboardLayout>
-      <SimpleGrid cols={{ base: 1, lg: 2 }}>
-        <TextInput
-          label="Tên Chủ Đề"
-          placeholder="Nhập Tên Chủ Đề"
-          value={certificate.name}
-          onChange={(e) =>
-            setCertificate((prev) => ({ ...prev, name: e.target.value }))
-          }
-          labelProps={{ style: { marginBottom: 6 } }}
-        />
-        <ActionButton
-          size="xs"
-          action={() =>
-            handleSubmit(() => {
-              return id
-                ? CertificateService.updateEntity(
-                    certificate.id,
-                    certificate as CertificateUpdate
-                  )
-                : CertificateService.createEntity(
-                    certificate as CertificateCreate
-                  );
-            }, `${id ? "Sửa" : "Thêm"} Thành Công`)
-          }
-        >
-          Xác Nhận
-        </ActionButton>
-      </SimpleGrid>
+      <Grid>
+        <Grid.Col>
+          <TextInput
+            label="Tên Chủ Đề"
+            placeholder="Nhập Tên Chủ Đề"
+            value={certificate.name}
+            onChange={(e) =>
+              setCertificate((prev) => ({ ...prev, name: e.target.value }))
+            }
+            labelProps={{ style: { marginBottom: 6 } }}
+          />
+        </Grid.Col>
+        <Grid.Col>
+          <ActionButton
+            size="xs"
+            action={() =>
+              handleSubmit(() => {
+                return id
+                  ? CertificateService.updateEntity(
+                      certificate.id,
+                      certificate as CertificateUpdate
+                    )
+                  : CertificateService.createEntity(
+                      certificate as CertificateCreate
+                    );
+              }, `${id ? "Sửa" : "Thêm"} Thành Công`)
+            }
+          >
+            Xác Nhận
+          </ActionButton>
+        </Grid.Col>
+      </Grid>
     </DashboardLayout>
   );
 }

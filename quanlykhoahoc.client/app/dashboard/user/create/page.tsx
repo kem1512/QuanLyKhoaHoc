@@ -1,7 +1,7 @@
 "use client";
 
-import SubjectHandler from "../../../../components/Handler/SubjectHandler";
+import UserHandler from "../../../../components/Handler/UserHandler";
 
 export default function DashboardSubjectCreate() {
-  return <SubjectHandler />;
+  return <UserHandler />;
 }

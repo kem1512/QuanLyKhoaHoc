@@ -21,6 +21,8 @@ import classes from "./DashboardNavbar.module.css";
 import React, { useState } from "react";
 import Link from "next/link";
 import Logo from "../../Logo/Logo";
+import { useSelector } from "react-redux";
+import { UserMapping } from "../../../app/web-api-client";
 
 const mockdata = [
   { label: "Quản Trị", icon: IconGauge, link: "/dashboard" },
@@ -143,6 +145,8 @@ export function LinksGroup({
 }
 
 export function DashboardNavbar({ burger }: { burger: React.ReactNode }) {
+  const user = useSelector((state: any) => state.auth.user) as UserMapping;
+
   const links = mockdata.map((item) => (
     <LinksGroup {...item} key={item.label} />
   ));
@@ -160,31 +164,30 @@ export function DashboardNavbar({ burger }: { burger: React.ReactNode }) {
         <div className={classes.linksInner}>{links}</div>
       </ScrollArea>
 
-      <div className={classes.footer}>
-        <UnstyledButton className={classes.user}>
-          <Group>
-            <Avatar
-              src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-8.png"
-              radius="xl"
-            />
+      {user && (
+        <div className={classes.footer}>
+          <UnstyledButton className={classes.user}>
+            <Group>
+              <Avatar src={user.avatar} radius="xl" />
 
-            <div style={{ flex: 1 }}>
-              <Text size="sm" fw={500}>
-                Harriette Spoonlicker
-              </Text>
+              <div style={{ flex: 1, width: 0 }}>
+                <Text size="sm" fw={500} truncate>
+                  {user.username}
+                </Text>
 
-              <Text c="dimmed" size="xs">
-                hspoonlicker@outlook.com
-              </Text>
-            </div>
+                <Text c="dimmed" size="xs" className="email" truncate>
+                  {user.email}
+                </Text>
+              </div>
 
-            <IconChevronRight
-              style={{ width: rem(14), height: rem(14) }}
-              stroke={1.5}
-            />
-          </Group>
-        </UnstyledButton>
-      </div>
+              <IconChevronRight
+                style={{ width: rem(14), height: rem(14) }}
+                stroke={1.5}
+              />
+            </Group>
+          </UnstyledButton>
+        </div>
+      )}
     </nav>
   );
 }

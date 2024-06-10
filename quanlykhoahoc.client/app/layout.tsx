@@ -9,7 +9,7 @@ import { MantineProvider, ColorSchemeScript } from "@mantine/core";
 import { theme } from "../theme";
 
 export const metadata = {
-  title: "Quản Lý Khóa Học",
+  title: process.env.WEBSITE_TITLE,
 };
 
 export default function RootLayout({ children }: { children: any }) {

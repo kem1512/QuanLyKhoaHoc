@@ -2,6 +2,7 @@
 
 import {
   ActionIcon,
+  Badge,
   Button,
   Center,
   Flex,
@@ -151,22 +152,31 @@ export default function DataTable({
             data?.items?.length && data.items.length >= 0 ? (
               data.items.map((item) => (
                 <Table.Tr key={item.id}>
-                  {fields.map((field) => (
-                    <Table.Td
-                      key={field}
-                      py={"md"}
-                      style={{
-                        maxWidth: "100px",
-                        wordBreak: "break-word",
-                        whiteSpace: "normal",
-                      }}
-                    >
-                      {Object.prototype.toString.call(item[field]) ===
-                      "[object Date]"
-                        ? item[field].toDateString()
-                        : item[field]}
-                    </Table.Td>
-                  ))}
+                  {fields.map((field) => {
+                    const value = item[field];
+                    return (
+                      <Table.Td
+                        key={field}
+                        py={"md"}
+                        style={{
+                          maxWidth: "100px",
+                          wordBreak: "break-word",
+                          whiteSpace: "normal",
+                        }}
+                      >
+                        {value instanceof Date ? (
+                          value.toDateString()
+                        ) : typeof value === "boolean" ? (
+                          <Badge color={value === true ? "blue" : "red"}>
+                            {value ? "Đang Kích Hoạt" : "Không Kích Hoạt"}
+                          </Badge>
+                        ) : (
+                          value
+                        )}
+                      </Table.Td>
+                    );
+                  })}
+
                   <Table.Td>
                     <Menu shadow="md">
                       <Menu.Target>

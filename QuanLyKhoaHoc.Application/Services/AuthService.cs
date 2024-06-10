@@ -2,21 +2,27 @@
 {
     public class AuthService : IAuthService
     {
-        private readonly JwtSettings _jwtSettings;
         private readonly IApplicationDbContext _context;
         private readonly IUser _user;
         private readonly IEmailService _emailService;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ITokenService _tokenService;
 
-        public AuthService(IOptions<JwtSettings> jwtSettings, IApplicationDbContext context, IUser user, IEmailService emailService, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+        public AuthService(
+            IApplicationDbContext context,
+            IUser user,
+            IEmailService emailService,
+            IMapper mapper,
+            IHttpContextAccessor httpContextAccessor,
+            ITokenService tokenService)
         {
-            _jwtSettings = jwtSettings.Value;
             _context = context;
             _user = user;
             _emailService = emailService;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
+            _tokenService = tokenService;
         }
 
         public async Task<Result> SendConfirmEmail(string token, CancellationToken cancellation)
@@ -55,14 +61,12 @@
                 return Result.Failure("Email Không Tồn Tại Hoặc Bạn Không Có Quyền Yêu Cầu Thay Đổi Mật Khẩu");
             }
 
-            var token = GenerateEmailConfirmationToken();
+            var token = _tokenService.GenerateEmailConfirmationToken();
 
             await SendConfirmEmail(token, cancellation);
 
             var request = _httpContextAccessor.HttpContext.Request;
-
             var domain = $"{request.Scheme}://{request.Host}";
-
             var confirmLink = $"{domain}/reset-password?token={token}";
 
             await _emailService.SendEmailAsync(user.Email, "Đặt lại mật khẩu", confirmLink);
@@ -72,7 +76,12 @@
 
         public async Task<UserMapping?> UserInfo(CancellationToken cancellation)
         {
-            var user = await _context.Users.Include(c => c.Province).Include(c => c.District).Include(c => c.Ward).AsNoTracking().FirstOrDefaultAsync(c => c.Id.ToString() == _user.Id, cancellation);
+            var user = await _context.Users
+                .Include(c => c.Province)
+                .Include(c => c.District)
+                .Include(c => c.Ward)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id.ToString() == _user.Id, cancellation);
 
             if (user == null) return null;
 
@@ -81,73 +90,63 @@
 
         public async Task<TokenRequest?> RefreshAccessToken(string token, CancellationToken cancellation)
         {
-            var refreshToken = await _context.RefreshTokens.AsNoTracking().FirstOrDefaultAsync(c => c.Token == token, cancellation);
+            var refreshToken = await _context.RefreshTokens
+                .Include(c => c.User)
+                .ThenInclude(c => c.Permissions).ThenInclude(c => c.Role)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Token == token, cancellation);
 
             if (refreshToken == null || refreshToken.ExpiryTime < DateTime.UtcNow)
                 return null;
 
-            return new TokenRequest { AccessToken = GenerateAccessToken(refreshToken.UserId.ToString()), RefreshToken = refreshToken.Token };
-        }
+            if (refreshToken.User == null)
+                throw new NullReferenceException("User is null in the retrieved refresh token.");
 
-        public string GenerateAccessToken(string userId, List<string>? roles = null)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(_jwtSettings.Secret);
+            var roles = refreshToken.User.Permissions
+                .Select(p => p.Role.RoleName)
+                .ToArray() ?? Array.Empty<string>();
 
-            var claims = new List<Claim> { new Claim("id", userId) };
-            
-            if(roles != null)
+            return new TokenRequest
             {
-                foreach (var role in roles)
-                {
-                    claims.Add(new Claim(ClaimTypes.Role, role));
-                }
-            }
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes),
-                Issuer = _jwtSettings.Issuer,
-                Audience = _jwtSettings.Audience,
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+                AccessToken = _tokenService.GenerateAccessToken(refreshToken.UserId.ToString(), roles),
+                RefreshToken = refreshToken.Token
             };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
-        }
-
-        public string GenerateRefreshToken()
-        {
-            var randomNumber = new byte[32];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(randomNumber);
-                return Convert.ToBase64String(randomNumber);
-            }
         }
 
         public async Task<TokenRequest?> Login(LoginRequest request, CancellationToken cancellation)
         {
-            var user = await _context.Users.Include(c => c.Permissions).AsNoTracking().FirstOrDefaultAsync(c => c.Email == request.Email, cancellation);
+            var user = await _context.Users.Include(c => c.Permissions).ThenInclude(p => p.Role).AsNoTracking().FirstOrDefaultAsync(c => c.Email == request.Email, cancellation);
 
             if (user != null && BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
             {
-                var refreshToken = GenerateRefreshToken();
+                var refreshToken = _tokenService.GenerateRefreshToken();
 
-                await _context.RefreshTokens.AddAsync(new RefreshToken()
-                {
-                    Token = refreshToken,
-                    ExpiryTime = DateTime.Now.AddDays(30),
-                    UserId = user.Id
-                }, cancellation);
+                await _context.RefreshTokens.AddAsync(new RefreshToken() { UserId = user.Id, Token = refreshToken, ExpiryTime = DateTime.Now.AddDays(30) });
 
                 await _context.SaveChangesAsync(cancellation);
 
-                return new TokenRequest { AccessToken = GenerateAccessToken(user.Id.ToString(), user.Permissions.Select(c => c.Role.RoleName).ToList()), RefreshToken = refreshToken };
+                var roles = user.Permissions.Select(p => p.Role.RoleName).ToArray() ?? Array.Empty<string>();
+
+                return new TokenRequest
+                {
+                    AccessToken = _tokenService.GenerateAccessToken(user.Id.ToString(), roles),
+                    RefreshToken = refreshToken
+                };
             }
 
             return null;
+        }
+
+        public async Task Logout(string token, CancellationToken cancellation)
+        {
+            var refreshToken = await _context.RefreshTokens.Include(c => c.User).AsNoTracking().FirstOrDefaultAsync(c => c.Token == token, cancellation);
+
+            if(refreshToken != null)
+            {
+                _context.RefreshTokens.Remove(refreshToken);
+            }
+
+            await _context.SaveChangesAsync(cancellation);
         }
 
         public async Task<Result> Register(RegisterRequest request, CancellationToken cancellation)
@@ -158,7 +157,6 @@
             }
 
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
-
             var userName = request.Email.Split('@')[0];
 
             await _context.Users.AddAsync(new User
@@ -173,10 +171,6 @@
 
             return Result.Success();
         }
-
-        private string GenerateEmailConfirmationToken()
-        {
-            return Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
-        }
     }
+
 }

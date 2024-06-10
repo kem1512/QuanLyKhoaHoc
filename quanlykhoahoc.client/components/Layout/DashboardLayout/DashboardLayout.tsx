@@ -1,6 +1,6 @@
 "use client";
 
-import { AppShell, Breadcrumbs, Burger, Group, Text } from "@mantine/core";
+import { AppShell, Breadcrumbs, Burger, Group } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import React, { Suspense } from "react";
 import { DashboardNavbar } from "../../Navbar/Dashboard/DashboardNavbar";

@@ -17,6 +17,12 @@
             return Ok(await _jwtService.Login(request, cancellation));
         }
 
+        [HttpPost("logout")]
+        public async Task Logout(string token, CancellationToken cancellation)
+        {
+            await _jwtService.Logout(token, cancellation);
+        }
+
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterRequest request, CancellationToken cancellation)
         {

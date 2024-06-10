@@ -1,6 +1,6 @@
 "use client";
 
-import { Grid, SimpleGrid, TextInput } from "@mantine/core";
+import { Grid, TextInput } from "@mantine/core";
 import DashboardLayout from "../../components/Layout/DashboardLayout/DashboardLayout";
 import {
   ICertificateTypeMapping,

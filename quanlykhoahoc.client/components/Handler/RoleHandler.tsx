@@ -1,6 +1,6 @@
 "use client";
 
-import { SimpleGrid, TextInput } from "@mantine/core";
+import { Grid, SimpleGrid, TextInput } from "@mantine/core";
 import DashboardLayout from "../../components/Layout/DashboardLayout/DashboardLayout";
 import {
   IRoleMapping,
@@ -29,38 +29,44 @@ export default function RoleHandler({ id }: { id?: number }) {
 
   return (
     <DashboardLayout>
-      <SimpleGrid cols={{ base: 1, lg: 2 }}>
-        <TextInput
-          label="Tên Chủ Đề"
-          placeholder="Nhập Tên Chủ Đề"
-          value={role.roleName}
-          onChange={(e) =>
-            setRole((prev) => ({ ...prev, roleName: e.target.value }))
-          }
-          labelProps={{ style: { marginBottom: 6 } }}
-        />
-        <TextInput
-          label="Mã Vai Trò"
-          placeholder="Nhập Mã Vai Trò"
-          value={role.roleCode}
-          onChange={(e) =>
-            setRole((prev) => ({ ...prev, roleCode: e.target.value }))
-          }
-          labelProps={{ style: { marginBottom: 6 } }}
-        />
-        <ActionButton
-          size="xs"
-          action={() =>
-            handleSubmit(() => {
-              return id
-                ? RoleService.updateEntity(role.id, role as RoleUpdate)
-                : RoleService.createEntity(role as RoleCreate);
-            }, `${id ? "Sửa" : "Thêm"} Thành Công`)
-          }
-        >
-          Xác Nhận
-        </ActionButton>
-      </SimpleGrid>
+      <Grid>
+        <Grid.Col span={{ base: 12, lg: 6 }}>
+          <TextInput
+            label="Tên Chủ Đề"
+            placeholder="Nhập Tên Chủ Đề"
+            value={role.roleName}
+            onChange={(e) =>
+              setRole((prev) => ({ ...prev, roleName: e.target.value }))
+            }
+            labelProps={{ style: { marginBottom: 6 } }}
+          />
+        </Grid.Col>
+        <Grid.Col span={{ base: 12, lg: 6 }}>
+          <TextInput
+            label="Mã Vai Trò"
+            placeholder="Nhập Mã Vai Trò"
+            value={role.roleCode}
+            onChange={(e) =>
+              setRole((prev) => ({ ...prev, roleCode: e.target.value }))
+            }
+            labelProps={{ style: { marginBottom: 6 } }}
+          />
+        </Grid.Col>
+        <Grid.Col span={{ base: 12, lg: 6 }}>
+          <ActionButton
+            size="xs"
+            action={() =>
+              handleSubmit(() => {
+                return id
+                  ? RoleService.updateEntity(role.id, role as RoleUpdate)
+                  : RoleService.createEntity(role as RoleCreate);
+              }, `${id ? "Sửa" : "Thêm"} Thành Công`)
+            }
+          >
+            Xác Nhận
+          </ActionButton>
+        </Grid.Col>
+      </Grid>
     </DashboardLayout>
   );
 }

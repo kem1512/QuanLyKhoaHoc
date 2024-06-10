@@ -1,6 +1,6 @@
 "use client";
 
-import { Checkbox, SimpleGrid, TextInput } from "@mantine/core";
+import { Checkbox, Grid, TextInput } from "@mantine/core";
 import DashboardLayout from "../../components/Layout/DashboardLayout/DashboardLayout";
 import {
   ISubjectMapping,
@@ -32,49 +32,57 @@ export default function SubjectHandler({ id }: { id?: number }) {
 
   return (
     <DashboardLayout>
-      <SimpleGrid cols={{ base: 1, lg: 2 }}>
-        <TextInput
-          label="Tên Chủ Đề"
-          placeholder="Nhập Tên Chủ Đề"
-          value={subject.name}
-          onChange={(e) =>
-            setSubject((prev) => ({ ...prev, name: e.target.value }))
-          }
-          labelProps={{ style: { marginBottom: 6 } }}
-        />
-        <TextInput
-          label="Biểu Tượng"
-          placeholder="Nhập Biểu Tượng"
-          value={subject.symbol}
-          onChange={(e) =>
-            setSubject((prev) => ({ ...prev, symbol: e.target.value }))
-          }
-          labelProps={{ style: { marginBottom: 6 } }}
-        />
-        <Checkbox
-          size="sm"
-          label="Kích Hoạt"
-          checked={subject.isActive}
-          onChange={() =>
-            setSubject((prev) => ({ ...prev, isActive: !subject.isActive }))
-          }
-        />
-        <ActionButton
-          size="xs"
-          action={() =>
-            handleSubmit(() => {
-              return id
-                ? SubjectService.updateEntity(
-                    subject.id,
-                    subject as SubjectUpdate
-                  )
-                : SubjectService.createEntity(subject as SubjectCreate);
-            }, `${id ? "Sửa" : "Thêm"} Thành Công`)
-          }
-        >
-          Xác Nhận
-        </ActionButton>
-      </SimpleGrid>
+      <Grid>
+        <Grid.Col span={{ base: 12, lg: 6 }}>
+          <TextInput
+            label="Tên Chủ Đề"
+            placeholder="Nhập Tên Chủ Đề"
+            value={subject.name}
+            onChange={(e) =>
+              setSubject((prev) => ({ ...prev, name: e.target.value }))
+            }
+            labelProps={{ style: { marginBottom: 6 } }}
+          />
+        </Grid.Col>
+        <Grid.Col span={{ base: 12, lg: 6 }}>
+          <TextInput
+            label="Biểu Tượng"
+            placeholder="Nhập Biểu Tượng"
+            value={subject.symbol}
+            onChange={(e) =>
+              setSubject((prev) => ({ ...prev, symbol: e.target.value }))
+            }
+            labelProps={{ style: { marginBottom: 6 } }}
+          />
+        </Grid.Col>
+        <Grid.Col span={{ base: 12, lg: 6 }}>
+          <Checkbox
+            size="sm"
+            label="Kích Hoạt"
+            checked={subject.isActive}
+            onChange={() =>
+              setSubject((prev) => ({ ...prev, isActive: !subject.isActive }))
+            }
+          />
+        </Grid.Col>
+        <Grid.Col span={{ base: 12, lg: 6 }}>
+          <ActionButton
+            size="xs"
+            action={() =>
+              handleSubmit(() => {
+                return id
+                  ? SubjectService.updateEntity(
+                      subject.id,
+                      subject as SubjectUpdate
+                    )
+                  : SubjectService.createEntity(subject as SubjectCreate);
+              }, `${id ? "Sửa" : "Thêm"} Thành Công`)
+            }
+          >
+            Xác Nhận
+          </ActionButton>
+        </Grid.Col>
+      </Grid>
     </DashboardLayout>
   );
 }

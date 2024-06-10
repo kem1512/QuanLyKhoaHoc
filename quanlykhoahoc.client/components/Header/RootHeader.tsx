@@ -20,7 +20,7 @@ import { useDisclosure } from "@mantine/hooks";
 import classes from "./RootHeader.module.css";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Logo from "../Logo/Logo";
 import {
   IconHeart,
@@ -34,6 +34,9 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import ColorSchemeToggle from "../ColorSchemeToggle/ColorSchemeToggle";
+import { AuthClient } from "../../app/web-api-client";
+import Cookies from "js-cookie";
+import { logout } from "../../lib/userSlice";
 
 const mockdata = [
   { label: "Trang Chủ", value: "/" },
@@ -43,12 +46,17 @@ const mockdata = [
 ];
 
 export function RootHeader() {
+  const AuthService = new AuthClient();
+
   const theme = useMantineTheme();
 
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
     useDisclosure(false);
   const pathname = usePathname();
+
   const user = useSelector((state: any) => state.auth.user);
+
+  const dispatch = useDispatch();
 
   return (
     <Box>
@@ -160,6 +168,15 @@ export function RootHeader() {
                       Change account
                     </Menu.Item>
                     <Menu.Item
+                      onClick={async () => {
+                        try {
+                          await AuthService.logout(Cookies.get("refreshToken"));
+                        } finally {
+                          useDispatch;
+                          Cookies.remove("refreshToken");
+                          dispatch(logout());
+                        }
+                      }}
                       leftSection={
                         <IconLogout
                           style={{ width: rem(16), height: rem(16) }}
@@ -167,7 +184,7 @@ export function RootHeader() {
                         />
                       }
                     >
-                      Logout
+                      Đăng Xuất
                     </Menu.Item>
 
                     <Menu.Divider />

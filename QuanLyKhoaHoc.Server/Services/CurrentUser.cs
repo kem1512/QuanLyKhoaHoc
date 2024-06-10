@@ -1,7 +1,5 @@
 ﻿using System.Security.Claims;
 
-using QuanLyKhoaHoc.Application.Common.Interfaces;
-
 namespace Project1.Web.Services;
 public class CurrentUser : IUser
 {

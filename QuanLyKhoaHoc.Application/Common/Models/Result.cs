@@ -16,7 +16,7 @@ public class Result
 
     public static Result Success()
     {
-        return new Result(ResultStatus.Succeess, null);
+        return new Result(ResultStatus.Success, null);
     }
 
     public static Result Failure(string errors = "Lỗi Gì Đó")

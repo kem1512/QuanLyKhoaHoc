@@ -1,4 +1,6 @@
-﻿namespace QuanLyKhoaHoc.Application.Services
+﻿using BCrypt.Net;
+
+namespace QuanLyKhoaHoc.Application.Services
 {
     public class UserService : ApplicationServiceBase<UserMapping, UserQuery, UserCreate, UserUpdate>
     {
@@ -13,6 +15,8 @@
                 if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
                 var user = _mapper.Map<User>(entity);
+
+                user.Password = BCrypt.Net.BCrypt.HashPassword(entity.Password);
 
                 await _context.Users.AddAsync(user, cancellation);
 
@@ -114,6 +118,8 @@
                 {
                     return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Sửa");
                 }
+
+                user.Password = BCrypt.Net.BCrypt.HashPassword(entity.Password);
 
                 _context.Users.Update(_mapper.Map(entity, user));
 

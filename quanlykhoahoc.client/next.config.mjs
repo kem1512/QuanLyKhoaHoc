@@ -14,6 +14,9 @@ const nextConfig = {
       },
     ];
   },
+  publicRuntimeConfig: {
+    NEXT_PUBLIC_WEBSITE_TITLE: process.env.NEXT_PUBLIC_WEBSITE_TITLE,
+  },
 };
 
 export default nextConfig;
