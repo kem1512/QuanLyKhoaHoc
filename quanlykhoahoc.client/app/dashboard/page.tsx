@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Alert,
   Center,
   Group,
   Paper,
@@ -12,6 +13,8 @@ import {
 import DashboardLayout from "../../components/Layout/DashboardLayout/DashboardLayout";
 import { IconArrowUpRight, IconArrowDownRight } from "@tabler/icons-react";
 import { BarChart, DonutChart } from "@mantine/charts";
+import useSWR from "swr";
+import { StatisticalClient } from "../web-api-client";
 
 const icons = {
   up: IconArrowUpRight,
@@ -43,6 +46,11 @@ const data = [
 ];
 
 export default function Dashboard() {
+  const { data: check } = useSWR("/api/statistical", () =>
+    new StatisticalClient().check()
+  );
+
+  if (!check) return null;
   const stats = data.map((stat) => {
     const Icon = icons[stat.icon];
     return (
@@ -85,7 +93,12 @@ export default function Dashboard() {
         <BarChart
           h={300}
           data={[
-            { month: "January", Smartphones: 1200, Laptops: 900, Tablets: 200 },
+            {
+              month: "January",
+              Smartphones: 1200,
+              Laptops: 900,
+              Tablets: 200,
+            },
             {
               month: "February",
               Smartphones: 1900,

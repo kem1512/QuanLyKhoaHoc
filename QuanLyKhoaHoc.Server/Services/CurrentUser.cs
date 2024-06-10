@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 
-namespace Project1.Web.Services;
+namespace QuanLyKhoaHoc.Server.Services;
 public class CurrentUser : IUser
 {
     private readonly IHttpContextAccessor _httpContextAccessor;

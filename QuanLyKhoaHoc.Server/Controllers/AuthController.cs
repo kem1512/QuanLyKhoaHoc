@@ -35,6 +35,18 @@
             return Ok(await _jwtService.RefreshAccessToken(refreshToken, cancellation));
         }
 
+        [HttpGet("ConfirmEmail")]
+        public async Task<ActionResult> ConfirmEmail(string token, CancellationToken cancellation)
+        {
+            return Ok(await _jwtService.ConfirmEmail(token, cancellation));
+        }
+
+        [HttpPost("SendConfirmEmail")]
+        public async Task<ActionResult> SendConfirmEmail(CancellationToken cancellation)
+        {
+            return Ok(await _jwtService.SendConfirmEmail(cancellation));
+        }
+
         [HttpGet("info")]
         public async Task<ActionResult<TokenRequest>> Info(CancellationToken cancellation)
         {

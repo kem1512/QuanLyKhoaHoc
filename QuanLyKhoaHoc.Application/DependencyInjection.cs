@@ -33,17 +33,6 @@ public static class DependencyInjection
 
         services.AddScoped<ApplicationServiceBase<CertificateTypeMapping, CertificateTypeQuery, CertificateTypeCreate, CertificateTypeUpdate>, CertificateTypeService>();
 
-        services.AddTransient(provider =>
-        {
-            var client = new SmtpClient("smtp.example.com")
-            {
-                Port = 587,
-                Credentials = new NetworkCredential("username", "password"),
-                EnableSsl = true,
-            };
-            return client;
-        });
-
         services.AddScoped<IEmailService, EmailService>();
 
         services.AddTransient<IAuthService, AuthService>();

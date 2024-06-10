@@ -4,6 +4,7 @@ import { Button, Grid, TextInput } from "@mantine/core";
 import { DateTimePicker } from "@mantine/dates";
 import { useEffect, useState } from "react";
 import {
+  AuthClient,
   IUserMapping,
   IUserUpdate,
   UserClient,
@@ -131,6 +132,21 @@ export default function ProfileInfo() {
             >
               Xác Nhận
             </Button>
+            {user.isActive === false && (
+              <Button
+                size="xs"
+                ms="xs"
+                color="grape"
+                onClick={async () =>
+                  handleSubmit(
+                     () => new AuthClient().sendConfirmEmail(),
+                    "Gửi Thành Công"
+                  )
+                }
+              >
+                Gửi Mã Xác Nhận
+              </Button>
+            )}
           </Grid.Col>
         </Grid>
       )}

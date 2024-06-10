@@ -11,5 +11,9 @@
         Task<Result> Register(RegisterRequest request, CancellationToken cancellation);
 
         Task<UserMapping?> UserInfo(CancellationToken cancellation);
+
+        Task<Result> ConfirmEmail(string token, CancellationToken cancellation);
+
+        Task<Result> SendConfirmEmail(CancellationToken cancellation);
     }
 }

@@ -1,8 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using QuanLyKhoaHoc.Domain.Constants;
-using QuanLyKhoaHoc.Domain.Entities;
-
-namespace QuanLyKhoaHoc.Infrastructure.Data;
+﻿namespace QuanLyKhoaHoc.Infrastructure.Data;
 
 public class ApplicationDbContextInitialiser
 {

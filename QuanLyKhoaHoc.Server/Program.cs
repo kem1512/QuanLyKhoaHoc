@@ -1,13 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Project1.Web.Services;
-using QuanLyKhoaHoc.Application.Common.Interfaces;
-using QuanLyKhoaHoc.Application.Common.Models;
-using QuanLyKhoaHoc.Infrastructure.Data;
-using System.Text;
-using System.Text.Json.Serialization;
-
-var builder = WebApplication.CreateBuilder(args);
+﻿var builder = WebApplication.CreateBuilder(args);
 
 // Cấu Hình Các Swagger
 builder.Services.AddEndpointsApiExplorer();

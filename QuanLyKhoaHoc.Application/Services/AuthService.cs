@@ -25,11 +25,16 @@
             _tokenService = tokenService;
         }
 
-        public async Task<Result> SendConfirmEmail(string token, CancellationToken cancellation)
+        public async Task<Result> SendConfirmEmail(CancellationToken cancellation)
         {
             if (_user.Id == null) return Result.Failure("Bạn Không Thể Yêu Cầu Gửi Email");
 
-            await _context.ConfirmEmails.AddAsync(new ConfirmEmail() { UserId = int.Parse(_user.Id), ConfirmCode = token, IsConfirm = false, ExpiryTime = DateTime.Now.AddMinutes(30) });
+            if(_context.ConfirmEmails.Any(c => !c.IsConfirm))
+            {
+                return Result.Failure("Bạn Có Yêu Cầu Chưa Xác Nhận");
+            }
+
+            await _context.ConfirmEmails.AddAsync(new ConfirmEmail() { UserId = int.Parse(_user.Id), ConfirmCode = _tokenService.GenerateEmailConfirmationToken(), IsConfirm = false, ExpiryTime = DateTime.Now.AddMinutes(30) });
 
             await _context.SaveChangesAsync(cancellation);
 
@@ -38,14 +43,16 @@
 
         public async Task<Result> ConfirmEmail(string token, CancellationToken cancellation)
         {
-            var confirmEmail = await _context.ConfirmEmails.FirstOrDefaultAsync(c => c.ConfirmCode == token, cancellation);
+            var confirmEmail = await _context.ConfirmEmails.Include(c => c.User).FirstOrDefaultAsync(c => c.ConfirmCode == token, cancellation);
 
             if (confirmEmail == null || confirmEmail.IsConfirm)
             {
                 return Result.Failure("Token Không Hợp Lệ Hoặc Tài Khoản Đã Được Kích Hoạt");
             }
 
-            confirmEmail.IsConfirm = true;
+            confirmEmail.User.IsActive = true;
+
+            _context.ConfirmEmails.Remove(confirmEmail);
 
             await _context.SaveChangesAsync(cancellation);
 
@@ -63,7 +70,7 @@
 
             var token = _tokenService.GenerateEmailConfirmationToken();
 
-            await SendConfirmEmail(token, cancellation);
+            await SendConfirmEmail(cancellation);
 
             var request = _httpContextAccessor.HttpContext.Request;
             var domain = $"{request.Scheme}://{request.Host}";
@@ -90,21 +97,12 @@
 
         public async Task<TokenRequest?> RefreshAccessToken(string token, CancellationToken cancellation)
         {
-            var refreshToken = await _context.RefreshTokens
-                .Include(c => c.User)
-                .ThenInclude(c => c.Permissions).ThenInclude(c => c.Role)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(c => c.Token == token, cancellation);
+            var refreshToken = await _context.RefreshTokens.Include(c => c.User).ThenInclude(c => c.Permissions).ThenInclude(c => c.Role).AsNoTracking().FirstOrDefaultAsync(c => c.Token == token, cancellation);
 
             if (refreshToken == null || refreshToken.ExpiryTime < DateTime.UtcNow)
                 return null;
 
-            if (refreshToken.User == null)
-                throw new NullReferenceException("User is null in the retrieved refresh token.");
-
-            var roles = refreshToken.User.Permissions
-                .Select(p => p.Role.RoleName)
-                .ToArray() ?? Array.Empty<string>();
+            var roles = refreshToken.User.Permissions.Select(p => p.Role.RoleName).ToArray() ?? Array.Empty<string>();
 
             return new TokenRequest
             {
@@ -156,18 +154,20 @@
                 return Result.Failure("Tên Người Dùng Hoặc Email Đã Tồn Tại");
             }
 
-            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
             var userName = request.Email.Split('@')[0];
 
             await _context.Users.AddAsync(new User
             {
                 Email = request.Email,
                 Username = userName,
-                Password = hashedPassword,
+                Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
                 FullName = userName,
+                IsActive = false,
             }, cancellation);
 
             await _context.SaveChangesAsync(cancellation);
+
+            await SendConfirmEmail(cancellation);
 
             return Result.Success();
         }
