@@ -161,6 +161,16 @@
           "Auth"
         ],
         "operationId": "Auth_SendConfirmEmail",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
         "responses": {
           "200": {
             "description": "",

@@ -25,18 +25,30 @@
             _tokenService = tokenService;
         }
 
-        public async Task<Result> SendConfirmEmail(CancellationToken cancellation)
+        public async Task<Result> SendConfirmEmail(string email, CancellationToken cancellation)
         {
-            if (_user.Id == null) return Result.Failure("Bạn Không Thể Yêu Cầu Gửi Email");
+            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(c => c.Email == email);
 
-            if(_context.ConfirmEmails.Any(c => !c.IsConfirm))
+            if (user == null) return Result.Failure();
+
+            var token = _tokenService.GenerateEmailConfirmationToken();
+
+            await _context.ConfirmEmails.AddAsync(new ConfirmEmail()
             {
-                return Result.Failure("Bạn Có Yêu Cầu Chưa Xác Nhận");
-            }
-
-            await _context.ConfirmEmails.AddAsync(new ConfirmEmail() { UserId = int.Parse(_user.Id), ConfirmCode = _tokenService.GenerateEmailConfirmationToken(), IsConfirm = false, ExpiryTime = DateTime.Now.AddMinutes(30) });
+                UserId = user.Id,
+                ConfirmCode = token,
+                IsConfirm = false,
+                ExpiryTime = DateTime.Now.AddMinutes(30)
+            });
 
             await _context.SaveChangesAsync(cancellation);
+
+            var request = _httpContextAccessor.HttpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}{request.PathBase}";
+
+            var confirmationLink = $"{baseUrl}/api/auth/confirmEmail?token={token}";
+
+            await _emailService.SendEmailAsync(email, "Mã Xác Nhận", $"Mã Xác Nhận Của Bạn Là: {confirmationLink}");
 
             return Result.Success();
         }
@@ -70,7 +82,7 @@
 
             var token = _tokenService.GenerateEmailConfirmationToken();
 
-            await SendConfirmEmail(cancellation);
+            await SendConfirmEmail(email, cancellation);
 
             var request = _httpContextAccessor.HttpContext.Request;
             var domain = $"{request.Scheme}://{request.Host}";
@@ -156,18 +168,20 @@
 
             var userName = request.Email.Split('@')[0];
 
-            await _context.Users.AddAsync(new User
+            var user = new User
             {
                 Email = request.Email,
                 Username = userName,
                 Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
                 FullName = userName,
                 IsActive = false,
-            }, cancellation);
+            };
+
+            await _context.Users.AddAsync(user, cancellation);
 
             await _context.SaveChangesAsync(cancellation);
 
-            await SendConfirmEmail(cancellation);
+            await SendConfirmEmail(user.Email, cancellation);
 
             return Result.Success();
         }

@@ -33,8 +33,6 @@ public static class DependencyInjection
 
         services.AddScoped<ApplicationServiceBase<CertificateTypeMapping, CertificateTypeQuery, CertificateTypeCreate, CertificateTypeUpdate>, CertificateTypeService>();
 
-        services.AddScoped<IEmailService, EmailService>();
-
         services.AddTransient<IAuthService, AuthService>();
 
         services.AddTransient<ITokenService, TokenService>();

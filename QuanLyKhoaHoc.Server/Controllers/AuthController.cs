@@ -42,9 +42,9 @@
         }
 
         [HttpPost("SendConfirmEmail")]
-        public async Task<ActionResult> SendConfirmEmail(CancellationToken cancellation)
+        public async Task<ActionResult> SendConfirmEmail(string email, CancellationToken cancellation)
         {
-            return Ok(await _jwtService.SendConfirmEmail(cancellation));
+            return Ok(await _jwtService.SendConfirmEmail(email, cancellation));
         }
 
         [HttpGet("info")]

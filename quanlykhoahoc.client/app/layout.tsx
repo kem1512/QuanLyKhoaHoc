@@ -9,7 +9,7 @@ import { MantineProvider, ColorSchemeScript } from "@mantine/core";
 import { theme } from "../theme";
 
 export const metadata = {
-  title: process.env.WEBSITE_TITLE,
+  title: process.env.NEXT_PUBLIC_WEBSITE_TITLE,
 };
 
 export default function RootLayout({ children }: { children: any }) {

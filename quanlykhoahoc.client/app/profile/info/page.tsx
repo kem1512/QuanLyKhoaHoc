@@ -139,7 +139,7 @@ export default function ProfileInfo() {
                 color="grape"
                 onClick={async () =>
                   handleSubmit(
-                     () => new AuthClient().sendConfirmEmail(),
+                     () => new AuthClient().sendConfirmEmail(user.email),
                     "Gửi Thành Công"
                   )
                 }

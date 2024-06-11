@@ -14,6 +14,6 @@
 
         Task<Result> ConfirmEmail(string token, CancellationToken cancellation);
 
-        Task<Result> SendConfirmEmail(CancellationToken cancellation);
+        Task<Result> SendConfirmEmail(string email, CancellationToken cancellation);
     }
 }

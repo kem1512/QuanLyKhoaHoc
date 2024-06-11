@@ -1,6 +1,6 @@
 ﻿namespace QuanLyKhoaHoc.Application.Services
 {
-    internal class EmailService : IEmailService
+    public class EmailService : IEmailService
     {
         private readonly SmtpClient _smtpClient;
 
@@ -18,7 +18,7 @@
 
             var mailMessage = new MailMessage
             {
-                From = new MailAddress("Hệ Thống"),
+                From = new MailAddress("admin@nguyenviethaidang.id.vn"),
                 Subject = subject,
                 Body = body,
                 IsBodyHtml = true,

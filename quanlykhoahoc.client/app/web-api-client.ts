@@ -225,8 +225,12 @@ export class AuthClient {
         return Promise.resolve<FileResponse>(null as any);
     }
 
-    sendConfirmEmail(): Promise<FileResponse> {
-        let url_ = this.baseUrl + "/api/Auth/SendConfirmEmail";
+    sendConfirmEmail(email: string | undefined): Promise<FileResponse> {
+        let url_ = this.baseUrl + "/api/Auth/SendConfirmEmail?";
+        if (email === null)
+            throw new Error("The parameter 'email' cannot be null.");
+        else if (email !== undefined)
+            url_ += "email=" + encodeURIComponent("" + email) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
