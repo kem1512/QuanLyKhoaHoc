@@ -37,12 +37,12 @@
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure();
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {

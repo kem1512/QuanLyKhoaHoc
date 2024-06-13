@@ -10,6 +10,8 @@ async function TryFetch(action) {
   try {
     var response = await action();
 
+    console.log(response);
+
     var error = response?.error;
 
     if (error) {
@@ -42,7 +44,7 @@ export async function handleSubmit(action, message) {
 export function useQuery() {
   const searchParams = useSearchParams();
 
-  const { filters, sorts, page, pageSize } = useMemo(() => {
+  const { filters, sorts, page, pageSize, commentId } = useMemo(() => {
     return Object.fromEntries(searchParams.entries());
   }, [searchParams]);
 
@@ -52,8 +54,9 @@ export function useQuery() {
       sorts: sorts,
       page: page,
       pageSize: pageSize,
+      commentId: commentId
     };
-  }, [filters, sorts, page, pageSize]);
+  }, [filters, sorts, page, pageSize, commentId]);
 
   return query;
 }

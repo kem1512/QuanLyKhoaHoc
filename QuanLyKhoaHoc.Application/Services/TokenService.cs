@@ -9,7 +9,7 @@
             _jwtSettings = jwtSettings.Value;
         }
 
-        public string GenerateAccessToken(string userId, string[]? roles)
+        public string GenerateAccessToken(string userId, string[]? roles, string certificate)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -23,6 +23,11 @@
                 {
                     claims.Add(new Claim(ClaimTypes.Role, role));
                 }
+            }
+
+            if (certificate != null)
+            {
+                claims.Add(new Claim("Certificate", certificate));
             }
 
             var tokenDescriptor = new SecurityTokenDescriptor

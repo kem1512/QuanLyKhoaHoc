@@ -1,6 +1,4 @@
-﻿using BCrypt.Net;
-
-namespace QuanLyKhoaHoc.Application.Services
+﻿namespace QuanLyKhoaHoc.Application.Services
 {
     public class UserService : ApplicationServiceBase<UserMapping, UserQuery, UserCreate, UserUpdate>
     {
@@ -14,6 +12,11 @@ namespace QuanLyKhoaHoc.Application.Services
             {
                 if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
+                if (!_user.IsAdministrator)
+                {
+                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Thêm");
+                }
+
                 var user = _mapper.Map<User>(entity);
 
                 user.Password = BCrypt.Net.BCrypt.HashPassword(entity.Password);
@@ -22,12 +25,12 @@ namespace QuanLyKhoaHoc.Application.Services
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure();
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {
@@ -48,7 +51,8 @@ namespace QuanLyKhoaHoc.Application.Services
                     return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
-                if (user.Id != int.Parse(_user.Id))
+
+                if (user.Id != int.Parse(_user.Id) && !_user.IsAdministrator)
                 {
                     return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Xóa");
                 }
@@ -57,12 +61,12 @@ namespace QuanLyKhoaHoc.Application.Services
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure();
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {
@@ -86,7 +90,7 @@ namespace QuanLyKhoaHoc.Application.Services
 
         public override async Task<UserMapping?> Get(int id, CancellationToken cancellation)
         {
-            var user = await _context.Users.Include(c => c.Province).Include(c => c.District).Include(c => c.Ward).FirstOrDefaultAsync(c => c.Id == id, cancellation);
+            var user = await _context.Users.Include(c => c.Province).Include(c => c.District).Include(c => c.Ward).Include(c => c.Certificate).Include(c => c.Permissions).ThenInclude(c => c.Role).FirstOrDefaultAsync(c => c.Id == id, cancellation);
 
             if (user == null)
             {
@@ -107,30 +111,40 @@ namespace QuanLyKhoaHoc.Application.Services
                     return Result.Failure("ID Phải Giống Nhau");
                 }
 
-                var user = await _context.Users.FindAsync(new object[] { id }, cancellation);
+                var user = await _context.Users.Include(c => c.Permissions).AsNoTracking().FirstOrDefaultAsync(c => c.Id == id, cancellation);
 
                 if (user == null)
                 {
                     return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
-                if (user.Id != int.Parse(_user.Id))
+                if (user.Id != int.Parse(_user.Id) && !_user.IsAdministrator)
                 {
                     return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Sửa");
                 }
 
-                user.Password = BCrypt.Net.BCrypt.HashPassword(entity.Password);
+                var currentPermissionIds = user.Permissions.Select(cs => cs.Id).ToList();
+
+                var updatedPermissionIds = entity.Permissions.Select(cs => cs.Id).ToList();
+
+                var permissionsToRemove = user.Permissions
+                    .Where(cs => !updatedPermissionIds.Contains(cs.Id))
+                    .ToList();
+
+                _context.Permissions.RemoveRange(permissionsToRemove);
+
+                user.UpdateTime = DateTime.UtcNow;
 
                 _context.Users.Update(_mapper.Map(entity, user));
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure();
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {

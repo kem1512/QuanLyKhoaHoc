@@ -37,6 +37,13 @@ public class ApplicationDbContextInitialiser
     {
         var administratorRole = new Role() { RoleName = Roles.Administrator, RoleCode = "administrator" };
 
+        var instructorCertificate = new CertificateType() { Name = "Chứng Chỉ Hệ Thống", Certificates = new List<Certificate>() { new Certificate() { Name = "Chứng Chỉ Giảng Viên", Description = "Thêm Khóa Học Cho Hệ Thống", Image = "/images/1.png" } } };
+
+        if (!instructorCertificate.Certificates.Any(c => c.Name == Certificates.InstructorCertificate))
+        {
+            await _context.CertificateTypes.AddAsync(instructorCertificate);
+        }
+
         var administrator = new User()
         {
             Username = "admin@khoahocviet.nguyenviethaidang.id.vn",

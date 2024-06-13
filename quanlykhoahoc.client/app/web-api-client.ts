@@ -1023,8 +1023,10 @@ export class CommentBlogClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    getEntities(blogId: number | null | undefined, filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfCommentBlogMapping> {
+    getEntities(parentId: number | null | undefined, blogId: number | null | undefined, filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfCommentBlogMapping> {
         let url_ = this.baseUrl + "/api/CommentBlog?";
+        if (parentId !== undefined && parentId !== null)
+            url_ += "ParentId=" + encodeURIComponent("" + parentId) + "&";
         if (blogId !== undefined && blogId !== null)
             url_ += "BlogId=" + encodeURIComponent("" + blogId) + "&";
         if (filters !== undefined && filters !== null)
@@ -6279,6 +6281,7 @@ export class CommentBlog implements ICommentBlog {
     parentId?: number | undefined;
     content?: string;
     edited?: boolean;
+    replyCount?: number;
     blog?: Blog;
     user?: User;
     parent?: CommentBlog;
@@ -6301,6 +6304,7 @@ export class CommentBlog implements ICommentBlog {
             this.parentId = _data["parentId"];
             this.content = _data["content"];
             this.edited = _data["edited"];
+            this.replyCount = _data["replyCount"];
             this.blog = _data["blog"] ? Blog.fromJS(_data["blog"]) : <any>undefined;
             this.user = _data["user"] ? User.fromJS(_data["user"]) : <any>undefined;
             this.parent = _data["parent"] ? CommentBlog.fromJS(_data["parent"]) : <any>undefined;
@@ -6327,6 +6331,7 @@ export class CommentBlog implements ICommentBlog {
         data["parentId"] = this.parentId;
         data["content"] = this.content;
         data["edited"] = this.edited;
+        data["replyCount"] = this.replyCount;
         data["blog"] = this.blog ? this.blog.toJSON() : <any>undefined;
         data["user"] = this.user ? this.user.toJSON() : <any>undefined;
         data["parent"] = this.parent ? this.parent.toJSON() : <any>undefined;
@@ -6346,6 +6351,7 @@ export interface ICommentBlog {
     parentId?: number | undefined;
     content?: string;
     edited?: boolean;
+    replyCount?: number;
     blog?: Blog;
     user?: User;
     parent?: CommentBlog;
@@ -10135,6 +10141,7 @@ export class UserMapping implements IUserMapping {
     province?: ProvinceMapping;
     certificate?: CertificateMapping;
     ward?: WardMapping;
+    permissions?: PermissionMapping[];
 
     constructor(data?: IUserMapping) {
         if (data) {
@@ -10166,6 +10173,11 @@ export class UserMapping implements IUserMapping {
             this.province = _data["province"] ? ProvinceMapping.fromJS(_data["province"]) : <any>undefined;
             this.certificate = _data["certificate"] ? CertificateMapping.fromJS(_data["certificate"]) : <any>undefined;
             this.ward = _data["ward"] ? WardMapping.fromJS(_data["ward"]) : <any>undefined;
+            if (Array.isArray(_data["permissions"])) {
+                this.permissions = [] as any;
+                for (let item of _data["permissions"])
+                    this.permissions!.push(PermissionMapping.fromJS(item));
+            }
         }
     }
 
@@ -10197,6 +10209,11 @@ export class UserMapping implements IUserMapping {
         data["province"] = this.province ? this.province.toJSON() : <any>undefined;
         data["certificate"] = this.certificate ? this.certificate.toJSON() : <any>undefined;
         data["ward"] = this.ward ? this.ward.toJSON() : <any>undefined;
+        if (Array.isArray(this.permissions)) {
+            data["permissions"] = [];
+            for (let item of this.permissions)
+                data["permissions"].push(item.toJSON());
+        }
         return data;
     }
 }
@@ -10221,6 +10238,7 @@ export interface IUserMapping {
     province?: ProvinceMapping;
     certificate?: CertificateMapping;
     ward?: WardMapping;
+    permissions?: PermissionMapping[];
 }
 
 export class WardMapping implements IWardMapping {
@@ -10267,23 +10285,69 @@ export interface IWardMapping {
     name?: string;
 }
 
+export class PermissionMapping implements IPermissionMapping {
+    id?: number;
+    userId?: number;
+    roleId?: number;
+    role?: RoleMapping;
+
+    constructor(data?: IPermissionMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.userId = _data["userId"];
+            this.roleId = _data["roleId"];
+            this.role = _data["role"] ? RoleMapping.fromJS(_data["role"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): PermissionMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new PermissionMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["userId"] = this.userId;
+        data["roleId"] = this.roleId;
+        data["role"] = this.role ? this.role.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IPermissionMapping {
+    id?: number;
+    userId?: number;
+    roleId?: number;
+    role?: RoleMapping;
+}
+
 export class UserCreate implements IUserCreate {
     districtId?: number | undefined;
     provinceId?: number | undefined;
     certificateId?: number | undefined;
     wardId?: number | undefined;
     username?: string;
-    createTime?: Date;
     avatar?: string | undefined;
     email?: string;
-    updateTime?: Date;
-    password?: string;
     fullName?: string;
     dateOfBirth?: Date;
     isActive?: boolean;
     address?: string | undefined;
+    password?: string;
     userStatus?: UserStatus;
-    permissions?: Permission[];
+    permissions?: PermissionMapping[];
 
     constructor(data?: IUserCreate) {
         if (data) {
@@ -10301,20 +10365,18 @@ export class UserCreate implements IUserCreate {
             this.certificateId = _data["certificateId"];
             this.wardId = _data["wardId"];
             this.username = _data["username"];
-            this.createTime = _data["createTime"] ? new Date(_data["createTime"].toString()) : <any>undefined;
             this.avatar = _data["avatar"];
             this.email = _data["email"];
-            this.updateTime = _data["updateTime"] ? new Date(_data["updateTime"].toString()) : <any>undefined;
-            this.password = _data["password"];
             this.fullName = _data["fullName"];
             this.dateOfBirth = _data["dateOfBirth"] ? new Date(_data["dateOfBirth"].toString()) : <any>undefined;
             this.isActive = _data["isActive"];
             this.address = _data["address"];
+            this.password = _data["password"];
             this.userStatus = _data["userStatus"];
             if (Array.isArray(_data["permissions"])) {
                 this.permissions = [] as any;
                 for (let item of _data["permissions"])
-                    this.permissions!.push(Permission.fromJS(item));
+                    this.permissions!.push(PermissionMapping.fromJS(item));
             }
         }
     }
@@ -10333,15 +10395,13 @@ export class UserCreate implements IUserCreate {
         data["certificateId"] = this.certificateId;
         data["wardId"] = this.wardId;
         data["username"] = this.username;
-        data["createTime"] = this.createTime ? this.createTime.toISOString() : <any>undefined;
         data["avatar"] = this.avatar;
         data["email"] = this.email;
-        data["updateTime"] = this.updateTime ? this.updateTime.toISOString() : <any>undefined;
-        data["password"] = this.password;
         data["fullName"] = this.fullName;
         data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
         data["isActive"] = this.isActive;
         data["address"] = this.address;
+        data["password"] = this.password;
         data["userStatus"] = this.userStatus;
         if (Array.isArray(this.permissions)) {
             data["permissions"] = [];
@@ -10358,17 +10418,15 @@ export interface IUserCreate {
     certificateId?: number | undefined;
     wardId?: number | undefined;
     username?: string;
-    createTime?: Date;
     avatar?: string | undefined;
     email?: string;
-    updateTime?: Date;
-    password?: string;
     fullName?: string;
     dateOfBirth?: Date;
     isActive?: boolean;
     address?: string | undefined;
+    password?: string;
     userStatus?: UserStatus;
-    permissions?: Permission[];
+    permissions?: PermissionMapping[];
 }
 
 export class UserUpdate implements IUserUpdate {
@@ -10378,17 +10436,14 @@ export class UserUpdate implements IUserUpdate {
     certificateId?: number | undefined;
     wardId?: number | undefined;
     username?: string;
-    createTime?: Date;
     avatar?: string | undefined;
     email?: string;
-    updateTime?: Date;
-    password?: string;
     fullName?: string;
     dateOfBirth?: Date;
     isActive?: boolean;
     address?: string | undefined;
     userStatus?: UserStatus;
-    permissions?: Permission[];
+    permissions?: PermissionMapping[];
 
     constructor(data?: IUserUpdate) {
         if (data) {
@@ -10407,11 +10462,8 @@ export class UserUpdate implements IUserUpdate {
             this.certificateId = _data["certificateId"];
             this.wardId = _data["wardId"];
             this.username = _data["username"];
-            this.createTime = _data["createTime"] ? new Date(_data["createTime"].toString()) : <any>undefined;
             this.avatar = _data["avatar"];
             this.email = _data["email"];
-            this.updateTime = _data["updateTime"] ? new Date(_data["updateTime"].toString()) : <any>undefined;
-            this.password = _data["password"];
             this.fullName = _data["fullName"];
             this.dateOfBirth = _data["dateOfBirth"] ? new Date(_data["dateOfBirth"].toString()) : <any>undefined;
             this.isActive = _data["isActive"];
@@ -10420,7 +10472,7 @@ export class UserUpdate implements IUserUpdate {
             if (Array.isArray(_data["permissions"])) {
                 this.permissions = [] as any;
                 for (let item of _data["permissions"])
-                    this.permissions!.push(Permission.fromJS(item));
+                    this.permissions!.push(PermissionMapping.fromJS(item));
             }
         }
     }
@@ -10440,11 +10492,8 @@ export class UserUpdate implements IUserUpdate {
         data["certificateId"] = this.certificateId;
         data["wardId"] = this.wardId;
         data["username"] = this.username;
-        data["createTime"] = this.createTime ? this.createTime.toISOString() : <any>undefined;
         data["avatar"] = this.avatar;
         data["email"] = this.email;
-        data["updateTime"] = this.updateTime ? this.updateTime.toISOString() : <any>undefined;
-        data["password"] = this.password;
         data["fullName"] = this.fullName;
         data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
         data["isActive"] = this.isActive;
@@ -10466,17 +10515,14 @@ export interface IUserUpdate {
     certificateId?: number | undefined;
     wardId?: number | undefined;
     username?: string;
-    createTime?: Date;
     avatar?: string | undefined;
     email?: string;
-    updateTime?: Date;
-    password?: string;
     fullName?: string;
     dateOfBirth?: Date;
     isActive?: boolean;
     address?: string | undefined;
     userStatus?: UserStatus;
-    permissions?: Permission[];
+    permissions?: PermissionMapping[];
 }
 
 export class PagingModelOfWardMapping implements IPagingModelOfWardMapping {

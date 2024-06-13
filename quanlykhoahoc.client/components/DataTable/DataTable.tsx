@@ -17,7 +17,7 @@ import {
 import useSWR from "swr";
 import DashboardLayout from "../Layout/DashboardLayout/DashboardLayout";
 import Link from "next/link";
-import { IconDots } from "@tabler/icons-react";
+import { IconArrowDown, IconArrowUp, IconDots } from "@tabler/icons-react";
 import { modals } from "@mantine/modals";
 import { handleSubmit, useQuery, useSort, useFilter } from "../../lib/helper";
 import AppPagination from "../../components/AppPagination/AppPagination";
@@ -141,10 +141,16 @@ export default function DataTable({
         <Table>
           <Table.Thead>
             <Table.Tr>
-              {/* <Table.Th>#</Table.Th> */}
               {fields.map((item) => (
                 <Table.Th onClick={() => handleSort(item)} key={item}>
-                  {item}
+                  <Flex justify={"space-between"}>
+                    {item}
+                    {query.sorts?.includes(`-${item}`) ? (
+                      <IconArrowDown width={13} />
+                    ) : (
+                      <IconArrowUp width={13} />
+                    )}
+                  </Flex>
                 </Table.Th>
               ))}
             </Table.Tr>
@@ -152,11 +158,8 @@ export default function DataTable({
           <Table.Tbody>
             {!isLoading ? (
               data?.items?.length && data.items.length >= 0 ? (
-                data.items.map((item, index) => (
+                data.items.map((item) => (
                   <Table.Tr key={item.id}>
-                    {/* <Table.Td>
-                      {index + 1 + (data.pageNumber - 1) * data.pageSize}
-                    </Table.Td> */}
                     {fields.map((field) => {
                       const value = item[field];
                       return (
@@ -174,7 +177,7 @@ export default function DataTable({
                               {value ? "Đang Kích Hoạt" : "Không Kích Hoạt"}
                             </Badge>
                           ) : (
-                            value
+                            value ?? "Trống"
                           )}
                         </Table.Td>
                       );

@@ -18,6 +18,8 @@
     }
 
     public class CommentBlogQuery : QueryModel {
+        public int? ParentId { get; set; }
+
         public int? BlogId { get; set; }
     }
 

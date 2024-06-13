@@ -14,12 +14,7 @@ export default function DashboardUser() {
           c !== "province" &&
           c !== "district" &&
           c !== "ward" &&
-          c !== "provinceId" &&
-          c !== "districtId" &&
-          c !== "wardId" &&
-          c !== "certificate" &&
-          c !== "certificateId" &&
-          c !== "id"
+          c !== "certificate"
       )}
       deleteAction={(id) => UserService.deleteEntity(id)}
       fetchAction={(filters, sorts, page, pageSize) =>

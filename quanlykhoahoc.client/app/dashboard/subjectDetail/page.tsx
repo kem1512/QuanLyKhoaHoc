@@ -1,6 +1,9 @@
 "use client";
 
-import { SubjectDetailClient, SubjectDetailMapping } from "../../web-api-client";
+import {
+  SubjectDetailClient,
+  SubjectDetailMapping,
+} from "../../web-api-client";
 import DataTable from "../../../components/DataTable/DataTable";
 
 export default function DashboardSubjectDetail() {

@@ -10,17 +10,23 @@
         {
             try
             {
+                if (!_user.IsAdministrator)
+                {
+                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Thêm");
+                }
+
                 var province = _mapper.Map<Province>(entity);
+
                 await _context.Provinces.AddAsync(province, cancellation);
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure("Lỗi Gì Đó");
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {
@@ -32,6 +38,11 @@
         {
             try
             {
+                if (!_user.IsAdministrator)
+                {
+                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Xóa");
+                }
+
                 var province = await _context.Provinces.FindAsync(new object[] { id }, cancellation);
 
                 if (province == null)
@@ -43,12 +54,12 @@
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure("Lỗi Gì Đó");
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {
@@ -86,6 +97,11 @@
         {
             try
             {
+                if (!_user.IsAdministrator)
+                {
+                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Cập Nhật");
+                }
+
                 if (entity.Id != id)
                 {
                     return Result.Failure("ID Phải Giống Nhau");
@@ -104,12 +120,12 @@
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure("Lỗi Gì Đó");
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {

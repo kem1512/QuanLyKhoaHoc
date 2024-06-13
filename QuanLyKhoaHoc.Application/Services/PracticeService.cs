@@ -10,17 +10,24 @@
         {
             try
             {
+
+                if (!_user.IsInstructorCertificate && !_user.IsAdministrator)
+                {
+                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Thêm");
+                }
+
                 var practice = _mapper.Map<Practice>(entity);
+
                 await _context.Practices.AddAsync(practice, cancellation);
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure("Lỗi Gì Đó");
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {
@@ -32,6 +39,12 @@
         {
             try
             {
+
+                if (!_user.IsInstructorCertificate && !_user.IsAdministrator)
+                {
+                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Xóa");
+                }
+
                 var practice = await _context.Practices.FindAsync(new object[] { id }, cancellation);
 
                 if (practice == null)
@@ -43,12 +56,12 @@
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure("Lỗi Gì Đó");
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {
@@ -98,18 +111,23 @@
                     return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
+                if (!_user.IsInstructorCertificate && !_user.IsAdministrator)
+                {
+                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Thêm");
+                }
+
                 _mapper.Map(entity, practice);
 
                 _context.Practices.Update(practice);
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure("Lỗi Gì Đó");
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {

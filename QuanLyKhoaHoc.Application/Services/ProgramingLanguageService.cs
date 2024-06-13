@@ -12,18 +12,24 @@
             {
                 if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
+
+                if (!_user.IsAdministrator)
+                {
+                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Thêm");
+                }
+
                 var programingLanguage = _mapper.Map<ProgramingLanguage>(entity);
 
                 await _context.ProgramingLanguages.AddAsync(programingLanguage, cancellation);
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure();
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {
@@ -37,6 +43,12 @@
             {
                 if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
+
+                if (!_user.IsAdministrator)
+                {
+                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Xóa");
+                }
+
                 var programingLanguage = await _context.ProgramingLanguages.FindAsync(new object[] { id }, cancellation);
 
                 if (programingLanguage == null)
@@ -48,12 +60,12 @@
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure();
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {
@@ -93,6 +105,12 @@
             {
                 if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
+
+                if (!_user.IsAdministrator)
+                {
+                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Cập Nhật");
+                }
+
                 if (entity.Id != id)
                 {
                     return Result.Failure("ID Phải Giống Nhau");
@@ -109,12 +127,12 @@
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure();
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {

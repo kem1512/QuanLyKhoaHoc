@@ -74,6 +74,8 @@ namespace QuanLyKhoaHoc.Application
 
             CreateMap<CourseSubject, CourseSubjectMapping>().ReverseMap();
 
+            CreateMap<Permission, PermissionMapping>().ReverseMap();
+
             CreateMap<User, UserInfo>().ReverseMap();
             CreateMap<User, UserInfoUpdate>().ReverseMap();
         }

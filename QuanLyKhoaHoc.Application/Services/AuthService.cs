@@ -95,7 +95,7 @@
 
         public async Task<TokenRequest?> RefreshAccessToken(string token, CancellationToken cancellation)
         {
-            var refreshToken = await _context.RefreshTokens.Include(c => c.User).ThenInclude(c => c.Permissions).ThenInclude(c => c.Role).AsNoTracking().FirstOrDefaultAsync(c => c.Token == token, cancellation);
+            var refreshToken = await _context.RefreshTokens.Include(c => c.User).ThenInclude(c => c.Permissions).ThenInclude(c => c.Role).Include(c => c.User).ThenInclude(c => c.Certificate).AsNoTracking().FirstOrDefaultAsync(c => c.Token == token, cancellation);
 
             if (refreshToken == null || refreshToken.ExpiryTime < DateTime.UtcNow)
                 return null;
@@ -104,14 +104,14 @@
 
             return new TokenRequest
             {
-                AccessToken = _tokenService.GenerateAccessToken(refreshToken.UserId.ToString(), roles),
+                AccessToken = _tokenService.GenerateAccessToken(refreshToken.UserId.ToString(), roles, refreshToken.User.Certificate.Name),
                 RefreshToken = refreshToken.Token
             };
         }
 
         public async Task<TokenRequest?> Login(LoginRequest request, CancellationToken cancellation)
         {
-            var user = await _context.Users.Include(c => c.Permissions).ThenInclude(p => p.Role).AsNoTracking().FirstOrDefaultAsync(c => c.Email == request.Email, cancellation);
+            var user = await _context.Users.Include(c => c.Permissions).ThenInclude(p => p.Role).Include(c => c.Certificate).AsNoTracking().FirstOrDefaultAsync(c => c.Email == request.Email, cancellation);
 
             if (user != null && BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
             {
@@ -125,7 +125,7 @@
 
                 return new TokenRequest
                 {
-                    AccessToken = _tokenService.GenerateAccessToken(user.Id.ToString(), roles),
+                    AccessToken = _tokenService.GenerateAccessToken(user.Id.ToString(), roles, user.Certificate.Name),
                     RefreshToken = refreshToken
                 };
             }

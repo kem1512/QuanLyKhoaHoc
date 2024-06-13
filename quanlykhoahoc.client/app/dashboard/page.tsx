@@ -3,11 +3,13 @@
 import {
   Alert,
   Center,
+  Flex,
   Group,
   Paper,
   RingProgress,
   SimpleGrid,
   Text,
+  Title,
   rem,
 } from "@mantine/core";
 import DashboardLayout from "../../components/Layout/DashboardLayout/DashboardLayout";
@@ -46,11 +48,21 @@ const data = [
 ];
 
 export default function Dashboard() {
-  const { data: check } = useSWR("/api/statistical", () =>
-    new StatisticalClient().check()
+  const { data: check } = useSWR(
+    "/api/statistical",
+    () => new StatisticalClient().check(),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
   );
 
-  if (!check) return null;
+  if (!check)
+    return (
+      <Flex h={"100vh"} justify={"center"} align={"center"}>
+        <Title order={2}>Bạn Không Thể Truy Cập Vào Đây</Title>
+      </Flex>
+    );
   const stats = data.map((stat) => {
     const Icon = icons[stat.icon];
     return (

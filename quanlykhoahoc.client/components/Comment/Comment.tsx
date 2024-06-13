@@ -11,9 +11,10 @@ import {
   ActionIcon,
   Alert,
   Button,
+  Center,
 } from "@mantine/core";
 import classes from "./Comment.module.css";
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
 import {
   CommentBlogClient,
   CommentBlogCreate,
@@ -22,12 +23,14 @@ import {
 } from "../../app/web-api-client";
 import { handleSubmit, useQuery } from "../../lib/helper";
 import Editor from "../Editor/RichTextEditor/RichTextEditor";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ActionButton from "../Helper/ActionButton";
 import { IconDots } from "@tabler/icons-react";
 import Loading from "../Loading/Loading";
 import { modals } from "@mantine/modals";
 import { useSelector } from "react-redux";
+import Link from "next/link";
+import AppPagination from "../AppPagination/AppPagination";
 
 export function Comment({ blogId }: { blogId: number }) {
   const query = useQuery();
@@ -43,14 +46,15 @@ export function Comment({ blogId }: { blogId: number }) {
   });
 
   const { data, mutate, isLoading } = useSWR(
-    `/api/commentBlog/${blogId}`,
+    `/api/commentBlog/${blogId}/${new URLSearchParams(query)}`,
     () =>
       new CommentBlogClient().getEntities(
+        query.commentId ? parseInt(query.commentId) : null,
         blogId,
         query.filters,
         query.sorts,
         query.page ? parseInt(query.page) : 1,
-        query.pageSize ? parseInt(query.pageSize) : 10
+        query.pageSize ? parseInt(query.pageSize) : 5
       ),
     {
       revalidateOnFocus: false,
@@ -71,7 +75,9 @@ export function Comment({ blogId }: { blogId: number }) {
       onConfirm: () =>
         handleSubmit(() => {
           return CommentBlogService.deleteEntity(id);
-        }, "Xóa Thành Công").then(() => mutate()),
+        }, "Xóa Thành Công")
+          .then(() => mutate())
+          .then(() => mutate()),
     });
   };
 
@@ -120,65 +126,78 @@ export function Comment({ blogId }: { blogId: number }) {
       {isLoading ? (
         <Loading />
       ) : data?.items?.length && data.items.length >= 0 ? (
-        data.items.map((item) => {
-          return (
-            <Paper withBorder radius="md" className={classes.comment}>
-              <Group justify="space-between">
-                <Group>
+        <>
+          {data.items.map((item) => {
+            return (
+              <Paper
+                withBorder
+                radius="md"
+                className={classes.comment}
+                data-active={
+                  item.id.toString() === query.commentId || undefined
+                }
+              >
+                <Group justify="space-between">
                   <Avatar
                     src={item.user.avatar}
                     alt={item.user?.username}
                     radius="xl"
                   />
-                  <Text fz="sm" fw={"bold"}>
-                    {item.user?.username}
-                  </Text>
+                  <Stack me={"auto"} gap={5}>
+                    <Text fz="sm" fw={"bold"}>
+                      {item.user?.username}
+                    </Text>
+                    <TypographyStylesProvider>
+                      <div
+                        style={{ fontSize: "var(--mantine-font-size-sm)" }}
+                        dangerouslySetInnerHTML={{
+                          __html: item?.content,
+                        }}
+                      />
+                    </TypographyStylesProvider>
+                    {item.parentId ? (
+                      <Link href={`/blog/${blogId}?commentId=${item.parentId}`}>
+                        <Text fz={"sm"}>Xem Bình Luận</Text>
+                      </Link>
+                    ) : undefined}
+                  </Stack>
+                  <Menu>
+                    <Menu.Target>
+                      <ActionIcon variant="transparent">
+                        <IconDots width={20} />
+                      </ActionIcon>
+                    </Menu.Target>
+                    <Menu.Dropdown>
+                      {user.email === item.user.email && (
+                        <>
+                          <Menu.Item onClick={() => setCommentBlog(item)}>
+                            Sửa
+                          </Menu.Item>
+                          <Menu.Item onClick={() => handleDelete(item.id)}>
+                            Xóa
+                          </Menu.Item>
+                        </>
+                      )}
+                      <Menu.Item
+                        onClick={() =>
+                          setCommentBlog((prev) => ({
+                            ...prev,
+                            parentId: item.id,
+                          }))
+                        }
+                      >
+                        Trả Lời
+                      </Menu.Item>
+                    </Menu.Dropdown>
+                  </Menu>
                 </Group>
-                <Menu>
-                  <Menu.Target>
-                    <ActionIcon variant="transparent">
-                      <IconDots width={20} />
-                    </ActionIcon>
-                  </Menu.Target>
-                  <Menu.Dropdown>
-                    {user.email === item.user.email && (
-                      <>
-                        <Menu.Item
-                          onClick={() =>
-                            setCommentBlog((prev) => ({ ...prev, id: item.id }))
-                          }
-                        >
-                          Sửa
-                        </Menu.Item>
-                        <Menu.Item onClick={() => handleDelete(item.id)}>
-                          Xóa
-                        </Menu.Item>
-                      </>
-                    )}
-                    <Menu.Item
-                      onClick={() =>
-                        setCommentBlog((prev) => ({
-                          ...prev,
-                          parentId: item.parentId,
-                        }))
-                      }
-                    >
-                      Trả Lời
-                    </Menu.Item>
-                  </Menu.Dropdown>
-                </Menu>
-              </Group>
-              <TypographyStylesProvider className={classes.body}>
-                <div
-                  className={classes.content}
-                  dangerouslySetInnerHTML={{
-                    __html: item?.content,
-                  }}
-                />
-              </TypographyStylesProvider>
-            </Paper>
-          );
-        })
+              </Paper>
+            );
+          })}
+          <Center>
+            <AppPagination page={data?.pageNumber} total={data?.totalPages} />
+          </Center>
+        </>
       ) : (
         <Alert>Chưa Có Bình Luận</Alert>
       )}

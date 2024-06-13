@@ -39,7 +39,9 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
 
     useEffect(() => {
       if (editor) {
-        editor.commands.setContent(content);
+        editor.commands.setContent(content, false, {
+          preserveWhitespace: "full",
+        });
       }
     }, [content, editor]);
 
@@ -104,6 +106,6 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
   }
 );
 
-Editor.displayName = 'Editor';
+Editor.displayName = "Editor";
 
 export default Editor;

@@ -1,7 +1,6 @@
 ﻿namespace QuanLyKhoaHoc.Server.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize(Roles = Roles.Administrator)]
     [ApiController]
     public class CourseController : BaseController<CourseMapping, CourseQuery, CourseCreate, CourseUpdate>
     {

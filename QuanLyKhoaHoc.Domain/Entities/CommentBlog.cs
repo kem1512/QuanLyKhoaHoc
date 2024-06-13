@@ -14,6 +14,8 @@
 
         public bool Edited { get; set; }
 
+        public int ReplyCount { get; set; }
+
         public Blog Blog { get; set; } = default!;
 
         public User User { get; set; } = default!;

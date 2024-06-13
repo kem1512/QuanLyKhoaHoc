@@ -840,7 +840,7 @@
         "operationId": "CommentBlog_GetEntities",
         "parameters": [
           {
-            "name": "BlogId",
+            "name": "ParentId",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -850,13 +850,23 @@
             "x-position": 1
           },
           {
+            "name": "BlogId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
             "name": "Filters",
             "in": "query",
             "schema": {
               "type": "string",
               "nullable": true
             },
-            "x-position": 2
+            "x-position": 3
           },
           {
             "name": "Sorts",
@@ -865,7 +875,7 @@
               "type": "string",
               "nullable": true
             },
-            "x-position": 3
+            "x-position": 4
           },
           {
             "name": "Page",
@@ -877,7 +887,7 @@
               "minimum": 1.0,
               "nullable": true
             },
-            "x-position": 4
+            "x-position": 5
           },
           {
             "name": "PageSize",
@@ -889,7 +899,7 @@
               "minimum": 1.0,
               "nullable": true
             },
-            "x-position": 5
+            "x-position": 6
           }
         ],
         "responses": {
@@ -4842,6 +4852,10 @@
           "edited": {
             "type": "boolean"
           },
+          "replyCount": {
+            "type": "integer",
+            "format": "int32"
+          },
           "blog": {
             "$ref": "#/components/schemas/Blog"
           },
@@ -6709,6 +6723,12 @@
           },
           "ward": {
             "$ref": "#/components/schemas/WardMapping"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PermissionMapping"
+            }
           }
         }
       },
@@ -6726,6 +6746,27 @@
           },
           "name": {
             "type": "string"
+          }
+        }
+      },
+      "PermissionMapping": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "roleId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "role": {
+            "$ref": "#/components/schemas/RoleMapping"
           }
         }
       },
@@ -6756,22 +6797,11 @@
           "username": {
             "type": "string"
           },
-          "createTime": {
-            "type": "string",
-            "format": "date-time"
-          },
           "avatar": {
             "type": "string",
             "nullable": true
           },
           "email": {
-            "type": "string"
-          },
-          "updateTime": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "password": {
             "type": "string"
           },
           "fullName": {
@@ -6788,13 +6818,16 @@
             "type": "string",
             "nullable": true
           },
+          "password": {
+            "type": "string"
+          },
           "userStatus": {
             "$ref": "#/components/schemas/UserStatus"
           },
           "permissions": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Permission"
+              "$ref": "#/components/schemas/PermissionMapping"
             }
           }
         }
@@ -6830,22 +6863,11 @@
           "username": {
             "type": "string"
           },
-          "createTime": {
-            "type": "string",
-            "format": "date-time"
-          },
           "avatar": {
             "type": "string",
             "nullable": true
           },
           "email": {
-            "type": "string"
-          },
-          "updateTime": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "password": {
             "type": "string"
           },
           "fullName": {
@@ -6868,7 +6890,7 @@
           "permissions": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Permission"
+              "$ref": "#/components/schemas/PermissionMapping"
             }
           }
         }

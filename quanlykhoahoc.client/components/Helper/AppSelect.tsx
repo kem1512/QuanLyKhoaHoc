@@ -3,18 +3,17 @@ import useSWR from "swr";
 import {
   CertificateClient,
   CertificateMapping,
-  CertificateTypeClient,
   CourseSubject,
   DistrictClient,
   DistrictMapping,
-  PagingModelOfCertificateTypeMapping,
-  PagingModelOfCourseMapping,
+  PagingModelOfCertificateMapping,
   PagingModelOfDistrictMapping,
   PagingModelOfPracticeMapping,
   PagingModelOfProgramingLanguageMapping,
   PagingModelOfProvinceMapping,
   PagingModelOfSubjectDetailMapping,
   PagingModelOfWardMapping,
+  PermissionMapping,
   PracticeClient,
   PracticeMapping,
   ProgramingLanguage,
@@ -22,7 +21,6 @@ import {
   ProvinceClient,
   ProvinceMapping,
   RoleClient,
-  RoleMapping,
   SubjectClient,
   SubjectDetailClient,
   WardClient,
@@ -51,6 +49,7 @@ interface SelectableProps<T> {
   valueMapper: (data: any) => string;
   idMapper: (data: any, selectedName: string) => any;
   entityFetchArgs?: any[];
+  defaultValue?: any;
 }
 
 function Selectable<T>({
@@ -65,7 +64,7 @@ function Selectable<T>({
   idMapper,
   entityFetchArgs = [],
 }: SelectableProps<T>) {
-  const [shouldFetch, setShouldFetch] = useState(false);
+  const [shouldFetch, setShouldFetch] = useState(true);
 
   const { data } = useFetchData(shouldFetch ? fetchUrl : null, () =>
     serviceClient.getEntities(...entityFetchArgs)
@@ -79,7 +78,7 @@ function Selectable<T>({
       placeholder={placeholder}
       data={data ? items : value ? [valueMapper(value)] : null}
       onClick={() => setShouldFetch(true)}
-      defaultValue={valueMapper(value)}
+      value={valueMapper(value)}
       onChange={(selectedName) => onChange(idMapper(data, selectedName))}
       searchable
       labelProps={{ style: { marginBottom: 6 } }}
@@ -96,21 +95,24 @@ export function SubjectSelect({
 }) {
   const SubjectService = new SubjectClient();
 
+  const { data } = useSWR("/api/subject", () =>
+    SubjectService.getEntities(null, null, null, null)
+  );
+
   return (
-    <Selectable
+    <MultiSelect
       label="Chủ Đề"
       placeholder="Chọn Chủ Đề"
-      value={value}
-      onChange={onChange}
-      serviceClient={SubjectService}
-      fetchUrl="/api/subject"
-      dataMapper={(data: PagingModelOfCourseMapping) =>
-        data?.items?.map((item) => item.name) ?? []
-      }
-      valueMapper={(value) => value?.map((item) => item.subject?.name)}
-      idMapper={(data, selectedName) =>
-        data?.items?.find((item) => item.name === selectedName)?.id
-      }
+      data={data?.items.map((item) => item.name)}
+      value={value?.map((item) => item.subject.name)}
+      onChange={(e) => {
+        return onChange(
+          e.map((item) => {
+            var subject = data.items.find((c) => c.name === item);
+            return { subjectId: subject.id, subject: subject };
+          })
+        );
+      }}
     />
   );
 }
@@ -145,23 +147,53 @@ export function CertificateSelect({
   value,
   onChange,
 }: {
-  value?: CertificateMapping[];
+  value?: CertificateMapping;
   onChange: any;
 }) {
   return (
     <Selectable
-      label="Loại Chứng Chỉ"
-      placeholder="Chọn Loại Chứng Chỉ"
+      label="Chứng Chỉ"
+      placeholder="Chọn Chứng Chỉ"
       value={value}
       onChange={onChange}
-      serviceClient={new CertificateTypeClient()}
-      fetchUrl="/api/certificateType"
-      dataMapper={(data: PagingModelOfCertificateTypeMapping) =>
+      serviceClient={new CertificateClient()}
+      fetchUrl="/api/certificate"
+      dataMapper={(data: PagingModelOfCertificateMapping) =>
         data?.items?.map((item) => item.name) ?? []
       }
-      valueMapper={(value) => value?.map((item) => item.certificateType?.name)}
+      valueMapper={(value) => value?.name}
       idMapper={(data, selectedName) =>
-        data?.items?.find((item) => item.name === selectedName)?.id
+        data?.items?.find((item) => item.name === selectedName)
+      }
+    />
+  );
+}
+
+export function RoleSelect({
+  value,
+  onChange,
+}: {
+  value?: PermissionMapping[];
+  onChange: any;
+}) {
+  const RoleService = new RoleClient();
+
+  const { data } = useSWR("/api/role", () =>
+    RoleService.getEntities(null, null, null, null)
+  );
+
+  return (
+    <MultiSelect
+      label="Vai Trò"
+      placeholder="Chọn Vai Trò"
+      data={data?.items.map((item) => item.roleName)}
+      value={value?.map((item) => item.role.roleName)}
+      onChange={(e) =>
+        onChange(
+          e.map((item) => ({
+            role: data.items.find((c) => c.roleName === item),
+          }))
+        )
       }
     />
   );
@@ -239,9 +271,9 @@ export function ProvinceSelect({
       dataMapper={(data: PagingModelOfProvinceMapping) =>
         data?.items?.map((item) => item.name) ?? []
       }
-      valueMapper={(item) => item.name}
+      valueMapper={(item) => item?.name}
       idMapper={(data, selectedName) =>
-        data?.items?.find((item) => item.name === selectedName)?.id
+        data?.items?.find((item) => item.name === selectedName)
       }
     />
   );
@@ -268,7 +300,7 @@ export function DistrictSelect({
         data?.items?.map((item) => item.name) ?? []
       }
       entityFetchArgs={[provinceId]}
-      valueMapper={(item) => item.name}
+      valueMapper={(item) => item?.name}
       idMapper={(data, selectedName) =>
         data?.items?.find((item) => item.name === selectedName)?.id
       }
@@ -281,7 +313,7 @@ export function WardSelect({
   onChange,
   districtId,
 }: {
-  value?: DistrictMapping;
+  value?: WardMapping;
   onChange: any;
   districtId: number;
 }) {
@@ -297,7 +329,7 @@ export function WardSelect({
         data?.items?.map((item) => item.name) ?? []
       }
       entityFetchArgs={[districtId]}
-      valueMapper={(item) => item.name}
+      valueMapper={(item) => item?.name}
       idMapper={(data, selectedName) =>
         data?.items?.find((item) => item.name === selectedName)?.id
       }

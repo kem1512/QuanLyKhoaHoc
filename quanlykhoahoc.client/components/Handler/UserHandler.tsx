@@ -13,10 +13,13 @@ import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { DateTimePicker } from "@mantine/dates";
 import {
+  CertificateSelect,
   DistrictSelect,
   ProvinceSelect,
+  RoleSelect,
   WardSelect,
 } from "../Helper/AppSelect";
+import ActionButton from "../Helper/ActionButton";
 
 export default function UserHandler({ id }: { id?: number }) {
   const UserService = new UserClient();
@@ -106,7 +109,9 @@ export default function UserHandler({ id }: { id?: number }) {
         <Grid.Col span={{ base: 12, lg: 6 }}>
           <ProvinceSelect
             value={user.province}
-            onChange={(e) => setUser((prev) => ({ ...prev, provinceId: e }))}
+            onChange={(e) =>
+              setUser((prev) => ({ ...prev, provinceId: e.id, province: e }))
+            }
           />
         </Grid.Col>
         {user.provinceId && (
@@ -127,6 +132,29 @@ export default function UserHandler({ id }: { id?: number }) {
             />
           </Grid.Col>
         )}
+        <Grid.Col span={{ base: 12, lg: 6 }}>
+          <CertificateSelect
+            value={user.certificate}
+            onChange={(e) =>
+              setUser((prev) => ({
+                ...prev,
+                certificateId: e.id,
+                certificate: e,
+              }))
+            }
+          />
+        </Grid.Col>
+        <Grid.Col span={{ base: 12, lg: 6 }}>
+          <RoleSelect
+            value={user.permissions}
+            onChange={(e) =>
+              setUser((prev) => ({
+                ...prev,
+                permissions: e,
+              }))
+            }
+          />
+        </Grid.Col>
         <Grid.Col span={{ base: 12, lg: 6 }}>
           <TextInput
             label="Địa Chỉ"
@@ -149,9 +177,6 @@ export default function UserHandler({ id }: { id?: number }) {
             data={Object.keys(UserStatus)}
           />
         </Grid.Col>
-        <Grid.Col span={{ base: 12, lg: 6 }}>
-          {/* <RoleSelect value={user.pr}/> */}
-        </Grid.Col>
         <Grid.Col style={{ display: "flex", justifyContent: "space-between" }}>
           <Checkbox
             label="Kích Hoạt"
@@ -161,16 +186,16 @@ export default function UserHandler({ id }: { id?: number }) {
             }
           />
 
-          <Button
+          <ActionButton
             size="xs"
-            onClick={() =>
+            action={() =>
               handleSubmit(() => {
                 return UserService.updateEntity(user.id, user as UserUpdate);
               }, "Sửa Thành Công")
             }
           >
             Xác Nhận
-          </Button>
+          </ActionButton>
         </Grid.Col>
       </Grid>
     </DashboardLayout>

@@ -12,20 +12,20 @@
             {
                 if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
-                var RegisterStudy = _mapper.Map<RegisterStudy>(entity);
+                var registerStudy = _mapper.Map<RegisterStudy>(entity);
 
-                RegisterStudy.UserId = int.Parse(_user.Id);
+                registerStudy.UserId = int.Parse(_user.Id);
 
-                await _context.RegisterStudys.AddAsync(RegisterStudy, cancellation);
+                await _context.RegisterStudys.AddAsync(registerStudy, cancellation);
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure();
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {
@@ -39,28 +39,28 @@
             {
                 if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
-                var RegisterStudy = await _context.RegisterStudys.FindAsync(new object[] { id }, cancellation);
+                var registerStudy = await _context.RegisterStudys.FindAsync(new object[] { id }, cancellation);
 
-                if (RegisterStudy == null)
+                if (registerStudy == null)
                 {
                     return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
-                if (RegisterStudy.UserId != int.Parse(_user.Id))
+                if (registerStudy.UserId != int.Parse(_user.Id) || !_user.IsAdministrator)
                 {
                     return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Xóa");
                 }
 
-                _context.RegisterStudys.Remove(RegisterStudy);
+                _context.RegisterStudys.Remove(registerStudy);
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure();
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {
@@ -70,11 +70,11 @@
 
         public override async Task<PagingModel<RegisterStudyMapping>> Get(RegisterStudyQuery query, CancellationToken cancellation)
         {
-            var RegisterStudys = _context.RegisterStudys.AsNoTracking();
+            var registerStudies = _context.RegisterStudys.AsNoTracking();
 
-            var totalCount = await RegisterStudys.ApplyQuery(query, applyPagination: false).CountAsync();
+            var totalCount = await registerStudies.ApplyQuery(query, applyPagination: false).CountAsync();
 
-            var data = await RegisterStudys
+            var data = await registerStudies
                 .ApplyQuery(query)
                 .ProjectTo<RegisterStudyMapping>(_mapper.ConfigurationProvider)
                 .ToListAsync(cancellation);
@@ -112,7 +112,7 @@
                     return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
-                if (RegisterStudy.UserId != int.Parse(_user.Id))
+                if (RegisterStudy.UserId != int.Parse(_user.Id) || !_user.IsAdministrator)
                 {
                     return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Sửa");
                 }
@@ -121,12 +121,12 @@
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure();
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {

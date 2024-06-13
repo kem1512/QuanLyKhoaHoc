@@ -10,7 +10,12 @@
         {
             try
             {
-                if(_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
+                if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
+
+                if (!_user.IsAdministrator)
+                {
+                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Thêm");
+                }
 
                 var course = _mapper.Map<Course>(entity);
 
@@ -20,12 +25,12 @@
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure();
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {
@@ -38,6 +43,11 @@
             try
             {
                 if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
+
+                if (!_user.IsAdministrator)
+                {
+                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Xóa");
+                }
 
                 var course = await _context.Courses.FindAsync(new object[] { id }, cancellation);
 
@@ -55,12 +65,12 @@
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure();
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {
@@ -112,13 +122,13 @@
                     return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
-                if (course.CreatorId != int.Parse(_user.Id))
+                if (course.CreatorId != int.Parse(_user.Id) && !_user.IsAdministrator)
                 {
                     return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Sửa");
                 }
 
-                // Xóa những CourseSubject không còn trong entity
                 var currentCourseSubjectIds = course.CourseSubjects.Select(cs => cs.Id).ToList();
+
                 var updatedCourseSubjectIds = entity.CourseSubjects.Select(cs => cs.Id).ToList();
 
                 var subjectsToRemove = course.CourseSubjects
@@ -131,12 +141,12 @@
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure();
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {

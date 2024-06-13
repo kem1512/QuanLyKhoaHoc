@@ -1,4 +1,6 @@
-﻿namespace QuanLyKhoaHoc.Application.Services
+﻿using System.Xml.Linq;
+
+namespace QuanLyKhoaHoc.Application.Services
 {
     public class CommentBlogService : ApplicationServiceBase<CommentBlogMapping, CommentBlogQuery, CommentBlogCreate, CommentBlogUpdate>
     {
@@ -20,12 +22,12 @@
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure();
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {
@@ -46,7 +48,7 @@
                     return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
-                if (commentCommentBlog.UserId != int.Parse(_user.Id))
+                if (commentCommentBlog.UserId != int.Parse(_user.Id) && !_user.IsAdministrator)
                 {
                     return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Xóa");
                 }
@@ -55,12 +57,12 @@
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure();
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {
@@ -72,7 +74,19 @@
         {
             var commentCommentBlogs = _context.CommentBlogs.AsNoTracking();
 
-            if(query.BlogId != null)
+            if (query.ParentId != null)
+            {
+                int commentPosition = -1;
+
+                commentPosition = commentCommentBlogs.ToList().FindIndex(c => c.Id == query.ParentId);
+
+                if (commentPosition != -1)
+                {
+                    query.Page = (commentPosition / query.PageSize) + 1;
+                }
+            }
+
+            if (query.BlogId != null)
             {
                 commentCommentBlogs = commentCommentBlogs.Where(c => c.BlogId == query.BlogId);
             }
@@ -117,7 +131,7 @@
                     return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
-                if (commentCommentBlog.UserId != int.Parse(_user.Id))
+                if (commentCommentBlog.UserId != int.Parse(_user.Id) && !_user.IsAdministrator)
                 {
                     return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Sửa");
                 }
@@ -126,12 +140,12 @@
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure();
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {

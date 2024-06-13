@@ -20,12 +20,12 @@
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure();
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {
@@ -46,7 +46,7 @@
                     return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
-                if (blog.CreatorId != int.Parse(_user.Id))
+                if (blog.CreatorId != int.Parse(_user.Id) && !_user.IsAdministrator)
                 {
                     return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Xóa");
                 }
@@ -55,12 +55,12 @@
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure();
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {
@@ -112,7 +112,7 @@
                     return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
-                if (blog.CreatorId != int.Parse(_user.Id))
+                if (blog.CreatorId != int.Parse(_user.Id) && !_user.IsAdministrator)
                 {
                     return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Sửa");
                 }
@@ -121,12 +121,12 @@
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure();
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {

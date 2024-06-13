@@ -162,7 +162,7 @@ export default function CourseHandler({ id }: { id?: number }) {
                       course.id,
                       course as CourseUpdate
                     )
-                  : CourseService.createEntity(course as CourseCreate);
+                  : CourseService.createEntity((course) as CourseCreate);
               }, `${id ? "Sửa" : "Thêm"} Thành Công`)
             }
           >

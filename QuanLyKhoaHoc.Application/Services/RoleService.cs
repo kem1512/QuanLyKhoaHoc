@@ -12,20 +12,24 @@
             {
                 if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
+                if (!_user.IsAdministrator)
+                {
+                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Thêm");
+                }
+
                 var role = _mapper.Map<Role>(entity);
 
-                //role.CreatorId = int.Parse(_user.Id);
 
                 await _context.Roles.AddAsync(role, cancellation);
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure();
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {
@@ -39,6 +43,11 @@
             {
                 if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
+                if (!_user.IsAdministrator)
+                {
+                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Xóa");
+                }
+
                 var role = await _context.Roles.FindAsync(new object[] { id }, cancellation);
 
                 if (role == null)
@@ -46,21 +55,16 @@
                     return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
-                //if (role.CreatorId != int.Parse(_user.Id))
-                //{
-                //    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Xóa Bài Viết Này");
-                //}
-
                 _context.Roles.Remove(role);
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure();
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {
@@ -100,6 +104,11 @@
             {
                 if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
+                if (!_user.IsAdministrator)
+                {
+                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Cập Nhật");
+                }
+
                 if (entity.Id != id)
                 {
                     return Result.Failure("ID Phải Giống Nhau");
@@ -112,21 +121,16 @@
                     return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
-                //if (role.CreatorId != int.Parse(_user.Id))
-                //{
-                //    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Sửa Khóa Học Này");
-                //}
-
                 _context.Roles.Update(_mapper.Map(entity, role));
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
-                if (result != 1)
+                if (result > 0)
                 {
-                    return Result.Failure();
+                    return Result.Success();
                 }
 
-                return Result.Success();
+                return Result.Failure();
             }
             catch (Exception ex)
             {
