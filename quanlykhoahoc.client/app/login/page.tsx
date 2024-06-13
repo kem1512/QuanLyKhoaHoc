@@ -60,15 +60,15 @@ export default function Login() {
 
         await AuthService.register(new RegisterRequest({ email, password }));
 
-        router.push("/")
+        toast("Vui Lòng Kiểm Tra Email Để Kích Hoạt Tài Khoản");
       }
 
       const response = await AuthService.login(
         new LoginRequest({ email, password })
       );
-
-      if(!response){
-        toast.error("Vui Lòng Kiểm Tra Lại Thông Tin Đăng Nhập")
+      
+      if (!response) {
+        toast.error("Vui Lòng Kiểm Tra Lại Thông Tin Đăng Nhập");
         return;
       }
 
@@ -76,7 +76,9 @@ export default function Login() {
 
       if (refreshToken) {
         Cookies.set("refreshToken", refreshToken, { expires: 30 });
-        router.push("/");
+        setTimeout(() => {
+          router.push("/");
+        }, 1000);
       }
     } catch (error: any) {
       const errors = error.errors || {};

@@ -130,6 +130,7 @@ export function Comment({ blogId }: { blogId: number }) {
           {data.items.map((item) => {
             return (
               <Paper
+                key={item.id}
                 withBorder
                 radius="md"
                 className={classes.comment}
@@ -168,7 +169,7 @@ export function Comment({ blogId }: { blogId: number }) {
                       </ActionIcon>
                     </Menu.Target>
                     <Menu.Dropdown>
-                      {user.email === item.user.email && (
+                      {user?.email === item.user.email && (
                         <>
                           <Menu.Item onClick={() => setCommentBlog(item)}>
                             Sửa

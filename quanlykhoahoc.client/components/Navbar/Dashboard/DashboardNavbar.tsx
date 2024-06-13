@@ -20,7 +20,7 @@ import {
   IconArticle,
 } from "@tabler/icons-react";
 import classes from "./DashboardNavbar.module.css";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Logo from "../../Logo/Logo";
 import { useSelector } from "react-redux";
@@ -107,7 +107,7 @@ export function LinksGroup({
 }: LinksGroupProps) {
   const hasLinks = Array.isArray(links);
   const pathname = usePathname();
-  const isCurrentPath = (path: string) => pathname === path;
+  const isCurrentPath = useCallback((path: string) => pathname === path, [pathname]);
 
   const [opened, setOpened] = useState(
     hasLinks && links.some((link) => isCurrentPath(link.link))
@@ -117,7 +117,7 @@ export function LinksGroup({
     if (hasLinks) {
       setOpened(links.some((link) => isCurrentPath(link.link)));
     }
-  }, [pathname, links]);
+  }, [pathname, links, hasLinks, isCurrentPath]);
 
   const items = (hasLinks ? links : []).map((link) => (
     <Link className={classes.link} href={link.link} key={link.label}>

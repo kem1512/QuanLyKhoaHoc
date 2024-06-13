@@ -24,7 +24,7 @@ export default function Detail({ params }: { params: { id: number } }) {
           <Title order={2}>Nội Dung Khóa Học</Title>
         </Grid.Col>
         <Grid.Col span={{ base: 12, lg: 4 }}>
-          <Image mb={"md"} src={data?.imageCourse} />
+          <Image mb={"md"} src={data?.imageCourse} alt={data.code}/>
           <Group justify="space-between">
             <Title order={3}>{formatCurrencyVND(data?.price)}</Title>
             <Button>Đăng Ký Học</Button>

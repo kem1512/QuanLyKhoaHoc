@@ -1,4 +1,6 @@
-﻿namespace QuanLyKhoaHoc.Application.Services
+﻿using QuanLyKhoaHoc.Domain.Entities;
+
+namespace QuanLyKhoaHoc.Application.Services
 {
     public class AuthService : IAuthService
     {
@@ -104,7 +106,7 @@
 
             return new TokenRequest
             {
-                AccessToken = _tokenService.GenerateAccessToken(refreshToken.UserId.ToString(), roles, refreshToken.User.Certificate.Name),
+                AccessToken = _tokenService.GenerateAccessToken(refreshToken.UserId.ToString(), roles, refreshToken.User.Certificate != null ? refreshToken.User.Certificate.Name : null),
                 RefreshToken = refreshToken.Token
             };
         }
@@ -125,7 +127,7 @@
 
                 return new TokenRequest
                 {
-                    AccessToken = _tokenService.GenerateAccessToken(user.Id.ToString(), roles, user.Certificate.Name),
+                    AccessToken = _tokenService.GenerateAccessToken(user.Id.ToString(), roles, user.Certificate != null ? user.Certificate.Name : null),
                     RefreshToken = refreshToken
                 };
             }
