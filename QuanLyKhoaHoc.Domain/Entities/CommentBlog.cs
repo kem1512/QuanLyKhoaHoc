@@ -8,6 +8,8 @@
 
         public int UserId { get; set; }
 
+        public int? ParentId { get; set; }
+
         public string Content { get; set; } = default!;
 
         public bool Edited { get; set; }
@@ -15,5 +17,9 @@
         public Blog Blog { get; set; } = default!;
 
         public User User { get; set; } = default!;
+
+        public CommentBlog Parent { get; set; } = default!;
+
+        public ICollection<CommentBlog> Childs { get; set; } = default!;
     }
 }

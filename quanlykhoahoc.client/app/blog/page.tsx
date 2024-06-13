@@ -8,6 +8,7 @@ import Loading from "../../components/Loading/Loading";
 import AppPagination from "../../components/AppPagination/AppPagination";
 import { BlogCard } from "../../components/Card/BlogCard/BlogCard";
 import RootLayout from "../../components/Layout/RootLayout/RootLayout";
+import Link from "next/link";
 
 export default function Blog() {
   const BlogService = new BlogClient();
@@ -33,7 +34,11 @@ export default function Blog() {
         <>
           <SimpleGrid spacing={"xs"}>
             {data.items.map((item) => {
-              return <BlogCard key={item.id} data={item} />;
+              return (
+                <Link key={item.id} href={`/blog/${item.id}`} style={{textDecoration: "none"}}>
+                  <BlogCard data={item} />
+                </Link>
+              );
             })}
           </SimpleGrid>
           <Center>

@@ -93,20 +93,6 @@
             return Result.Success();
         }
 
-        public async Task<UserMapping?> UserInfo(CancellationToken cancellation)
-        {
-            var user = await _context.Users
-                .Include(c => c.Province)
-                .Include(c => c.District)
-                .Include(c => c.Ward)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(c => c.Id.ToString() == _user.Id, cancellation);
-
-            if (user == null) return null;
-
-            return _mapper.Map<UserMapping>(user);
-        }
-
         public async Task<TokenRequest?> RefreshAccessToken(string token, CancellationToken cancellation)
         {
             var refreshToken = await _context.RefreshTokens.Include(c => c.User).ThenInclude(c => c.Permissions).ThenInclude(c => c.Role).AsNoTracking().FirstOrDefaultAsync(c => c.Token == token, cancellation);
@@ -147,18 +133,6 @@
             return null;
         }
 
-        public async Task Logout(string token, CancellationToken cancellation)
-        {
-            var refreshToken = await _context.RefreshTokens.Include(c => c.User).AsNoTracking().FirstOrDefaultAsync(c => c.Token == token, cancellation);
-
-            if(refreshToken != null)
-            {
-                _context.RefreshTokens.Remove(refreshToken);
-            }
-
-            await _context.SaveChangesAsync(cancellation);
-        }
-
         public async Task<Result> Register(RegisterRequest request, CancellationToken cancellation)
         {
             if (_context.Users.Any(c => c.Email == request.Email))
@@ -185,6 +159,17 @@
 
             return Result.Success();
         }
-    }
 
+        public async Task Logout(string token, CancellationToken cancellation)
+        {
+            var refreshToken = await _context.RefreshTokens.Include(c => c.User).AsNoTracking().FirstOrDefaultAsync(c => c.Token == token, cancellation);
+
+            if (refreshToken != null)
+            {
+                _context.RefreshTokens.Remove(refreshToken);
+            }
+
+            await _context.SaveChangesAsync(cancellation);
+        }
+    }
 }

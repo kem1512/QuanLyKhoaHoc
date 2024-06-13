@@ -1,18 +1,34 @@
 import { MultiSelect, Select } from "@mantine/core";
 import useSWR from "swr";
 import {
+  CertificateClient,
+  CertificateMapping,
+  CertificateTypeClient,
   CourseSubject,
   DistrictClient,
   DistrictMapping,
+  PagingModelOfCertificateTypeMapping,
+  PagingModelOfCourseMapping,
+  PagingModelOfDistrictMapping,
+  PagingModelOfPracticeMapping,
+  PagingModelOfProgramingLanguageMapping,
+  PagingModelOfProvinceMapping,
+  PagingModelOfSubjectDetailMapping,
+  PagingModelOfWardMapping,
+  PracticeClient,
+  PracticeMapping,
+  ProgramingLanguage,
+  ProgramingLanguageClient,
   ProvinceClient,
   ProvinceMapping,
   RoleClient,
   RoleMapping,
   SubjectClient,
+  SubjectDetailClient,
   WardClient,
   WardMapping,
 } from "../../app/web-api-client";
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 
 function useFetchData<T>(url: string, fetcher: () => Promise<T>) {
   const { data, error } = useSWR(url, fetcher, {
@@ -24,6 +40,53 @@ function useFetchData<T>(url: string, fetcher: () => Promise<T>) {
   return { data, error, isLoading: !data && !error };
 }
 
+interface SelectableProps<T> {
+  label: string;
+  placeholder: string;
+  value?: T;
+  onChange: any;
+  serviceClient: any;
+  fetchUrl: string;
+  dataMapper: (data: any) => string[];
+  valueMapper: (data: any) => string;
+  idMapper: (data: any, selectedName: string) => any;
+  entityFetchArgs?: any[];
+}
+
+function Selectable<T>({
+  label,
+  placeholder,
+  value,
+  onChange,
+  serviceClient,
+  fetchUrl,
+  dataMapper,
+  valueMapper,
+  idMapper,
+  entityFetchArgs = [],
+}: SelectableProps<T>) {
+  const [shouldFetch, setShouldFetch] = useState(false);
+
+  const { data } = useFetchData(shouldFetch ? fetchUrl : null, () =>
+    serviceClient.getEntities(...entityFetchArgs)
+  );
+
+  const items = dataMapper(data) ?? [];
+
+  return (
+    <Select
+      label={label}
+      placeholder={placeholder}
+      data={data ? items : value ? [valueMapper(value)] : null}
+      onClick={() => setShouldFetch(true)}
+      defaultValue={valueMapper(value)}
+      onChange={(selectedName) => onChange(idMapper(data, selectedName))}
+      searchable
+      labelProps={{ style: { marginBottom: 6 } }}
+    />
+  );
+}
+
 export function SubjectSelect({
   value,
   onChange,
@@ -31,34 +94,129 @@ export function SubjectSelect({
   value?: CourseSubject[];
   onChange: any;
 }) {
-  const [shouldFetch, setShouldFetch] = useState(false);
-
   const SubjectService = new SubjectClient();
 
-  const { data } = useFetchData(shouldFetch ? "/api/subject" : null, () =>
-    SubjectService.getEntities(null, null, null, null)
-  );
-
-  const subjects = data?.items?.map((item) => item.name) ?? [];
-
   return (
-    <MultiSelect
+    <Selectable
       label="Chủ Đề"
       placeholder="Chọn Chủ Đề"
-      data={
-        data ? subjects : value ? value.map((item) => item.subject.name) : null
+      value={value}
+      onChange={onChange}
+      serviceClient={SubjectService}
+      fetchUrl="/api/subject"
+      dataMapper={(data: PagingModelOfCourseMapping) =>
+        data?.items?.map((item) => item.name) ?? []
       }
-      onClick={() => setShouldFetch(true)}
-      defaultValue={value?.map((item) => item.subject?.name)}
-      onChange={(selectedNames) =>
-        onChange(
-          selectedNames.map((name) => ({
-            SubjectId: data?.items?.find((item) => item.name === name)?.id,
-          }))
-        )
+      valueMapper={(value) => value?.map((item) => item.subject?.name)}
+      idMapper={(data, selectedName) =>
+        data?.items?.find((item) => item.name === selectedName)?.id
       }
-      searchable
-      labelProps={{ style: { marginBottom: 6 } }}
+    />
+  );
+}
+
+export function SubjectDetailSelect({
+  value,
+  onChange,
+}: {
+  value?: CourseSubject[];
+  onChange: any;
+}) {
+  return (
+    <Selectable
+      label="Chủ Chi Tiết Đề"
+      placeholder="Chọn Chi Tiết Đề"
+      value={value}
+      onChange={onChange}
+      serviceClient={new SubjectDetailClient()}
+      fetchUrl="/api/subjectDetail"
+      dataMapper={(data: PagingModelOfSubjectDetailMapping) =>
+        data?.items?.map((item) => item.name) ?? []
+      }
+      valueMapper={(value) => value?.map((item) => item.subject?.name)}
+      idMapper={(data, selectedName) =>
+        data?.items?.find((item) => item.name === selectedName)?.id
+      }
+    />
+  );
+}
+
+export function CertificateSelect({
+  value,
+  onChange,
+}: {
+  value?: CertificateMapping[];
+  onChange: any;
+}) {
+  return (
+    <Selectable
+      label="Loại Chứng Chỉ"
+      placeholder="Chọn Loại Chứng Chỉ"
+      value={value}
+      onChange={onChange}
+      serviceClient={new CertificateTypeClient()}
+      fetchUrl="/api/certificateType"
+      dataMapper={(data: PagingModelOfCertificateTypeMapping) =>
+        data?.items?.map((item) => item.name) ?? []
+      }
+      valueMapper={(value) => value?.map((item) => item.certificateType?.name)}
+      idMapper={(data, selectedName) =>
+        data?.items?.find((item) => item.name === selectedName)?.id
+      }
+    />
+  );
+}
+
+export function PracticeSelect({
+  value,
+  onChange,
+}: {
+  value?: PracticeMapping[];
+  onChange: any;
+}) {
+  return (
+    <Selectable
+      label="Chứng Chỉ"
+      placeholder="Chọn Chứng Chỉ"
+      value={value}
+      onChange={onChange}
+      serviceClient={new PracticeClient()}
+      fetchUrl="/api/practice"
+      dataMapper={(data: PagingModelOfPracticeMapping) =>
+        data?.items?.map((item) => item.title) ?? []
+      }
+      valueMapper={(value) => value?.map((item) => item.certificateType?.title)}
+      idMapper={(data, selectedName) =>
+        data?.items?.find((item) => item.title === selectedName)?.id
+      }
+    />
+  );
+}
+
+export function ProgramingLanguageSelect({
+  value,
+  onChange,
+}: {
+  value?: ProgramingLanguage[];
+  onChange: any;
+}) {
+  const ProgramingLanguageService = new ProgramingLanguageClient();
+
+  return (
+    <Selectable
+      label="Chủ Ngôn Ngữ Lập Trình"
+      placeholder="Chọn Ngôn Ngữ Lập Trình"
+      value={value}
+      onChange={onChange}
+      serviceClient={ProgramingLanguageService}
+      fetchUrl="/api/programing-language"
+      dataMapper={(data: PagingModelOfProgramingLanguageMapping) =>
+        data?.items?.map((item) => item.languageName) ?? []
+      }
+      valueMapper={(value) => value?.map((item) => item.languageName)}
+      idMapper={(data, selectedName) =>
+        data?.items?.find((item) => item.languageName === selectedName)?.id
+      }
     />
   );
 }
@@ -70,127 +228,79 @@ export function ProvinceSelect({
   value?: ProvinceMapping;
   onChange: any;
 }) {
-  const [shouldFetch, setShouldFetch] = useState(false);
-
-  const ProvinceService = new ProvinceClient();
-
-  const { data } = useFetchData(shouldFetch ? "/api/province" : null, () =>
-    ProvinceService.getEntities(null, null, null, null)
-  );
-
-  const provinces = data?.items?.map((item) => item.name) ?? [];
-
   return (
-    <>
-      <Select
-        label="Tỉnh / Thành Phố"
-        placeholder="Chọn Thành Phố"
-        data={data ? provinces : value ? [value.name] : null}
-        onClick={() => setShouldFetch(true)}
-        defaultValue={value?.name}
-        onChange={(e) => onChange(data.items?.find((c) => c.name === e)?.id)}
-        searchable
-        labelProps={{ style: { marginBottom: 6 } }}
-      />
-    </>
+    <Selectable
+      label="Tỉnh / Thành Phố"
+      placeholder="Chọn Tỉnh / Thành Phố"
+      value={value}
+      onChange={onChange}
+      serviceClient={new ProvinceClient()}
+      fetchUrl="/api/province"
+      dataMapper={(data: PagingModelOfProvinceMapping) =>
+        data?.items?.map((item) => item.name) ?? []
+      }
+      valueMapper={(item) => item.name}
+      idMapper={(data, selectedName) =>
+        data?.items?.find((item) => item.name === selectedName)?.id
+      }
+    />
   );
 }
 
 export function DistrictSelect({
   value,
-  provinceId,
   onChange,
+  provinceId,
 }: {
-  value: DistrictMapping;
-  provinceId: number;
+  value?: DistrictMapping;
   onChange: any;
+  provinceId: number;
 }) {
-  const [shouldFetch, setShouldFetch] = useState(false);
-
-  const DistrictService = new DistrictClient();
-
-  const { data } = useFetchData(
-    shouldFetch ? `/api/district/${provinceId}` : null,
-    () => DistrictService.getEntities(provinceId, null, null, null, null)
-  );
-
-  const districts = data?.items?.map((item) => item.name) ?? [];
-
   return (
-    <Select
+    <Selectable
       label="Quận / Huyện"
       placeholder="Chọn Quận / Huyện"
-      data={data ? districts : value ? [value.name] : []}
-      onClick={() => setShouldFetch(true)}
-      defaultValue={value?.name}
-      onChange={(e) => onChange(data?.items?.find((c) => c.name === e)?.id)}
-      searchable
-      labelProps={{ style: { marginBottom: 6 } }}
+      value={value}
+      onChange={onChange}
+      serviceClient={new DistrictClient()}
+      fetchUrl={`/api/district/${provinceId}`}
+      dataMapper={(data: PagingModelOfDistrictMapping) =>
+        data?.items?.map((item) => item.name) ?? []
+      }
+      entityFetchArgs={[provinceId]}
+      valueMapper={(item) => item.name}
+      idMapper={(data, selectedName) =>
+        data?.items?.find((item) => item.name === selectedName)?.id
+      }
     />
   );
 }
 
 export function WardSelect({
   value,
-  districtId,
   onChange,
+  districtId,
 }: {
-  value: WardMapping;
-  districtId: number;
+  value?: DistrictMapping;
   onChange: any;
+  districtId: number;
 }) {
-  const [shouldFetch, setShouldFetch] = useState(false);
-
-  const WardService = new WardClient();
-
-  const { data } = useFetchData(
-    shouldFetch ? `/api/ward/${districtId}` : null,
-    () => WardService.getEntities(districtId, null, null, null, null)
-  );
-
-  const wards = data?.items?.map((item) => item.name) ?? [];
-
   return (
-    <Select
+    <Selectable
       label="Xã / Phường"
       placeholder="Chọn Xã / Phường"
-      data={data ? wards : value ? [value.name] : null}
-      onClick={() => setShouldFetch(true)}
-      defaultValue={value?.name}
-      onChange={(e) => onChange(data?.items?.find((c) => c.name === e)?.id)}
-      searchable
-      labelProps={{ style: { marginBottom: 6 } }}
-    />
-  );
-}
-
-export function RoleSelect({
-  value,
-  onChange,
-}: {
-  value?: RoleMapping;
-  onChange: any;
-}) {
-  const [shouldFetch, setShouldFetch] = useState(false);
-
-  const RoleService = new RoleClient();
-
-  const { data } = useFetchData(shouldFetch ? "/api/role" : null, () =>
-    RoleService.getEntities(null, null, null, null)
-  );
-
-  const roles = data?.items?.map((item) => item.roleName) ?? [];
-
-  return (
-    <Select
-      label="Chọn Vai Trò"
-      placeholder="Chọn Vai Trò"
-      data={data ? roles : value ? [value.roleName] : null}
-      onClick={() => setShouldFetch(true)}
-      defaultValue={value?.roleName}
-      onChange={(e) => onChange(data?.items?.find((c) => c.roleName === e)?.id)}
-      searchable
-      labelProps={{ style: { marginBottom: 6 } }}
+      value={value}
+      onChange={onChange}
+      serviceClient={new WardClient()}
+      fetchUrl={`/api/ward/${districtId}`}
+      dataMapper={(data: PagingModelOfWardMapping) =>
+        data?.items?.map((item) => item.name) ?? []
+      }
+      entityFetchArgs={[districtId]}
+      valueMapper={(item) => item.name}
+      idMapper={(data, selectedName) =>
+        data?.items?.find((item) => item.name === selectedName)?.id
+      }
     />
   );
 }

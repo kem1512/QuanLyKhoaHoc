@@ -9,6 +9,7 @@ import {
   Input,
   Loader,
   Menu,
+  ScrollArea,
   Select,
   Table,
   Text,
@@ -69,7 +70,6 @@ export default function DataTable({
     `/api${url}${new URLSearchParams(query as any)}`,
     () => fetch(),
     {
-      revalidateIfStale: false,
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
     }
@@ -137,86 +137,90 @@ export default function DataTable({
           </Button>
         </Link>
       </Flex>
-      <Table>
-        <Table.Thead>
-          <Table.Tr>
-            {fields.map((item) => (
-              <Table.Th onClick={() => handleSort(item)} key={item}>
-                {item}
-              </Table.Th>
-            ))}
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>
-          {!isLoading ? (
-            data?.items?.length && data.items.length >= 0 ? (
-              data.items.map((item) => (
-                <Table.Tr key={item.id}>
-                  {fields.map((field) => {
-                    const value = item[field];
-                    return (
-                      <Table.Td
-                        key={field}
-                        py={"md"}
-                        style={{
-                          maxWidth: "100px",
-                          wordBreak: "break-word",
-                          whiteSpace: "normal",
-                        }}
-                      >
-                        {value instanceof Date ? (
-                          value.toDateString()
-                        ) : typeof value === "boolean" ? (
-                          <Badge color={value === true ? "blue" : "red"}>
-                            {value ? "Đang Kích Hoạt" : "Không Kích Hoạt"}
-                          </Badge>
-                        ) : (
-                          value
-                        )}
-                      </Table.Td>
-                    );
-                  })}
-
-                  <Table.Td>
-                    <Menu shadow="md">
-                      <Menu.Target>
-                        <ActionIcon variant="transparent">
-                          <IconDots />
-                        </ActionIcon>
-                      </Menu.Target>
-                      <Menu.Dropdown>
-                        <Link
-                          href={`/dashboard/${url}/${item.id}`}
-                          style={{ textDecoration: "none" }}
+      <ScrollArea>
+        <Table>
+          <Table.Thead>
+            <Table.Tr>
+              {/* <Table.Th>#</Table.Th> */}
+              {fields.map((item) => (
+                <Table.Th onClick={() => handleSort(item)} key={item}>
+                  {item}
+                </Table.Th>
+              ))}
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {!isLoading ? (
+              data?.items?.length && data.items.length >= 0 ? (
+                data.items.map((item, index) => (
+                  <Table.Tr key={item.id}>
+                    {/* <Table.Td>
+                      {index + 1 + (data.pageNumber - 1) * data.pageSize}
+                    </Table.Td> */}
+                    {fields.map((field) => {
+                      const value = item[field];
+                      return (
+                        <Table.Td
+                          key={field}
+                          py={"md"}
+                          style={{
+                            wordBreak: "break-word",
+                          }}
                         >
-                          <Menu.Item>Sửa</Menu.Item>
-                        </Link>
-                        <Menu.Item onClick={() => handleDelete(item.id)}>
-                          Xóa
-                        </Menu.Item>
-                      </Menu.Dropdown>
-                    </Menu>
+                          {value instanceof Date ? (
+                            value.toDateString()
+                          ) : typeof value === "boolean" ? (
+                            <Badge color={value === true ? "blue" : "red"}>
+                              {value ? "Đang Kích Hoạt" : "Không Kích Hoạt"}
+                            </Badge>
+                          ) : (
+                            value
+                          )}
+                        </Table.Td>
+                      );
+                    })}
+
+                    <Table.Td>
+                      <Menu shadow="md">
+                        <Menu.Target>
+                          <ActionIcon variant="transparent">
+                            <IconDots />
+                          </ActionIcon>
+                        </Menu.Target>
+                        <Menu.Dropdown>
+                          <Link
+                            href={`/dashboard/${url}/${item.id}`}
+                            style={{ textDecoration: "none" }}
+                          >
+                            <Menu.Item>Sửa</Menu.Item>
+                          </Link>
+                          <Menu.Item onClick={() => handleDelete(item.id)}>
+                            Xóa
+                          </Menu.Item>
+                        </Menu.Dropdown>
+                      </Menu>
+                    </Table.Td>
+                  </Table.Tr>
+                ))
+              ) : (
+                <Table.Tr>
+                  <Table.Td colSpan={fields.length}>
+                    <Center py={"sm"}>Không Có Gì Ở Đây Cả</Center>
                   </Table.Td>
                 </Table.Tr>
-              ))
+              )
             ) : (
               <Table.Tr>
                 <Table.Td colSpan={fields.length}>
-                  <Center py={"sm"}>Không Có Gì Ở Đây Cả</Center>
+                  <Center py={"sm"}>
+                    <Loader size={"sm"} />
+                  </Center>
                 </Table.Td>
               </Table.Tr>
-            )
-          ) : (
-            <Table.Tr>
-              <Table.Td colSpan={fields.length}>
-                <Center py={"sm"}>
-                  <Loader size={"sm"} />
-                </Center>
-              </Table.Td>
-            </Table.Tr>
-          )}
-        </Table.Tbody>
-      </Table>
+            )}
+          </Table.Tbody>
+        </Table>
+      </ScrollArea>
       <Flex py={"xs"} justify={"space-between"}>
         <AppPagination page={data?.pageNumber} total={data?.totalPages} />
         <Select

@@ -40,15 +40,42 @@ namespace QuanLyKhoaHoc.Application
             CreateMap<Role, RoleCreate>().ReverseMap();
             CreateMap<Role, RoleUpdate>().ReverseMap();
 
+            CreateMap<SubjectDetail, SubjectDetailMapping>().ReverseMap();
+            CreateMap<SubjectDetail, SubjectDetailCreate>().ReverseMap();
+            CreateMap<SubjectDetail, SubjectDetailUpdate>().ReverseMap();
+
+            CreateMap<TestCase, TestCaseMapping>().ReverseMap();
+            CreateMap<TestCase, TestCaseCreate>().ReverseMap();
+            CreateMap<TestCase, TestCaseUpdate>().ReverseMap();
+
+            CreateMap<ProgramingLanguage, ProgramingLanguageMapping>().ReverseMap();
+            CreateMap<ProgramingLanguage, ProgramingLanguageCreate>().ReverseMap();
+            CreateMap<ProgramingLanguage, ProgramingLanguageUpdate>().ReverseMap();
+
             CreateMap<Certificate, CertificateMapping>().ReverseMap();
             CreateMap<Certificate, CertificateCreate>().ReverseMap();
             CreateMap<Certificate, CertificateUpdate>().ReverseMap();
+
+            CreateMap<Practice, PracticeMapping>().ReverseMap();
+            CreateMap<Practice, PracticeCreate>().ReverseMap();
+            CreateMap<Practice, PracticeUpdate>().ReverseMap();
+
+            CreateMap<LikeBlog, LikeBlogMapping>().ReverseMap();
+            CreateMap<LikeBlog, LikeBlogCreate>().ReverseMap();
+            CreateMap<LikeBlog, LikeBlogUpdate>().ReverseMap();
+
+            CreateMap<CommentBlog, CommentBlogMapping>().ReverseMap();
+            CreateMap<CommentBlog, CommentBlogCreate>().ReverseMap();
+            CreateMap<CommentBlog, CommentBlogUpdate>().ReverseMap();
 
             CreateMap<CertificateType, CertificateTypeMapping>().ReverseMap();
             CreateMap<CertificateType, CertificateTypeCreate>().ReverseMap();
             CreateMap<CertificateType, CertificateTypeUpdate>().ReverseMap();
 
             CreateMap<CourseSubject, CourseSubjectMapping>().ReverseMap();
+
+            CreateMap<User, UserInfo>().ReverseMap();
+            CreateMap<User, UserInfoUpdate>().ReverseMap();
         }
     }
 }

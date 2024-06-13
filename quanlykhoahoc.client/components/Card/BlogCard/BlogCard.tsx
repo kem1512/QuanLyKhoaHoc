@@ -5,7 +5,7 @@ import classes from "./BlogCard.module.css";
 import { BlogMapping } from "../../../app/web-api-client";
 
 export function BlogCard({ data }: { data: BlogMapping }) {
-  const { title, createTime, creator } = data;
+  const { title, createTime, creator, id } = data;
 
   return (
     <Card withBorder radius="md" p={0} className={classes.card}>
@@ -16,7 +16,7 @@ export function BlogCard({ data }: { data: BlogMapping }) {
         />
         <div className={classes.body}>
           <Text tt="uppercase" c="dimmed" fw={700} size="xs">
-            technology
+            #{id}
           </Text>
           <Text className={classes.title} mt="xs" mb="md">
             {title}

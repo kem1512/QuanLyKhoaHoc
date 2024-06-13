@@ -9,6 +9,8 @@ namespace QuanLyKhoaHoc.Application.Common.Mappings
 
         public string Content { get; set; } = default!;
 
+        public string Image {  get; set; } = default!;
+
         public string Title { get; set; } = default!;
 
         public int NumberOfLikes { get; set; }
@@ -21,7 +23,7 @@ namespace QuanLyKhoaHoc.Application.Common.Mappings
 
         public User Creator { get; set; } = default!;
 
-        public ICollection<CommentBlog> CommentBlogs { get; set; } = default!;
+        public ICollection<CommentBlogMapping> CommentBlogs { get; set; } = default!;
 
         public ICollection<LikeBlog> LikeBlogs { get; set; } = default!;
     }
@@ -33,6 +35,8 @@ namespace QuanLyKhoaHoc.Application.Common.Mappings
         public string Content { get; set; } = default!;
 
         public string Title { get; set; } = default!;
+
+        public string Image { get; set; } = default!;
 
         public int NumberOfLikes { get; set; }
 
@@ -48,6 +52,8 @@ namespace QuanLyKhoaHoc.Application.Common.Mappings
         public string Content { get; set; } = default!;
 
         public string Title { get; set; } = default!;
+
+        public string Image { get; set; } = default!;
 
         public int NumberOfLikes { get; set; }
 

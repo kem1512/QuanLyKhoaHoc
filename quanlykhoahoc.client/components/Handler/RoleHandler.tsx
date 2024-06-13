@@ -32,8 +32,8 @@ export default function RoleHandler({ id }: { id?: number }) {
       <Grid>
         <Grid.Col span={{ base: 12, lg: 6 }}>
           <TextInput
-            label="Tên Chủ Đề"
-            placeholder="Nhập Tên Chủ Đề"
+            label="Tên Vai Trò"
+            placeholder="Nhập Tên Vai Trò"
             value={role.roleName}
             onChange={(e) =>
               setRole((prev) => ({ ...prev, roleName: e.target.value }))

@@ -56,6 +56,17 @@ export default function BlogHandler({ id }: { id?: number }) {
         </Grid.Col>
         <Grid.Col span={{ base: 12, lg: 6 }}>
           <TextInput
+            label="Ảnh"
+            placeholder="Nhập Ảnh"
+            value={blog.image}
+            onChange={(e) =>
+              setBlog((prev) => ({ ...prev, image: e.target.value }))
+            }
+            labelProps={{ style: { marginBottom: 6 } }}
+          />
+        </Grid.Col>
+        <Grid.Col span={{ base: 12, lg: 6 }}>
+          <TextInput
             label="Số Bình Luận"
             placeholder="Nhập Số Bình Luận"
             type="number"
@@ -69,7 +80,6 @@ export default function BlogHandler({ id }: { id?: number }) {
             labelProps={{ style: { marginBottom: 6 } }}
           />
         </Grid.Col>
-
         <Grid.Col span={{ base: 12, lg: 6 }}>
           <TextInput
             label="Số Lượt Thích"

@@ -14,48 +14,80 @@ import {
   IconCalendarStats,
   IconGauge,
   IconChevronRight,
-  IconAddressBook,
   IconUser,
+  IconAperture,
+  IconCertificate,
+  IconArticle,
 } from "@tabler/icons-react";
 import classes from "./DashboardNavbar.module.css";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Logo from "../../Logo/Logo";
 import { useSelector } from "react-redux";
 import { UserMapping } from "../../../app/web-api-client";
+import { usePathname } from "next/navigation";
 
 const mockdata = [
   { label: "Quản Trị", icon: IconGauge, link: "/dashboard" },
   {
     label: "Người Dùng",
     icon: IconUser,
-    link: "/dashboard/user",
+    links: [
+      {
+        label: "Người Dùng",
+        icon: IconCalendarStats,
+        link: "/dashboard/user",
+      },
+      {
+        label: "Vai Trò",
+        icon: IconCalendarStats,
+        link: "/dashboard/role",
+      },
+    ],
   },
   {
     label: "Khóa Học",
     icon: IconNotes,
     initiallyOpened: true,
+    links: [{ label: "Khóa Học", link: "/dashboard/course" }],
+  },
+  {
+    label: "Chủ Đề",
+    icon: IconAperture,
     links: [
       { label: "Chủ Đề", link: "/dashboard/subject" },
-      { label: "Khóa Học", link: "/dashboard/course" },
+      { label: "Chi Tiết Chủ Đề", link: "/dashboard/subjectDetail" },
     ],
   },
   {
     label: "Chứng Chỉ",
-    icon: IconCalendarStats,
+    icon: IconCertificate,
     links: [
-      { label: "Loại Chứng Chỉ", link: "/dashboard/certificate-type" },
       { label: "Chứng Chỉ", link: "/dashboard/certificate" },
+      { label: "Loại Chứng Chỉ", link: "/dashboard/certificate-type" },
     ],
   },
   {
-    label: "Vai Trò",
+    label: "Bài Tập",
     icon: IconCalendarStats,
-    link: "/dashboard/role",
+    links: [
+      {
+        label: "Bài Tập",
+        link: "/dashboard/practice",
+      },
+      {
+        label: "Test Case",
+        link: "/dashboard/test-case",
+      },
+      {
+        label: "Ngôn Ngữ",
+        link: "/dashboard/programing-language",
+      },
+    ],
   },
   {
     label: "Blog",
-    icon: IconAddressBook,
+    icon: IconArticle,
     link: "/dashboard/blog",
   },
 ];
@@ -63,7 +95,6 @@ const mockdata = [
 interface LinksGroupProps {
   icon: React.FC<any>;
   label: string;
-  initiallyOpened?: boolean;
   links?: { label: string; link: string }[];
   link?: string;
 }
@@ -71,12 +102,23 @@ interface LinksGroupProps {
 export function LinksGroup({
   icon: Icon,
   label,
-  initiallyOpened,
   links,
   link,
 }: LinksGroupProps) {
   const hasLinks = Array.isArray(links);
-  const [opened, setOpened] = useState(initiallyOpened || false);
+  const pathname = usePathname();
+  const isCurrentPath = (path: string) => pathname === path;
+
+  const [opened, setOpened] = useState(
+    hasLinks && links.some((link) => isCurrentPath(link.link))
+  );
+
+  useEffect(() => {
+    if (hasLinks) {
+      setOpened(links.some((link) => isCurrentPath(link.link)));
+    }
+  }, [pathname, links]);
+
   const items = (hasLinks ? links : []).map((link) => (
     <Link className={classes.link} href={link.link} key={link.label}>
       {link.label}

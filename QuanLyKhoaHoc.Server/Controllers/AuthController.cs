@@ -46,11 +46,5 @@
         {
             return Ok(await _jwtService.SendConfirmEmail(email, cancellation));
         }
-
-        [HttpGet("info")]
-        public async Task<ActionResult<TokenRequest>> Info(CancellationToken cancellation)
-        {
-            return Ok(await _jwtService.UserInfo(cancellation));
-        }
     }
 }

@@ -11,6 +11,101 @@
 import followIfLoginRedirect from '../components/api-authorization/followIfLoginRedirect';
 import store from "../lib/store"
 
+export class AccountClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : (typeof window !== 'undefined' ? window : { fetch }) as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    userInfo(): Promise<FileResponse> {
+        let url_ = this.baseUrl + "/api/Account";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/octet-stream",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUserInfo(_response);
+        });
+    }
+
+    protected processUserInfo(response: Response): Promise<FileResponse> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
+            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+            if (fileName) {
+                fileName = decodeURIComponent(fileName);
+            } else {
+                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            }
+            return response.blob().then(blob => { return { fileName: fileName, data: blob, status: status, headers: _headers }; });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FileResponse>(null as any);
+    }
+
+    userInfoUpdate(entity: UserInfoUpdate): Promise<FileResponse> {
+        let url_ = this.baseUrl + "/api/Account";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(entity);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/octet-stream",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUserInfoUpdate(_response);
+        });
+    }
+
+    protected processUserInfoUpdate(response: Response): Promise<FileResponse> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
+            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+            if (fileName) {
+                fileName = decodeURIComponent(fileName);
+            } else {
+                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            }
+            return response.blob().then(blob => { return { fileName: fileName, data: blob, status: status, headers: _headers }; });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FileResponse>(null as any);
+    }
+}
+
 export class AuthClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -267,42 +362,6 @@ export class AuthClient {
             });
         }
         return Promise.resolve<FileResponse>(null as any);
-    }
-
-    info(): Promise<TokenRequest> {
-        let url_ = this.baseUrl + "/api/Auth/info";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json",
-                "Authorization": `Bearer ${store.getState().auth.accessToken}`
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processInfo(_response);
-        });
-    }
-
-    protected processInfo(response: Response): Promise<TokenRequest> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = TokenRequest.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<TokenRequest>(null as any);
     }
 }
 
@@ -954,6 +1013,224 @@ export class CertificateTypeClient {
     }
 }
 
+export class CommentBlogClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : (typeof window !== 'undefined' ? window : { fetch }) as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getEntities(blogId: number | null | undefined, filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfCommentBlogMapping> {
+        let url_ = this.baseUrl + "/api/CommentBlog?";
+        if (blogId !== undefined && blogId !== null)
+            url_ += "BlogId=" + encodeURIComponent("" + blogId) + "&";
+        if (filters !== undefined && filters !== null)
+            url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
+        if (sorts !== undefined && sorts !== null)
+            url_ += "Sorts=" + encodeURIComponent("" + sorts) + "&";
+        if (page !== undefined && page !== null)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize !== undefined && pageSize !== null)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetEntities(_response);
+        });
+    }
+
+    protected processGetEntities(response: Response): Promise<PagingModelOfCommentBlogMapping> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PagingModelOfCommentBlogMapping.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PagingModelOfCommentBlogMapping>(null as any);
+    }
+
+    createEntity(entity: CommentBlogCreate): Promise<Result> {
+        let url_ = this.baseUrl + "/api/CommentBlog";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(entity);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateEntity(_response);
+        });
+    }
+
+    protected processCreateEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    getEntity(id: number): Promise<CommentBlogMapping> {
+        let url_ = this.baseUrl + "/api/CommentBlog/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetEntity(_response);
+        });
+    }
+
+    protected processGetEntity(response: Response): Promise<CommentBlogMapping> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CommentBlogMapping.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CommentBlogMapping>(null as any);
+    }
+
+    updateEntity(id: number, entity: CommentBlogUpdate): Promise<Result> {
+        let url_ = this.baseUrl + "/api/CommentBlog/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(entity);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateEntity(_response);
+        });
+    }
+
+    protected processUpdateEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    deleteEntity(id: number): Promise<Result> {
+        let url_ = this.baseUrl + "/api/CommentBlog/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteEntity(_response);
+        });
+    }
+
+    protected processDeleteEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+}
+
 export class CourseClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -1388,6 +1665,654 @@ export class DistrictClient {
     }
 }
 
+export class LikeBlogClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : (typeof window !== 'undefined' ? window : { fetch }) as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getEntities(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfLikeBlogMapping> {
+        let url_ = this.baseUrl + "/api/LikeBlog?";
+        if (filters !== undefined && filters !== null)
+            url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
+        if (sorts !== undefined && sorts !== null)
+            url_ += "Sorts=" + encodeURIComponent("" + sorts) + "&";
+        if (page !== undefined && page !== null)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize !== undefined && pageSize !== null)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetEntities(_response);
+        });
+    }
+
+    protected processGetEntities(response: Response): Promise<PagingModelOfLikeBlogMapping> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PagingModelOfLikeBlogMapping.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PagingModelOfLikeBlogMapping>(null as any);
+    }
+
+    createEntity(entity: LikeBlogCreate): Promise<Result> {
+        let url_ = this.baseUrl + "/api/LikeBlog";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(entity);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateEntity(_response);
+        });
+    }
+
+    protected processCreateEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    getEntity(id: number): Promise<LikeBlogMapping> {
+        let url_ = this.baseUrl + "/api/LikeBlog/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetEntity(_response);
+        });
+    }
+
+    protected processGetEntity(response: Response): Promise<LikeBlogMapping> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LikeBlogMapping.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<LikeBlogMapping>(null as any);
+    }
+
+    updateEntity(id: number, entity: LikeBlogUpdate): Promise<Result> {
+        let url_ = this.baseUrl + "/api/LikeBlog/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(entity);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateEntity(_response);
+        });
+    }
+
+    protected processUpdateEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    deleteEntity(id: number): Promise<Result> {
+        let url_ = this.baseUrl + "/api/LikeBlog/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteEntity(_response);
+        });
+    }
+
+    protected processDeleteEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+}
+
+export class PracticeClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : (typeof window !== 'undefined' ? window : { fetch }) as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getEntities(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfPracticeMapping> {
+        let url_ = this.baseUrl + "/api/Practice?";
+        if (filters !== undefined && filters !== null)
+            url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
+        if (sorts !== undefined && sorts !== null)
+            url_ += "Sorts=" + encodeURIComponent("" + sorts) + "&";
+        if (page !== undefined && page !== null)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize !== undefined && pageSize !== null)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetEntities(_response);
+        });
+    }
+
+    protected processGetEntities(response: Response): Promise<PagingModelOfPracticeMapping> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PagingModelOfPracticeMapping.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PagingModelOfPracticeMapping>(null as any);
+    }
+
+    createEntity(entity: PracticeCreate): Promise<Result> {
+        let url_ = this.baseUrl + "/api/Practice";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(entity);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateEntity(_response);
+        });
+    }
+
+    protected processCreateEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    getEntity(id: number): Promise<PracticeMapping> {
+        let url_ = this.baseUrl + "/api/Practice/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetEntity(_response);
+        });
+    }
+
+    protected processGetEntity(response: Response): Promise<PracticeMapping> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PracticeMapping.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PracticeMapping>(null as any);
+    }
+
+    updateEntity(id: number, entity: PracticeUpdate): Promise<Result> {
+        let url_ = this.baseUrl + "/api/Practice/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(entity);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateEntity(_response);
+        });
+    }
+
+    protected processUpdateEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    deleteEntity(id: number): Promise<Result> {
+        let url_ = this.baseUrl + "/api/Practice/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteEntity(_response);
+        });
+    }
+
+    protected processDeleteEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+}
+
+export class ProgramingLanguageClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : (typeof window !== 'undefined' ? window : { fetch }) as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getEntities(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfProgramingLanguageMapping> {
+        let url_ = this.baseUrl + "/api/ProgramingLanguage?";
+        if (filters !== undefined && filters !== null)
+            url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
+        if (sorts !== undefined && sorts !== null)
+            url_ += "Sorts=" + encodeURIComponent("" + sorts) + "&";
+        if (page !== undefined && page !== null)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize !== undefined && pageSize !== null)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetEntities(_response);
+        });
+    }
+
+    protected processGetEntities(response: Response): Promise<PagingModelOfProgramingLanguageMapping> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PagingModelOfProgramingLanguageMapping.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PagingModelOfProgramingLanguageMapping>(null as any);
+    }
+
+    createEntity(entity: ProgramingLanguageCreate): Promise<Result> {
+        let url_ = this.baseUrl + "/api/ProgramingLanguage";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(entity);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateEntity(_response);
+        });
+    }
+
+    protected processCreateEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    getEntity(id: number): Promise<ProgramingLanguageMapping> {
+        let url_ = this.baseUrl + "/api/ProgramingLanguage/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetEntity(_response);
+        });
+    }
+
+    protected processGetEntity(response: Response): Promise<ProgramingLanguageMapping> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ProgramingLanguageMapping.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ProgramingLanguageMapping>(null as any);
+    }
+
+    updateEntity(id: number, entity: ProgramingLanguageUpdate): Promise<Result> {
+        let url_ = this.baseUrl + "/api/ProgramingLanguage/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(entity);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateEntity(_response);
+        });
+    }
+
+    protected processUpdateEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    deleteEntity(id: number): Promise<Result> {
+        let url_ = this.baseUrl + "/api/ProgramingLanguage/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteEntity(_response);
+        });
+    }
+
+    protected processDeleteEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+}
+
 export class ProvinceClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -1566,6 +2491,222 @@ export class ProvinceClient {
 
     deleteEntity(id: number): Promise<Result> {
         let url_ = this.baseUrl + "/api/Province/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteEntity(_response);
+        });
+    }
+
+    protected processDeleteEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+}
+
+export class RegisterStudyClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : (typeof window !== 'undefined' ? window : { fetch }) as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getEntities(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfRegisterStudyMapping> {
+        let url_ = this.baseUrl + "/api/RegisterStudy?";
+        if (filters !== undefined && filters !== null)
+            url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
+        if (sorts !== undefined && sorts !== null)
+            url_ += "Sorts=" + encodeURIComponent("" + sorts) + "&";
+        if (page !== undefined && page !== null)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize !== undefined && pageSize !== null)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetEntities(_response);
+        });
+    }
+
+    protected processGetEntities(response: Response): Promise<PagingModelOfRegisterStudyMapping> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PagingModelOfRegisterStudyMapping.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PagingModelOfRegisterStudyMapping>(null as any);
+    }
+
+    createEntity(entity: RegisterStudyCreate): Promise<Result> {
+        let url_ = this.baseUrl + "/api/RegisterStudy";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(entity);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateEntity(_response);
+        });
+    }
+
+    protected processCreateEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    getEntity(id: number): Promise<RegisterStudyMapping> {
+        let url_ = this.baseUrl + "/api/RegisterStudy/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetEntity(_response);
+        });
+    }
+
+    protected processGetEntity(response: Response): Promise<RegisterStudyMapping> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RegisterStudyMapping.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<RegisterStudyMapping>(null as any);
+    }
+
+    updateEntity(id: number, entity: RegisterStudyUpdate): Promise<Result> {
+        let url_ = this.baseUrl + "/api/RegisterStudy/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(entity);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateEntity(_response);
+        });
+    }
+
+    protected processUpdateEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    deleteEntity(id: number): Promise<Result> {
+        let url_ = this.baseUrl + "/api/RegisterStudy/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
@@ -2084,6 +3225,438 @@ export class SubjectClient {
     }
 }
 
+export class SubjectDetailClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : (typeof window !== 'undefined' ? window : { fetch }) as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getEntities(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfSubjectDetailMapping> {
+        let url_ = this.baseUrl + "/api/SubjectDetail?";
+        if (filters !== undefined && filters !== null)
+            url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
+        if (sorts !== undefined && sorts !== null)
+            url_ += "Sorts=" + encodeURIComponent("" + sorts) + "&";
+        if (page !== undefined && page !== null)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize !== undefined && pageSize !== null)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetEntities(_response);
+        });
+    }
+
+    protected processGetEntities(response: Response): Promise<PagingModelOfSubjectDetailMapping> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PagingModelOfSubjectDetailMapping.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PagingModelOfSubjectDetailMapping>(null as any);
+    }
+
+    createEntity(entity: SubjectDetailCreate): Promise<Result> {
+        let url_ = this.baseUrl + "/api/SubjectDetail";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(entity);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateEntity(_response);
+        });
+    }
+
+    protected processCreateEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    getEntity(id: number): Promise<SubjectDetailMapping> {
+        let url_ = this.baseUrl + "/api/SubjectDetail/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetEntity(_response);
+        });
+    }
+
+    protected processGetEntity(response: Response): Promise<SubjectDetailMapping> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = SubjectDetailMapping.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<SubjectDetailMapping>(null as any);
+    }
+
+    updateEntity(id: number, entity: SubjectDetailUpdate): Promise<Result> {
+        let url_ = this.baseUrl + "/api/SubjectDetail/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(entity);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateEntity(_response);
+        });
+    }
+
+    protected processUpdateEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    deleteEntity(id: number): Promise<Result> {
+        let url_ = this.baseUrl + "/api/SubjectDetail/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteEntity(_response);
+        });
+    }
+
+    protected processDeleteEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+}
+
+export class TestCaseClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : (typeof window !== 'undefined' ? window : { fetch }) as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getEntities(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfTestCaseMapping> {
+        let url_ = this.baseUrl + "/api/TestCase?";
+        if (filters !== undefined && filters !== null)
+            url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
+        if (sorts !== undefined && sorts !== null)
+            url_ += "Sorts=" + encodeURIComponent("" + sorts) + "&";
+        if (page !== undefined && page !== null)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize !== undefined && pageSize !== null)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetEntities(_response);
+        });
+    }
+
+    protected processGetEntities(response: Response): Promise<PagingModelOfTestCaseMapping> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PagingModelOfTestCaseMapping.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PagingModelOfTestCaseMapping>(null as any);
+    }
+
+    createEntity(entity: TestCaseCreate): Promise<Result> {
+        let url_ = this.baseUrl + "/api/TestCase";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(entity);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateEntity(_response);
+        });
+    }
+
+    protected processCreateEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    getEntity(id: number): Promise<TestCaseMapping> {
+        let url_ = this.baseUrl + "/api/TestCase/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetEntity(_response);
+        });
+    }
+
+    protected processGetEntity(response: Response): Promise<TestCaseMapping> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = TestCaseMapping.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<TestCaseMapping>(null as any);
+    }
+
+    updateEntity(id: number, entity: TestCaseUpdate): Promise<Result> {
+        let url_ = this.baseUrl + "/api/TestCase/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(entity);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateEntity(_response);
+        });
+    }
+
+    protected processUpdateEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    deleteEntity(id: number): Promise<Result> {
+        let url_ = this.baseUrl + "/api/TestCase/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteEntity(_response);
+        });
+    }
+
+    protected processDeleteEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+}
+
 export class UserClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -2518,6 +4091,74 @@ export class WardClient {
     }
 }
 
+export class UserInfoUpdate implements IUserInfoUpdate {
+    districtId?: number | undefined;
+    provinceId?: number | undefined;
+    certificateId?: number | undefined;
+    wardId?: number | undefined;
+    username?: string;
+    avatar?: string | undefined;
+    fullName?: string;
+    dateOfBirth?: Date;
+    address?: string | undefined;
+
+    constructor(data?: IUserInfoUpdate) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.districtId = _data["districtId"];
+            this.provinceId = _data["provinceId"];
+            this.certificateId = _data["certificateId"];
+            this.wardId = _data["wardId"];
+            this.username = _data["username"];
+            this.avatar = _data["avatar"];
+            this.fullName = _data["fullName"];
+            this.dateOfBirth = _data["dateOfBirth"] ? new Date(_data["dateOfBirth"].toString()) : <any>undefined;
+            this.address = _data["address"];
+        }
+    }
+
+    static fromJS(data: any): UserInfoUpdate {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserInfoUpdate();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["districtId"] = this.districtId;
+        data["provinceId"] = this.provinceId;
+        data["certificateId"] = this.certificateId;
+        data["wardId"] = this.wardId;
+        data["username"] = this.username;
+        data["avatar"] = this.avatar;
+        data["fullName"] = this.fullName;
+        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
+        data["address"] = this.address;
+        return data;
+    }
+}
+
+export interface IUserInfoUpdate {
+    districtId?: number | undefined;
+    provinceId?: number | undefined;
+    certificateId?: number | undefined;
+    wardId?: number | undefined;
+    username?: string;
+    avatar?: string | undefined;
+    fullName?: string;
+    dateOfBirth?: Date;
+    address?: string | undefined;
+}
+
 export class TokenRequest implements ITokenRequest {
     accessToken?: string;
     refreshToken?: string;
@@ -2709,13 +4350,14 @@ export interface IPagingModelOfBlogMapping {
 export class BlogMapping implements IBlogMapping {
     id?: number;
     content?: string;
+    image?: string;
     title?: string;
     numberOfLikes?: number;
     numberOfComments?: number;
     createTime?: Date;
     updateTime?: Date;
     creator?: User;
-    commentBlogs?: CommentBlog[];
+    commentBlogs?: CommentBlogMapping[];
     likeBlogs?: LikeBlog[];
 
     constructor(data?: IBlogMapping) {
@@ -2731,6 +4373,7 @@ export class BlogMapping implements IBlogMapping {
         if (_data) {
             this.id = _data["id"];
             this.content = _data["content"];
+            this.image = _data["image"];
             this.title = _data["title"];
             this.numberOfLikes = _data["numberOfLikes"];
             this.numberOfComments = _data["numberOfComments"];
@@ -2740,7 +4383,7 @@ export class BlogMapping implements IBlogMapping {
             if (Array.isArray(_data["commentBlogs"])) {
                 this.commentBlogs = [] as any;
                 for (let item of _data["commentBlogs"])
-                    this.commentBlogs!.push(CommentBlog.fromJS(item));
+                    this.commentBlogs!.push(CommentBlogMapping.fromJS(item));
             }
             if (Array.isArray(_data["likeBlogs"])) {
                 this.likeBlogs = [] as any;
@@ -2761,6 +4404,7 @@ export class BlogMapping implements IBlogMapping {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["content"] = this.content;
+        data["image"] = this.image;
         data["title"] = this.title;
         data["numberOfLikes"] = this.numberOfLikes;
         data["numberOfComments"] = this.numberOfComments;
@@ -2784,13 +4428,14 @@ export class BlogMapping implements IBlogMapping {
 export interface IBlogMapping {
     id?: number;
     content?: string;
+    image?: string;
     title?: string;
     numberOfLikes?: number;
     numberOfComments?: number;
     createTime?: Date;
     updateTime?: Date;
     creator?: User;
-    commentBlogs?: CommentBlog[];
+    commentBlogs?: CommentBlogMapping[];
     likeBlogs?: LikeBlog[];
 }
 
@@ -4538,6 +6183,7 @@ export class Blog implements IBlog {
     title?: string;
     numberOfLikes?: number;
     numberOfComments?: number;
+    image?: string;
     createTime?: Date;
     updateTime?: Date;
     creator?: User;
@@ -4561,6 +6207,7 @@ export class Blog implements IBlog {
             this.title = _data["title"];
             this.numberOfLikes = _data["numberOfLikes"];
             this.numberOfComments = _data["numberOfComments"];
+            this.image = _data["image"];
             this.createTime = _data["createTime"] ? new Date(_data["createTime"].toString()) : <any>undefined;
             this.updateTime = _data["updateTime"] ? new Date(_data["updateTime"].toString()) : <any>undefined;
             this.creator = _data["creator"] ? User.fromJS(_data["creator"]) : <any>undefined;
@@ -4592,6 +6239,7 @@ export class Blog implements IBlog {
         data["title"] = this.title;
         data["numberOfLikes"] = this.numberOfLikes;
         data["numberOfComments"] = this.numberOfComments;
+        data["image"] = this.image;
         data["createTime"] = this.createTime ? this.createTime.toISOString() : <any>undefined;
         data["updateTime"] = this.updateTime ? this.updateTime.toISOString() : <any>undefined;
         data["creator"] = this.creator ? this.creator.toJSON() : <any>undefined;
@@ -4616,6 +6264,7 @@ export interface IBlog {
     title?: string;
     numberOfLikes?: number;
     numberOfComments?: number;
+    image?: string;
     createTime?: Date;
     updateTime?: Date;
     creator?: User;
@@ -4627,10 +6276,13 @@ export class CommentBlog implements ICommentBlog {
     id?: number;
     blogId?: number;
     userId?: number;
+    parentId?: number | undefined;
     content?: string;
     edited?: boolean;
     blog?: Blog;
     user?: User;
+    parent?: CommentBlog;
+    childs?: CommentBlog[];
 
     constructor(data?: ICommentBlog) {
         if (data) {
@@ -4646,10 +6298,17 @@ export class CommentBlog implements ICommentBlog {
             this.id = _data["id"];
             this.blogId = _data["blogId"];
             this.userId = _data["userId"];
+            this.parentId = _data["parentId"];
             this.content = _data["content"];
             this.edited = _data["edited"];
             this.blog = _data["blog"] ? Blog.fromJS(_data["blog"]) : <any>undefined;
             this.user = _data["user"] ? User.fromJS(_data["user"]) : <any>undefined;
+            this.parent = _data["parent"] ? CommentBlog.fromJS(_data["parent"]) : <any>undefined;
+            if (Array.isArray(_data["childs"])) {
+                this.childs = [] as any;
+                for (let item of _data["childs"])
+                    this.childs!.push(CommentBlog.fromJS(item));
+            }
         }
     }
 
@@ -4665,10 +6324,17 @@ export class CommentBlog implements ICommentBlog {
         data["id"] = this.id;
         data["blogId"] = this.blogId;
         data["userId"] = this.userId;
+        data["parentId"] = this.parentId;
         data["content"] = this.content;
         data["edited"] = this.edited;
         data["blog"] = this.blog ? this.blog.toJSON() : <any>undefined;
         data["user"] = this.user ? this.user.toJSON() : <any>undefined;
+        data["parent"] = this.parent ? this.parent.toJSON() : <any>undefined;
+        if (Array.isArray(this.childs)) {
+            data["childs"] = [];
+            for (let item of this.childs)
+                data["childs"].push(item.toJSON());
+        }
         return data;
     }
 }
@@ -4677,10 +6343,13 @@ export interface ICommentBlog {
     id?: number;
     blogId?: number;
     userId?: number;
+    parentId?: number | undefined;
     content?: string;
     edited?: boolean;
     blog?: Blog;
     user?: User;
+    parent?: CommentBlog;
+    childs?: CommentBlog[];
 }
 
 export class LikeBlog implements ILikeBlog {
@@ -5027,6 +6696,66 @@ export interface IRefreshToken {
     user?: User;
 }
 
+export class CommentBlogMapping implements ICommentBlogMapping {
+    id?: number;
+    blogId?: number;
+    userId?: number;
+    parentId?: number;
+    content?: string;
+    edited?: boolean;
+    user?: User;
+
+    constructor(data?: ICommentBlogMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.blogId = _data["blogId"];
+            this.userId = _data["userId"];
+            this.parentId = _data["parentId"];
+            this.content = _data["content"];
+            this.edited = _data["edited"];
+            this.user = _data["user"] ? User.fromJS(_data["user"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): CommentBlogMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new CommentBlogMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["blogId"] = this.blogId;
+        data["userId"] = this.userId;
+        data["parentId"] = this.parentId;
+        data["content"] = this.content;
+        data["edited"] = this.edited;
+        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ICommentBlogMapping {
+    id?: number;
+    blogId?: number;
+    userId?: number;
+    parentId?: number;
+    content?: string;
+    edited?: boolean;
+    user?: User;
+}
+
 export class Result implements IResult {
     status?: ResultStatus;
     error?: string | undefined;
@@ -5077,6 +6806,7 @@ export enum ResultStatus {
 export class BlogCreate implements IBlogCreate {
     content?: string;
     title?: string;
+    image?: string;
     numberOfLikes?: number;
     numberOfComments?: number;
     createTime?: Date;
@@ -5094,6 +6824,7 @@ export class BlogCreate implements IBlogCreate {
         if (_data) {
             this.content = _data["content"];
             this.title = _data["title"];
+            this.image = _data["image"];
             this.numberOfLikes = _data["numberOfLikes"];
             this.numberOfComments = _data["numberOfComments"];
             this.createTime = _data["createTime"] ? new Date(_data["createTime"].toString()) : <any>undefined;
@@ -5111,6 +6842,7 @@ export class BlogCreate implements IBlogCreate {
         data = typeof data === 'object' ? data : {};
         data["content"] = this.content;
         data["title"] = this.title;
+        data["image"] = this.image;
         data["numberOfLikes"] = this.numberOfLikes;
         data["numberOfComments"] = this.numberOfComments;
         data["createTime"] = this.createTime ? this.createTime.toISOString() : <any>undefined;
@@ -5121,6 +6853,7 @@ export class BlogCreate implements IBlogCreate {
 export interface IBlogCreate {
     content?: string;
     title?: string;
+    image?: string;
     numberOfLikes?: number;
     numberOfComments?: number;
     createTime?: Date;
@@ -5130,6 +6863,7 @@ export class BlogUpdate implements IBlogUpdate {
     id?: number;
     content?: string;
     title?: string;
+    image?: string;
     numberOfLikes?: number;
     numberOfComments?: number;
     createTime?: Date;
@@ -5148,6 +6882,7 @@ export class BlogUpdate implements IBlogUpdate {
             this.id = _data["id"];
             this.content = _data["content"];
             this.title = _data["title"];
+            this.image = _data["image"];
             this.numberOfLikes = _data["numberOfLikes"];
             this.numberOfComments = _data["numberOfComments"];
             this.createTime = _data["createTime"] ? new Date(_data["createTime"].toString()) : <any>undefined;
@@ -5166,6 +6901,7 @@ export class BlogUpdate implements IBlogUpdate {
         data["id"] = this.id;
         data["content"] = this.content;
         data["title"] = this.title;
+        data["image"] = this.image;
         data["numberOfLikes"] = this.numberOfLikes;
         data["numberOfComments"] = this.numberOfComments;
         data["createTime"] = this.createTime ? this.createTime.toISOString() : <any>undefined;
@@ -5177,6 +6913,7 @@ export interface IBlogUpdate {
     id?: number;
     content?: string;
     title?: string;
+    image?: string;
     numberOfLikes?: number;
     numberOfComments?: number;
     createTime?: Date;
@@ -5584,6 +7321,158 @@ export class CertificateTypeUpdate implements ICertificateTypeUpdate {
 export interface ICertificateTypeUpdate {
     id?: number;
     name?: string;
+}
+
+export class PagingModelOfCommentBlogMapping implements IPagingModelOfCommentBlogMapping {
+    items?: CommentBlogMapping[];
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    pageSize?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPagingModelOfCommentBlogMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(CommentBlogMapping.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.pageSize = _data["pageSize"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PagingModelOfCommentBlogMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new PagingModelOfCommentBlogMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["pageSize"] = this.pageSize;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPagingModelOfCommentBlogMapping {
+    items?: CommentBlogMapping[];
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    pageSize?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class CommentBlogCreate implements ICommentBlogCreate {
+    blogId?: number;
+    parentId?: number | undefined;
+    content?: string;
+
+    constructor(data?: ICommentBlogCreate) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.blogId = _data["blogId"];
+            this.parentId = _data["parentId"];
+            this.content = _data["content"];
+        }
+    }
+
+    static fromJS(data: any): CommentBlogCreate {
+        data = typeof data === 'object' ? data : {};
+        let result = new CommentBlogCreate();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["blogId"] = this.blogId;
+        data["parentId"] = this.parentId;
+        data["content"] = this.content;
+        return data;
+    }
+}
+
+export interface ICommentBlogCreate {
+    blogId?: number;
+    parentId?: number | undefined;
+    content?: string;
+}
+
+export class CommentBlogUpdate implements ICommentBlogUpdate {
+    id?: number;
+    content?: string;
+
+    constructor(data?: ICommentBlogUpdate) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.content = _data["content"];
+        }
+    }
+
+    static fromJS(data: any): CommentBlogUpdate {
+        data = typeof data === 'object' ? data : {};
+        let result = new CommentBlogUpdate();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["content"] = this.content;
+        return data;
+    }
+}
+
+export interface ICommentBlogUpdate {
+    id?: number;
+    content?: string;
 }
 
 export class PagingModelOfCourseMapping implements IPagingModelOfCourseMapping {
@@ -6190,6 +8079,710 @@ export interface IDistrictUpdate {
     name?: string;
 }
 
+export class PagingModelOfLikeBlogMapping implements IPagingModelOfLikeBlogMapping {
+    items?: LikeBlogMapping[];
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    pageSize?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPagingModelOfLikeBlogMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(LikeBlogMapping.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.pageSize = _data["pageSize"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PagingModelOfLikeBlogMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new PagingModelOfLikeBlogMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["pageSize"] = this.pageSize;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPagingModelOfLikeBlogMapping {
+    items?: LikeBlogMapping[];
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    pageSize?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class LikeBlogMapping implements ILikeBlogMapping {
+    id?: number;
+    userId?: number;
+    blogId?: number;
+    unlike?: boolean;
+    createTime?: Date;
+    updateTime?: Date;
+    user?: User;
+
+    constructor(data?: ILikeBlogMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.userId = _data["userId"];
+            this.blogId = _data["blogId"];
+            this.unlike = _data["unlike"];
+            this.createTime = _data["createTime"] ? new Date(_data["createTime"].toString()) : <any>undefined;
+            this.updateTime = _data["updateTime"] ? new Date(_data["updateTime"].toString()) : <any>undefined;
+            this.user = _data["user"] ? User.fromJS(_data["user"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): LikeBlogMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new LikeBlogMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["userId"] = this.userId;
+        data["blogId"] = this.blogId;
+        data["unlike"] = this.unlike;
+        data["createTime"] = this.createTime ? this.createTime.toISOString() : <any>undefined;
+        data["updateTime"] = this.updateTime ? this.updateTime.toISOString() : <any>undefined;
+        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ILikeBlogMapping {
+    id?: number;
+    userId?: number;
+    blogId?: number;
+    unlike?: boolean;
+    createTime?: Date;
+    updateTime?: Date;
+    user?: User;
+}
+
+export class LikeBlogCreate implements ILikeBlogCreate {
+    blogId?: number;
+
+    constructor(data?: ILikeBlogCreate) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.blogId = _data["blogId"];
+        }
+    }
+
+    static fromJS(data: any): LikeBlogCreate {
+        data = typeof data === 'object' ? data : {};
+        let result = new LikeBlogCreate();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["blogId"] = this.blogId;
+        return data;
+    }
+}
+
+export interface ILikeBlogCreate {
+    blogId?: number;
+}
+
+export class LikeBlogUpdate implements ILikeBlogUpdate {
+    id?: number;
+    blogId?: number;
+
+    constructor(data?: ILikeBlogUpdate) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.blogId = _data["blogId"];
+        }
+    }
+
+    static fromJS(data: any): LikeBlogUpdate {
+        data = typeof data === 'object' ? data : {};
+        let result = new LikeBlogUpdate();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["blogId"] = this.blogId;
+        return data;
+    }
+}
+
+export interface ILikeBlogUpdate {
+    id?: number;
+    blogId?: number;
+}
+
+export class PagingModelOfPracticeMapping implements IPagingModelOfPracticeMapping {
+    items?: PracticeMapping[];
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    pageSize?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPagingModelOfPracticeMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(PracticeMapping.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.pageSize = _data["pageSize"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PagingModelOfPracticeMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new PagingModelOfPracticeMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["pageSize"] = this.pageSize;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPagingModelOfPracticeMapping {
+    items?: PracticeMapping[];
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    pageSize?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class PracticeMapping implements IPracticeMapping {
+    id?: number;
+    subjectDetailId?: number;
+    level?: Level;
+    practiceCode?: string;
+    title?: string;
+    topic?: string;
+    expectOutput?: string;
+    languageProgrammingId?: number;
+    isRequired?: boolean;
+    createTime?: Date;
+    updateTime?: Date;
+    isDeleted?: boolean;
+    mediumScore?: number;
+
+    constructor(data?: IPracticeMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.subjectDetailId = _data["subjectDetailId"];
+            this.level = _data["level"];
+            this.practiceCode = _data["practiceCode"];
+            this.title = _data["title"];
+            this.topic = _data["topic"];
+            this.expectOutput = _data["expectOutput"];
+            this.languageProgrammingId = _data["languageProgrammingId"];
+            this.isRequired = _data["isRequired"];
+            this.createTime = _data["createTime"] ? new Date(_data["createTime"].toString()) : <any>undefined;
+            this.updateTime = _data["updateTime"] ? new Date(_data["updateTime"].toString()) : <any>undefined;
+            this.isDeleted = _data["isDeleted"];
+            this.mediumScore = _data["mediumScore"];
+        }
+    }
+
+    static fromJS(data: any): PracticeMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new PracticeMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["subjectDetailId"] = this.subjectDetailId;
+        data["level"] = this.level;
+        data["practiceCode"] = this.practiceCode;
+        data["title"] = this.title;
+        data["topic"] = this.topic;
+        data["expectOutput"] = this.expectOutput;
+        data["languageProgrammingId"] = this.languageProgrammingId;
+        data["isRequired"] = this.isRequired;
+        data["createTime"] = this.createTime ? this.createTime.toISOString() : <any>undefined;
+        data["updateTime"] = this.updateTime ? this.updateTime.toISOString() : <any>undefined;
+        data["isDeleted"] = this.isDeleted;
+        data["mediumScore"] = this.mediumScore;
+        return data;
+    }
+}
+
+export interface IPracticeMapping {
+    id?: number;
+    subjectDetailId?: number;
+    level?: Level;
+    practiceCode?: string;
+    title?: string;
+    topic?: string;
+    expectOutput?: string;
+    languageProgrammingId?: number;
+    isRequired?: boolean;
+    createTime?: Date;
+    updateTime?: Date;
+    isDeleted?: boolean;
+    mediumScore?: number;
+}
+
+export class PracticeCreate implements IPracticeCreate {
+    subjectDetailId?: number;
+    level?: Level;
+    practiceCode?: string;
+    title?: string;
+    topic?: string;
+    expectOutput?: string;
+    languageProgrammingId?: number;
+    isRequired?: boolean;
+    createTime?: Date;
+    updateTime?: Date;
+    isDeleted?: boolean;
+    mediumScore?: number;
+
+    constructor(data?: IPracticeCreate) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.subjectDetailId = _data["subjectDetailId"];
+            this.level = _data["level"];
+            this.practiceCode = _data["practiceCode"];
+            this.title = _data["title"];
+            this.topic = _data["topic"];
+            this.expectOutput = _data["expectOutput"];
+            this.languageProgrammingId = _data["languageProgrammingId"];
+            this.isRequired = _data["isRequired"];
+            this.createTime = _data["createTime"] ? new Date(_data["createTime"].toString()) : <any>undefined;
+            this.updateTime = _data["updateTime"] ? new Date(_data["updateTime"].toString()) : <any>undefined;
+            this.isDeleted = _data["isDeleted"];
+            this.mediumScore = _data["mediumScore"];
+        }
+    }
+
+    static fromJS(data: any): PracticeCreate {
+        data = typeof data === 'object' ? data : {};
+        let result = new PracticeCreate();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["subjectDetailId"] = this.subjectDetailId;
+        data["level"] = this.level;
+        data["practiceCode"] = this.practiceCode;
+        data["title"] = this.title;
+        data["topic"] = this.topic;
+        data["expectOutput"] = this.expectOutput;
+        data["languageProgrammingId"] = this.languageProgrammingId;
+        data["isRequired"] = this.isRequired;
+        data["createTime"] = this.createTime ? this.createTime.toISOString() : <any>undefined;
+        data["updateTime"] = this.updateTime ? this.updateTime.toISOString() : <any>undefined;
+        data["isDeleted"] = this.isDeleted;
+        data["mediumScore"] = this.mediumScore;
+        return data;
+    }
+}
+
+export interface IPracticeCreate {
+    subjectDetailId?: number;
+    level?: Level;
+    practiceCode?: string;
+    title?: string;
+    topic?: string;
+    expectOutput?: string;
+    languageProgrammingId?: number;
+    isRequired?: boolean;
+    createTime?: Date;
+    updateTime?: Date;
+    isDeleted?: boolean;
+    mediumScore?: number;
+}
+
+export class PracticeUpdate implements IPracticeUpdate {
+    id?: number;
+    subjectDetailId?: number;
+    level?: Level;
+    practiceCode?: string;
+    title?: string;
+    topic?: string;
+    expectOutput?: string;
+    languageProgrammingId?: number;
+    isRequired?: boolean;
+    createTime?: Date;
+    updateTime?: Date;
+    isDeleted?: boolean;
+    mediumScore?: number;
+
+    constructor(data?: IPracticeUpdate) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.subjectDetailId = _data["subjectDetailId"];
+            this.level = _data["level"];
+            this.practiceCode = _data["practiceCode"];
+            this.title = _data["title"];
+            this.topic = _data["topic"];
+            this.expectOutput = _data["expectOutput"];
+            this.languageProgrammingId = _data["languageProgrammingId"];
+            this.isRequired = _data["isRequired"];
+            this.createTime = _data["createTime"] ? new Date(_data["createTime"].toString()) : <any>undefined;
+            this.updateTime = _data["updateTime"] ? new Date(_data["updateTime"].toString()) : <any>undefined;
+            this.isDeleted = _data["isDeleted"];
+            this.mediumScore = _data["mediumScore"];
+        }
+    }
+
+    static fromJS(data: any): PracticeUpdate {
+        data = typeof data === 'object' ? data : {};
+        let result = new PracticeUpdate();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["subjectDetailId"] = this.subjectDetailId;
+        data["level"] = this.level;
+        data["practiceCode"] = this.practiceCode;
+        data["title"] = this.title;
+        data["topic"] = this.topic;
+        data["expectOutput"] = this.expectOutput;
+        data["languageProgrammingId"] = this.languageProgrammingId;
+        data["isRequired"] = this.isRequired;
+        data["createTime"] = this.createTime ? this.createTime.toISOString() : <any>undefined;
+        data["updateTime"] = this.updateTime ? this.updateTime.toISOString() : <any>undefined;
+        data["isDeleted"] = this.isDeleted;
+        data["mediumScore"] = this.mediumScore;
+        return data;
+    }
+}
+
+export interface IPracticeUpdate {
+    id?: number;
+    subjectDetailId?: number;
+    level?: Level;
+    practiceCode?: string;
+    title?: string;
+    topic?: string;
+    expectOutput?: string;
+    languageProgrammingId?: number;
+    isRequired?: boolean;
+    createTime?: Date;
+    updateTime?: Date;
+    isDeleted?: boolean;
+    mediumScore?: number;
+}
+
+export class PagingModelOfProgramingLanguageMapping implements IPagingModelOfProgramingLanguageMapping {
+    items?: ProgramingLanguageMapping[];
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    pageSize?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPagingModelOfProgramingLanguageMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(ProgramingLanguageMapping.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.pageSize = _data["pageSize"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PagingModelOfProgramingLanguageMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new PagingModelOfProgramingLanguageMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["pageSize"] = this.pageSize;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPagingModelOfProgramingLanguageMapping {
+    items?: ProgramingLanguageMapping[];
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    pageSize?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class ProgramingLanguageMapping implements IProgramingLanguageMapping {
+    id?: number;
+    languageName?: string;
+
+    constructor(data?: IProgramingLanguageMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.languageName = _data["languageName"];
+        }
+    }
+
+    static fromJS(data: any): ProgramingLanguageMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProgramingLanguageMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["languageName"] = this.languageName;
+        return data;
+    }
+}
+
+export interface IProgramingLanguageMapping {
+    id?: number;
+    languageName?: string;
+}
+
+export class ProgramingLanguageCreate implements IProgramingLanguageCreate {
+    languageName?: string;
+
+    constructor(data?: IProgramingLanguageCreate) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.languageName = _data["languageName"];
+        }
+    }
+
+    static fromJS(data: any): ProgramingLanguageCreate {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProgramingLanguageCreate();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["languageName"] = this.languageName;
+        return data;
+    }
+}
+
+export interface IProgramingLanguageCreate {
+    languageName?: string;
+}
+
+export class ProgramingLanguageUpdate implements IProgramingLanguageUpdate {
+    id?: number;
+    languageName?: string;
+
+    constructor(data?: IProgramingLanguageUpdate) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.languageName = _data["languageName"];
+        }
+    }
+
+    static fromJS(data: any): ProgramingLanguageUpdate {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProgramingLanguageUpdate();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["languageName"] = this.languageName;
+        return data;
+    }
+}
+
+export interface IProgramingLanguageUpdate {
+    id?: number;
+    languageName?: string;
+}
+
 export class PagingModelOfProvinceMapping implements IPagingModelOfProvinceMapping {
     items?: ProvinceMapping[];
     pageNumber?: number;
@@ -6372,6 +8965,278 @@ export class ProvinceUpdate implements IProvinceUpdate {
 export interface IProvinceUpdate {
     id?: number;
     name?: string;
+}
+
+export class PagingModelOfRegisterStudyMapping implements IPagingModelOfRegisterStudyMapping {
+    items?: RegisterStudyMapping[];
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    pageSize?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPagingModelOfRegisterStudyMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(RegisterStudyMapping.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.pageSize = _data["pageSize"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PagingModelOfRegisterStudyMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new PagingModelOfRegisterStudyMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["pageSize"] = this.pageSize;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPagingModelOfRegisterStudyMapping {
+    items?: RegisterStudyMapping[];
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    pageSize?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class RegisterStudyMapping implements IRegisterStudyMapping {
+    id?: number;
+    userId?: number;
+    courseId?: number;
+    currentSubjectId?: number;
+    isFinished?: boolean;
+    registerTime?: Date;
+    percentComplete?: number;
+    doneTime?: Date | undefined;
+    isActive?: boolean;
+
+    constructor(data?: IRegisterStudyMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.userId = _data["userId"];
+            this.courseId = _data["courseId"];
+            this.currentSubjectId = _data["currentSubjectId"];
+            this.isFinished = _data["isFinished"];
+            this.registerTime = _data["registerTime"] ? new Date(_data["registerTime"].toString()) : <any>undefined;
+            this.percentComplete = _data["percentComplete"];
+            this.doneTime = _data["doneTime"] ? new Date(_data["doneTime"].toString()) : <any>undefined;
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): RegisterStudyMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new RegisterStudyMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["userId"] = this.userId;
+        data["courseId"] = this.courseId;
+        data["currentSubjectId"] = this.currentSubjectId;
+        data["isFinished"] = this.isFinished;
+        data["registerTime"] = this.registerTime ? this.registerTime.toISOString() : <any>undefined;
+        data["percentComplete"] = this.percentComplete;
+        data["doneTime"] = this.doneTime ? this.doneTime.toISOString() : <any>undefined;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface IRegisterStudyMapping {
+    id?: number;
+    userId?: number;
+    courseId?: number;
+    currentSubjectId?: number;
+    isFinished?: boolean;
+    registerTime?: Date;
+    percentComplete?: number;
+    doneTime?: Date | undefined;
+    isActive?: boolean;
+}
+
+export class RegisterStudyCreate implements IRegisterStudyCreate {
+    id?: number;
+    userId?: number;
+    courseId?: number;
+    currentSubjectId?: number;
+    isFinished?: boolean;
+    registerTime?: Date;
+    percentComplete?: number;
+    doneTime?: Date | undefined;
+    isActive?: boolean;
+
+    constructor(data?: IRegisterStudyCreate) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.userId = _data["userId"];
+            this.courseId = _data["courseId"];
+            this.currentSubjectId = _data["currentSubjectId"];
+            this.isFinished = _data["isFinished"];
+            this.registerTime = _data["registerTime"] ? new Date(_data["registerTime"].toString()) : <any>undefined;
+            this.percentComplete = _data["percentComplete"];
+            this.doneTime = _data["doneTime"] ? new Date(_data["doneTime"].toString()) : <any>undefined;
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): RegisterStudyCreate {
+        data = typeof data === 'object' ? data : {};
+        let result = new RegisterStudyCreate();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["userId"] = this.userId;
+        data["courseId"] = this.courseId;
+        data["currentSubjectId"] = this.currentSubjectId;
+        data["isFinished"] = this.isFinished;
+        data["registerTime"] = this.registerTime ? this.registerTime.toISOString() : <any>undefined;
+        data["percentComplete"] = this.percentComplete;
+        data["doneTime"] = this.doneTime ? this.doneTime.toISOString() : <any>undefined;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface IRegisterStudyCreate {
+    id?: number;
+    userId?: number;
+    courseId?: number;
+    currentSubjectId?: number;
+    isFinished?: boolean;
+    registerTime?: Date;
+    percentComplete?: number;
+    doneTime?: Date | undefined;
+    isActive?: boolean;
+}
+
+export class RegisterStudyUpdate implements IRegisterStudyUpdate {
+    id?: number;
+    userId?: number;
+    courseId?: number;
+    currentSubjectId?: number;
+    isFinished?: boolean;
+    registerTime?: Date;
+    percentComplete?: number;
+    doneTime?: Date | undefined;
+    isActive?: boolean;
+
+    constructor(data?: IRegisterStudyUpdate) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.userId = _data["userId"];
+            this.courseId = _data["courseId"];
+            this.currentSubjectId = _data["currentSubjectId"];
+            this.isFinished = _data["isFinished"];
+            this.registerTime = _data["registerTime"] ? new Date(_data["registerTime"].toString()) : <any>undefined;
+            this.percentComplete = _data["percentComplete"];
+            this.doneTime = _data["doneTime"] ? new Date(_data["doneTime"].toString()) : <any>undefined;
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): RegisterStudyUpdate {
+        data = typeof data === 'object' ? data : {};
+        let result = new RegisterStudyUpdate();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["userId"] = this.userId;
+        data["courseId"] = this.courseId;
+        data["currentSubjectId"] = this.currentSubjectId;
+        data["isFinished"] = this.isFinished;
+        data["registerTime"] = this.registerTime ? this.registerTime.toISOString() : <any>undefined;
+        data["percentComplete"] = this.percentComplete;
+        data["doneTime"] = this.doneTime ? this.doneTime.toISOString() : <any>undefined;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface IRegisterStudyUpdate {
+    id?: number;
+    userId?: number;
+    courseId?: number;
+    currentSubjectId?: number;
+    isFinished?: boolean;
+    registerTime?: Date;
+    percentComplete?: number;
+    doneTime?: Date | undefined;
+    isActive?: boolean;
 }
 
 export class PagingModelOfRoleMapping implements IPagingModelOfRoleMapping {
@@ -6728,6 +9593,458 @@ export interface ISubjectUpdate {
     name?: string;
     symbol?: string;
     isActive?: boolean;
+}
+
+export class PagingModelOfSubjectDetailMapping implements IPagingModelOfSubjectDetailMapping {
+    items?: SubjectDetailMapping[];
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    pageSize?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPagingModelOfSubjectDetailMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(SubjectDetailMapping.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.pageSize = _data["pageSize"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PagingModelOfSubjectDetailMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new PagingModelOfSubjectDetailMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["pageSize"] = this.pageSize;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPagingModelOfSubjectDetailMapping {
+    items?: SubjectDetailMapping[];
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    pageSize?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class SubjectDetailMapping implements ISubjectDetailMapping {
+    id?: number;
+    subjectId?: number;
+    name?: string;
+    isFinished?: boolean;
+    linkVideo?: string;
+    isActive?: boolean;
+
+    constructor(data?: ISubjectDetailMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.subjectId = _data["subjectId"];
+            this.name = _data["name"];
+            this.isFinished = _data["isFinished"];
+            this.linkVideo = _data["linkVideo"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): SubjectDetailMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new SubjectDetailMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["subjectId"] = this.subjectId;
+        data["name"] = this.name;
+        data["isFinished"] = this.isFinished;
+        data["linkVideo"] = this.linkVideo;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface ISubjectDetailMapping {
+    id?: number;
+    subjectId?: number;
+    name?: string;
+    isFinished?: boolean;
+    linkVideo?: string;
+    isActive?: boolean;
+}
+
+export class SubjectDetailCreate implements ISubjectDetailCreate {
+    subjectId?: number;
+    name?: string;
+    isFinished?: boolean;
+    linkVideo?: string;
+    isActive?: boolean;
+
+    constructor(data?: ISubjectDetailCreate) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.subjectId = _data["subjectId"];
+            this.name = _data["name"];
+            this.isFinished = _data["isFinished"];
+            this.linkVideo = _data["linkVideo"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): SubjectDetailCreate {
+        data = typeof data === 'object' ? data : {};
+        let result = new SubjectDetailCreate();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["subjectId"] = this.subjectId;
+        data["name"] = this.name;
+        data["isFinished"] = this.isFinished;
+        data["linkVideo"] = this.linkVideo;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface ISubjectDetailCreate {
+    subjectId?: number;
+    name?: string;
+    isFinished?: boolean;
+    linkVideo?: string;
+    isActive?: boolean;
+}
+
+export class SubjectDetailUpdate implements ISubjectDetailUpdate {
+    id?: number;
+    subjectId?: number;
+    name?: string;
+    isFinished?: boolean;
+    linkVideo?: string;
+    isActive?: boolean;
+
+    constructor(data?: ISubjectDetailUpdate) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.subjectId = _data["subjectId"];
+            this.name = _data["name"];
+            this.isFinished = _data["isFinished"];
+            this.linkVideo = _data["linkVideo"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): SubjectDetailUpdate {
+        data = typeof data === 'object' ? data : {};
+        let result = new SubjectDetailUpdate();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["subjectId"] = this.subjectId;
+        data["name"] = this.name;
+        data["isFinished"] = this.isFinished;
+        data["linkVideo"] = this.linkVideo;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface ISubjectDetailUpdate {
+    id?: number;
+    subjectId?: number;
+    name?: string;
+    isFinished?: boolean;
+    linkVideo?: string;
+    isActive?: boolean;
+}
+
+export class PagingModelOfTestCaseMapping implements IPagingModelOfTestCaseMapping {
+    items?: TestCaseMapping[];
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    pageSize?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPagingModelOfTestCaseMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(TestCaseMapping.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.pageSize = _data["pageSize"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PagingModelOfTestCaseMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new PagingModelOfTestCaseMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["pageSize"] = this.pageSize;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPagingModelOfTestCaseMapping {
+    items?: TestCaseMapping[];
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    pageSize?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class TestCaseMapping implements ITestCaseMapping {
+    id?: number;
+    input?: string;
+    output?: string;
+    programingLanguageId?: number;
+    practiceId?: number;
+
+    constructor(data?: ITestCaseMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.input = _data["input"];
+            this.output = _data["output"];
+            this.programingLanguageId = _data["programingLanguageId"];
+            this.practiceId = _data["practiceId"];
+        }
+    }
+
+    static fromJS(data: any): TestCaseMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new TestCaseMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["input"] = this.input;
+        data["output"] = this.output;
+        data["programingLanguageId"] = this.programingLanguageId;
+        data["practiceId"] = this.practiceId;
+        return data;
+    }
+}
+
+export interface ITestCaseMapping {
+    id?: number;
+    input?: string;
+    output?: string;
+    programingLanguageId?: number;
+    practiceId?: number;
+}
+
+export class TestCaseCreate implements ITestCaseCreate {
+    input?: string;
+    output?: string;
+    programingLanguageId?: number;
+    practiceId?: number;
+
+    constructor(data?: ITestCaseCreate) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.input = _data["input"];
+            this.output = _data["output"];
+            this.programingLanguageId = _data["programingLanguageId"];
+            this.practiceId = _data["practiceId"];
+        }
+    }
+
+    static fromJS(data: any): TestCaseCreate {
+        data = typeof data === 'object' ? data : {};
+        let result = new TestCaseCreate();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["input"] = this.input;
+        data["output"] = this.output;
+        data["programingLanguageId"] = this.programingLanguageId;
+        data["practiceId"] = this.practiceId;
+        return data;
+    }
+}
+
+export interface ITestCaseCreate {
+    input?: string;
+    output?: string;
+    programingLanguageId?: number;
+    practiceId?: number;
+}
+
+export class TestCaseUpdate implements ITestCaseUpdate {
+    id?: number;
+    input?: string;
+    output?: string;
+    programingLanguageId?: number;
+    practiceId?: number;
+
+    constructor(data?: ITestCaseUpdate) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.input = _data["input"];
+            this.output = _data["output"];
+            this.programingLanguageId = _data["programingLanguageId"];
+            this.practiceId = _data["practiceId"];
+        }
+    }
+
+    static fromJS(data: any): TestCaseUpdate {
+        data = typeof data === 'object' ? data : {};
+        let result = new TestCaseUpdate();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["input"] = this.input;
+        data["output"] = this.output;
+        data["programingLanguageId"] = this.programingLanguageId;
+        data["practiceId"] = this.practiceId;
+        return data;
+    }
+}
+
+export interface ITestCaseUpdate {
+    id?: number;
+    input?: string;
+    output?: string;
+    programingLanguageId?: number;
+    practiceId?: number;
 }
 
 export class PagingModelOfUserMapping implements IPagingModelOfUserMapping {

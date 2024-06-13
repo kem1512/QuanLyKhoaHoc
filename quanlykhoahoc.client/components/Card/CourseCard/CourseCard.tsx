@@ -16,7 +16,7 @@ import { formatCurrencyVND } from "../../../lib/helper";
 import Link from "next/link";
 
 export function CourseCard({ data }: { data: CourseMapping }) {
-  const { code, imageCourse, name, price, introduce, courseSubjects } = data;
+  const { id, code, imageCourse, name, price, introduce, courseSubjects } = data;
 
   const subjects = courseSubjects.map((badge) => (
     <Badge
@@ -36,7 +36,7 @@ export function CourseCard({ data }: { data: CourseMapping }) {
 
       <Card.Section className={classes.section} mt="md">
         <Group justify="apart">
-          <Link href={`/${code}`} style={{ textDecoration: "none" }}>
+          <Link href={`/${id}`} style={{ textDecoration: "none" }}>
             <Text fz="lg" fw={500}>
               {name}
             </Text>

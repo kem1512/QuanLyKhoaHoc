@@ -126,6 +126,10 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
                     b.Property<int>("CreatorId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Image")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("NumberOfComments")
                         .HasColumnType("int");
 
@@ -206,11 +210,13 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasMaxLength(123)
-                        .HasColumnType("nvarchar(123)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("Edited")
                         .HasColumnType("bit");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("int");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -218,6 +224,8 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BlogId");
+
+                    b.HasIndex("ParentId");
 
                     b.HasIndex("UserId");
 
@@ -996,6 +1004,11 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.ClientNoAction)
                         .IsRequired();
 
+                    b.HasOne("QuanLyKhoaHoc.Domain.Entities.CommentBlog", "Parent")
+                        .WithMany("Childs")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.ClientNoAction);
+
                     b.HasOne("QuanLyKhoaHoc.Domain.Entities.User", "User")
                         .WithMany("CommentBlogs")
                         .HasForeignKey("UserId")
@@ -1003,6 +1016,8 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Blog");
+
+                    b.Navigation("Parent");
 
                     b.Navigation("User");
                 });
@@ -1341,6 +1356,11 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.CertificateType", b =>
                 {
                     b.Navigation("Certificates");
+                });
+
+            modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.CommentBlog", b =>
+                {
+                    b.Navigation("Childs");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.Course", b =>

@@ -4,11 +4,10 @@ import { Button, Grid, TextInput } from "@mantine/core";
 import { DateTimePicker } from "@mantine/dates";
 import { useEffect, useState } from "react";
 import {
+  AccountClient,
   AuthClient,
   IUserMapping,
-  IUserUpdate,
-  UserClient,
-  UserUpdate,
+  UserInfoUpdate,
 } from "../../web-api-client";
 import { useSelector } from "react-redux";
 import {
@@ -20,8 +19,6 @@ import ProfileLayout from "../../../components/Layout/ProfileLayout/ProfileLayou
 import { handleSubmit } from "../../../lib/helper";
 
 export default function ProfileInfo() {
-  const UserService = new UserClient();
-
   const [user, setUser] = useState<IUserMapping>();
 
   const info = useSelector((state: any) => state.auth.user);
@@ -126,7 +123,9 @@ export default function ProfileInfo() {
               size="xs"
               onClick={() =>
                 handleSubmit(() => {
-                  return UserService.updateEntity(user.id, user as UserUpdate);
+                  return new AccountClient().userInfoUpdate(
+                    user as UserInfoUpdate
+                  );
                 }, "Sửa Thành Công")
               }
             >
@@ -139,7 +138,7 @@ export default function ProfileInfo() {
                 color="grape"
                 onClick={async () =>
                   handleSubmit(
-                     () => new AuthClient().sendConfirmEmail(user.email),
+                    () => new AuthClient().sendConfirmEmail(user.email),
                     "Gửi Thành Công"
                   )
                 }

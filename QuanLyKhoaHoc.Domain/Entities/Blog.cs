@@ -14,6 +14,8 @@
 
         public int NumberOfComments { get; set; }
 
+        public string Image {  get; set; } = default!;
+
         public DateTime CreateTime { get; set; }
 
         public DateTime UpdateTime { get; set; }

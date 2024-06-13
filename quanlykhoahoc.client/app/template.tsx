@@ -39,7 +39,7 @@ function AuthHandler({ onAuthComplete }: { onAuthComplete: () => void }) {
         }
 
         if (!user) {
-          const response = await fetch("/api/auth/info", {
+          const response = await fetch("/api/account", {
             headers: {
               Authorization: `Bearer ${newAccessToken}`,
             },

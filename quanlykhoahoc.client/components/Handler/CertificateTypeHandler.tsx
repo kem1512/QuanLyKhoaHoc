@@ -32,7 +32,7 @@ export default function CertificateTypeHandler({ id }: { id?: number }) {
   return (
     <DashboardLayout>
       <Grid>
-        <Grid.Col span={6}>
+        <Grid.Col>
           <TextInput
             label="Tên Chứng Chỉ"
             placeholder="Nhập Tên Chứng Chỉ"
@@ -43,7 +43,7 @@ export default function CertificateTypeHandler({ id }: { id?: number }) {
             labelProps={{ style: { marginBottom: 6 } }}
           />
         </Grid.Col>
-        <Grid.Col span={6}>
+        <Grid.Col>
           <ActionButton
             size="xs"
             action={() =>

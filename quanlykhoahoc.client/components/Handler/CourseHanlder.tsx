@@ -1,6 +1,6 @@
 "use client";
 
-import { Grid, TextInput } from "@mantine/core";
+import { Grid, NumberInput, TextInput } from "@mantine/core";
 import DashboardLayout from "../../components/Layout/DashboardLayout/DashboardLayout";
 import {
   CourseClient,
@@ -94,53 +94,53 @@ export default function CourseHandler({ id }: { id?: number }) {
           />
         </Grid.Col>
         <Grid.Col span={{ base: 12, lg: 6 }}>
-          <TextInput
+          <NumberInput
             label="Số Người Mua"
             placeholder="Nhập Số Người Mua"
             value={course.numberOfPurchases}
-            onChange={(e) =>
+            onChange={(e: number) =>
               setCourse((prev) => ({
                 ...prev,
-                numberOfPurchases: Number(e.target.value),
+                numberOfPurchases: e,
               }))
             }
             labelProps={{ style: { marginBottom: 6 } }}
           />
         </Grid.Col>
         <Grid.Col span={{ base: 12, lg: 6 }}>
-          <TextInput
+          <NumberInput
             label="Số Lượng Học Sinh"
             placeholder="Nhập Số Lượng Học Sinh"
             value={course.numberOfStudent}
-            onChange={(e) =>
+            onChange={(e: number) =>
               setCourse((prev) => ({
                 ...prev,
-                numberOfStudent: Number(e.target.value),
+                numberOfStudent: e,
               }))
             }
             labelProps={{ style: { marginBottom: 6 } }}
           />
         </Grid.Col>
         <Grid.Col span={{ base: 12, lg: 6 }}>
-          <TextInput
+          <NumberInput
             label="Giá"
             placeholder="Nhập Giá"
             value={course.price}
-            onChange={(e) =>
-              setCourse((prev) => ({ ...prev, price: Number(e.target.value) }))
+            onChange={(e: number) =>
+              setCourse((prev) => ({ ...prev, price: e }))
             }
             labelProps={{ style: { marginBottom: 6 } }}
           />
         </Grid.Col>
         <Grid.Col span={{ base: 12, lg: 6 }}>
-          <TextInput
+          <NumberInput
             label="Tổng Thời Lượng Khóa Học"
             placeholder="Nhập Tổng Thời Lượng"
             value={course.totalCourseDuration}
-            onChange={(e) =>
+            onChange={(e: number) =>
               setCourse((prev) => ({
                 ...prev,
-                totalCourseDuration: Number(e.target.value),
+                totalCourseDuration: e,
               }))
             }
             labelProps={{ style: { marginBottom: 6 } }}
