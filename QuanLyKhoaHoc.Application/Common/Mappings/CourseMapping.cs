@@ -29,16 +29,22 @@
 
     public class CourseCreate
     {
+        [Required(ErrorMessage = "Tên Khóa Học Không Được Bỏ Trống")]
         public string Name { get; set; } = default!;
 
+        [Required(ErrorMessage = "Mô Tả Không Được Bỏ Trống")]
         public string Introduce { get; set; } = default!;
 
+        [Required(ErrorMessage = "Ảnh Khóa Học Không Được Bỏ Trống")]
         public string ImageCourse { get; set; } = default!;
 
+        [Required(ErrorMessage = "Mã Khóa Học Không Được Bỏ Trống")]
         public string Code { get; set; } = default!;
 
+        [Required(ErrorMessage = "Giá Không Được Bỏ Trống")]
         public decimal Price { get; set; }
 
+        [Required(ErrorMessage = "Thời Gian Học Không Được Bỏ Trống")]
         public int TotalCourseDuration { get; set; }
 
         public int NumberOfStudent { get; set; }
@@ -50,20 +56,25 @@
 
     public class CourseUpdate
     {
+        [Required(ErrorMessage = "Khóa Học Không Được Bỏ Trống")]
         public int Id { get; set; }
 
+        [Required(ErrorMessage = "Tên Khóa Học Không Được Bỏ Trống")]
         public string Name { get; set; } = default!;
 
+        [Required(ErrorMessage = "Mô Tả Không Được Bỏ Trống")]
         public string Introduce { get; set; } = default!;
 
+        [Required(ErrorMessage = "Ảnh Khóa Học Không Được Bỏ Trống")]
         public string ImageCourse { get; set; } = default!;
 
-        public int CreatorId { get; set; }
-
+        [Required(ErrorMessage = "Mã Khóa Học Không Được Bỏ Trống")]
         public string Code { get; set; } = default!;
 
+        [Required(ErrorMessage = "Giá Không Được Bỏ Trống")]
         public decimal Price { get; set; }
 
+        [Required(ErrorMessage = "Thời Gian Học Không Được Bỏ Trống")]
         public int TotalCourseDuration { get; set; }
 
         public int NumberOfStudent { get; set; }

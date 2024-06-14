@@ -58,5 +58,17 @@
 
             return _mapper.Map<UserInfo>(user);
         }
+
+        public async Task<RegisterStudyMapping?> RegisterStudy(int courseId, CancellationToken cancellation)
+        {
+            var registerStudy = await _context.RegisterStudys.FirstOrDefaultAsync(c => c.CourseId == courseId);
+
+            if (registerStudy == null)
+            {
+                return null;
+            }
+
+            return _mapper.Map<RegisterStudyMapping>(registerStudy);
+        }
     }
 }

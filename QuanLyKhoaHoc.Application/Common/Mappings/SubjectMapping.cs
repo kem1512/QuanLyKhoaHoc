@@ -31,10 +31,13 @@ namespace QuanLyKhoaHoc.Application.Common.Mappings
 
     public class SubjectUpdate
     {
+        [Required(ErrorMessage = "Chủ Đề Không Được Bỏ Trống")]
         public int Id { get; set; }
 
+        [Required(ErrorMessage = "Tên Chủ Đề Không Được Bỏ Trống")]
         public string Name { get; set; } = default!;
 
+        [Required(ErrorMessage = "Biểu Tượng Không Được Bỏ Trống")]
         public string Symbol { get; set; } = default!;
 
         public bool IsActive { get; set; }

@@ -6,6 +6,8 @@
         {
             builder.HasKey(c => c.Id);
 
+            builder.HasIndex(c => c.Name).IsUnique();
+
             builder.HasOne(c => c.Province).WithMany(c => c.Districts).HasForeignKey(c => c.ProvinceId).OnDelete(DeleteBehavior.ClientNoAction);
         }
     }

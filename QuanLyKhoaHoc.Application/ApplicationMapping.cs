@@ -68,6 +68,10 @@ namespace QuanLyKhoaHoc.Application
             CreateMap<CommentBlog, CommentBlogCreate>().ReverseMap();
             CreateMap<CommentBlog, CommentBlogUpdate>().ReverseMap();
 
+            CreateMap<RegisterStudy, RegisterStudyMapping>().ReverseMap();
+            CreateMap<RegisterStudy, RegisterStudyCreate>().ReverseMap();
+            CreateMap<RegisterStudy, RegisterStudyUpdate>().ReverseMap();
+
             CreateMap<CertificateType, CertificateTypeMapping>().ReverseMap();
             CreateMap<CertificateType, CertificateTypeCreate>().ReverseMap();
             CreateMap<CertificateType, CertificateTypeUpdate>().ReverseMap();

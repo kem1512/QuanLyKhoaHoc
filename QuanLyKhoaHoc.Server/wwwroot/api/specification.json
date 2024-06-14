@@ -58,6 +58,38 @@
         }
       }
     },
+    "/api/Account/RegisterStudy": {
+      "get": {
+        "tags": [
+          "Account"
+        ],
+        "operationId": "Account_RegisterStudy",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Auth/login": {
       "post": {
         "tags": [

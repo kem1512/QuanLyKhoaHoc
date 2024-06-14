@@ -6,6 +6,10 @@
         {
             builder.HasKey(c => c.Id);
 
+            builder.Property(c => c.ReplyCount).HasDefaultValue(0);
+
+            builder.Property(c => c.Edited).HasDefaultValue(false);
+
             builder.HasOne(c => c.Blog).WithMany(c => c.CommentBlogs).HasForeignKey(c => c.BlogId).OnDelete(DeleteBehavior.ClientNoAction);
 
             builder.HasOne(c => c.User).WithMany(c => c.CommentBlogs).HasForeignKey(c => c.UserId).OnDelete(DeleteBehavior.ClientNoAction);

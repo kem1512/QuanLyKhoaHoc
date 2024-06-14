@@ -1,7 +1,4 @@
-﻿using QuanLyKhoaHoc.Application.Common.Models;
-using QuanLyKhoaHoc.Domain.Entities;
-
-namespace QuanLyKhoaHoc.Application.Common.Mappings
+﻿namespace QuanLyKhoaHoc.Application.Common.Mappings
 {
     public class BlogMapping
     {
@@ -32,10 +29,13 @@ namespace QuanLyKhoaHoc.Application.Common.Mappings
 
     public class BlogCreate
     {
+        [Required(ErrorMessage = "Nội Dung Không Được Bỏ Trống")]
         public string Content { get; set; } = default!;
 
+        [Required(ErrorMessage = "Tiêu Đề Không Được Bỏ Trống")]
         public string Title { get; set; } = default!;
 
+        [Required(ErrorMessage = "Hình Ảnh Không Được Bỏ Trống")]
         public string Image { get; set; } = default!;
 
         public int NumberOfLikes { get; set; }
@@ -47,12 +47,16 @@ namespace QuanLyKhoaHoc.Application.Common.Mappings
 
     public class BlogUpdate
     {
+        [Required(ErrorMessage = "Bài Viết Không Được Bỏ Trống")]
         public int Id { get; set; }
 
+        [Required(ErrorMessage = "Nội Dung Không Được Bỏ Trống")]
         public string Content { get; set; } = default!;
 
+        [Required(ErrorMessage = "Tiêu Đề Không Được Bỏ Trống")]
         public string Title { get; set; } = default!;
 
+        [Required(ErrorMessage = "Hình Ảnh Không Được Bỏ Trống")]
         public string Image { get; set; } = default!;
 
         public int NumberOfLikes { get; set; }

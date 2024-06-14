@@ -84,14 +84,14 @@
 
         public override async Task<RegisterStudyMapping?> Get(int id, CancellationToken cancellation)
         {
-            var RegisterStudy = await _context.RegisterStudys.FindAsync(new object[] { id }, cancellation);
+            var registerStudy = await _context.RegisterStudys.FindAsync(new object[] { id }, cancellation);
 
-            if (RegisterStudy == null)
+            if (registerStudy == null)
             {
                 return null;
             }
 
-            return _mapper.Map<RegisterStudyMapping>(RegisterStudy);
+            return _mapper.Map<RegisterStudyMapping>(registerStudy);
         }
 
         public override async Task<Result> Update(int id, RegisterStudyUpdate entity, CancellationToken cancellation)
@@ -105,19 +105,19 @@
                     return Result.Failure("ID Phải Giống Nhau");
                 }
 
-                var RegisterStudy = await _context.RegisterStudys.FindAsync(new object[] { id }, cancellation);
+                var registerStudy = await _context.RegisterStudys.FindAsync(new object[] { id }, cancellation);
 
-                if (RegisterStudy == null)
+                if (registerStudy == null)
                 {
                     return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
-                if (RegisterStudy.UserId != int.Parse(_user.Id) || !_user.IsAdministrator)
+                if (registerStudy.UserId != int.Parse(_user.Id) || !_user.IsAdministrator)
                 {
                     return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Sửa");
                 }
 
-                _context.RegisterStudys.Update(_mapper.Map(entity, RegisterStudy));
+                _context.RegisterStudys.Update(_mapper.Map(entity, registerStudy));
 
                 var result = await _context.SaveChangesAsync(cancellation);
 

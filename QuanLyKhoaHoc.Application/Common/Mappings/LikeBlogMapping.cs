@@ -21,13 +21,16 @@
 
     public class LikeBlogCreate
     {
+        [Required(ErrorMessage = "Bài Viết Không Được Bỏ Trống")]
         public int BlogId { get; set; }
     }
 
     public class LikeBlogUpdate
     {
+        [Required(ErrorMessage = "Bài Viết Đã Thích Không Được Bỏ Trống")]
         public int Id { get; set; }
 
+        [Required(ErrorMessage = "Bài Viết Không Được Bỏ Trống")]
         public int BlogId { get; set; }
     }
 }

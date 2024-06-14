@@ -1,4 +1,4 @@
-﻿using QuanLyKhoaHoc.Domain;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace QuanLyKhoaHoc.Application.Common.Mappings
 {
@@ -35,18 +35,24 @@ namespace QuanLyKhoaHoc.Application.Common.Mappings
 
     public class PracticeCreate
     {
+        [Required(ErrorMessage = "Chi Tiết Chủ Đề Không Được Bỏ Trống")]
         public int SubjectDetailId { get; set; }
 
         public Level Level { get; set; }
 
+        [Required(ErrorMessage = "Mã Bài Tập Không Được Bỏ Trống")]
         public string PracticeCode { get; set; } = default!;
 
+        [Required(ErrorMessage = "Tiêu Đề Không Được Bỏ Trống")]
         public string Title { get; set; } = default!;
 
+        [Required(ErrorMessage = "Chủ Đề Không Được Bỏ Trống")]
         public string Topic { get; set; } = default!;
 
+        [Required(ErrorMessage = "Đầu Ra Không Được Bỏ Trống")]
         public string ExpectOutput { get; set; } = default!;
 
+        [Required(ErrorMessage = "Ngôn Ngữ Lập Trình Không Được Bỏ Trống")]
         public int LanguageProgrammingId { get; set; }
 
         public bool IsRequired { get; set; }
@@ -62,20 +68,27 @@ namespace QuanLyKhoaHoc.Application.Common.Mappings
 
     public class PracticeUpdate
     {
+        [Required(ErrorMessage = "Bài Tập Không Được Bỏ Trống")]
         public int Id { get; set; }
 
+        [Required(ErrorMessage = "Chi Tiết Chủ Đề Không Được Bỏ Trống")]
         public int SubjectDetailId { get; set; }
 
         public Level Level { get; set; }
 
+        [Required(ErrorMessage = "Mã Bài Tập Không Được Bỏ Trống")]
         public string PracticeCode { get; set; } = default!;
 
+        [Required(ErrorMessage = "Tiêu Đề Không Được Bỏ Trống")]
         public string Title { get; set; } = default!;
 
+        [Required(ErrorMessage = "Chủ Đề Không Được Bỏ Trống")]
         public string Topic { get; set; } = default!;
 
+        [Required(ErrorMessage = "Đầu Ra Không Được Bỏ Trống")]
         public string ExpectOutput { get; set; } = default!;
 
+        [Required(ErrorMessage = "Ngôn Ngữ Lập Trình Không Được Bỏ Trống")]
         public int LanguageProgrammingId { get; set; }
 
         public bool IsRequired { get; set; }

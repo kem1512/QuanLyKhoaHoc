@@ -25,17 +25,21 @@
 
     public class CommentBlogCreate
     {
+        [Required(ErrorMessage = "Bài Viết Không Được Bỏ Trống")]
         public int BlogId { get; set; }
 
         public int? ParentId { get; set; }
 
+        [Required(ErrorMessage = "Nội Dung Không Được Bỏ Trống")]
         public string Content { get; set; } = default!;
     }
 
     public class CommentBlogUpdate
     {
+        [Required(ErrorMessage = "Bài Viết Không Được Bỏ Trống")]
         public int Id { get; set; }
 
+        [Required(ErrorMessage = "Nội Dung Không Được Bỏ Trống")]
         public string Content { get; set; } = default!;
     }
 }

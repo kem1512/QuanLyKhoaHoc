@@ -14,15 +14,28 @@ import {
 } from "@mantine/core";
 import RootLayout from "../../components/Layout/RootLayout/RootLayout";
 import useSWR from "swr";
-import { CourseClient } from "../web-api-client";
-import { formatCurrencyVND } from "../../lib/helper";
+import {
+  AccountClient,
+  CourseClient,
+  RegisterStudyClient,
+  RegisterStudyCreate,
+} from "../web-api-client";
+import { formatCurrencyVND, handleSubmit } from "../../lib/helper";
 import Loading from "../../components/Loading/Loading";
+import RegisterStudy from "../../components/RegisterStudy/RegisterStudy";
+import ActionButton from "../../components/Helper/ActionButton";
 
 export default function Detail({ params }: { params: { id: number } }) {
+  const RegisterStudyService = new RegisterStudyClient();
+
   const { id } = params;
 
   const { data, isLoading } = useSWR(`/api/course/${id}`, () =>
     new CourseClient().getEntity(id)
+  );
+
+  const { data: registerStudy } = useSWR(`/api/registerStudy/${id}`, () =>
+    new AccountClient().registerStudy(id)
   );
 
   return (
@@ -68,14 +81,30 @@ export default function Detail({ params }: { params: { id: number } }) {
               })}
             </Accordion>
           </Grid.Col>
-          <Grid.Col span={{ base: 12, lg: 4 }}>
-            <Image mb={"md"} src={data.imageCourse} alt={data.code} />
-            <Group justify="space-between">
-              <Title order={3}>{formatCurrencyVND(data.price)}</Title>
-              <Button>Đăng Ký Học</Button>
-            </Group>
-            <Text>Thời Gian Học : {data.totalCourseDuration} Ngày</Text>
-          </Grid.Col>
+          {registerStudy ? (
+            <RegisterStudy />
+          ) : (
+            <Grid.Col span={{ base: 12, lg: 4 }}>
+              <Image mb={"md"} src={data.imageCourse} alt={data.code} />
+              <Group justify="space-between">
+                <Title order={3}>{formatCurrencyVND(data.price)}</Title>
+                <ActionButton
+                  action={() =>
+                    handleSubmit(
+                      () =>
+                        RegisterStudyService.createEntity({
+                          courseId: id,
+                        } as RegisterStudyCreate),
+                      "Đăng Ký Thành Công"
+                    )
+                  }
+                >
+                  Đăng Ký Học
+                </ActionButton>
+              </Group>
+              <Text>Thời Gian Học : {data.totalCourseDuration} Ngày</Text>
+            </Grid.Col>
+          )}
         </Grid>
       ) : (
         <Alert>Không Có Gì Ở Đây Cả</Alert>

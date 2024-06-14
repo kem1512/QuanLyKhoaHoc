@@ -1,7 +1,4 @@
-﻿using QuanLyKhoaHoc.Application.Common.Models;
-using System.ComponentModel.DataAnnotations;
-
-namespace QuanLyKhoaHoc.Application.Common.Mappings
+﻿namespace QuanLyKhoaHoc.Application.Common.Mappings
 {
     public class CertificateMapping
     {
@@ -20,8 +17,10 @@ namespace QuanLyKhoaHoc.Application.Common.Mappings
 
     public class CertificateCreate
     {
+        [Required(ErrorMessage = "Loại Chứng Chỉ Không Được Bỏ Trống")]
         public int CertificateTypeId { get; set; }
 
+        [Required(ErrorMessage = "Tên Chứng Chỉ Không Được Bỏ Trống")]
         public string Name { get; set; } = default!;
 
         public string Description { get; set; } = default!;
@@ -31,10 +30,13 @@ namespace QuanLyKhoaHoc.Application.Common.Mappings
 
     public class CertificateUpdate
     {
+        [Required(ErrorMessage = "Chứng Chỉ Không Được Bỏ Trống")]
         public int Id { get; set; }
 
+        [Required(ErrorMessage = "Loại Chứng Chỉ Không Được Bỏ Trống")]
         public int CertificateTypeId { get; set; }
 
+        [Required(ErrorMessage = "Tên Chứng Chỉ Không Được Bỏ Trống")]
         public string Name { get; set; } = default!;
 
         public string Description { get; set; } = default!;

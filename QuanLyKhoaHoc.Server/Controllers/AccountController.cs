@@ -16,6 +16,12 @@
             return Ok(await _accountService.UserInfo(cancellation));
         }
 
+        [HttpGet("RegisterStudy")]
+        public async Task<IActionResult> RegisterStudy(int courseId, CancellationToken cancellation)
+        {
+            return Ok(await _accountService.RegisterStudy(courseId, cancellation));
+        }
+
         [HttpPost]
         public async Task<IActionResult> UserInfoUpdate(UserInfoUpdate entity, CancellationToken cancellation)
         {

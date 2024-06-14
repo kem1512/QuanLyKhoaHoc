@@ -6,6 +6,8 @@
         {
             builder.HasKey(c => c.Id);
 
+            builder.HasIndex(c => c.Name).IsUnique();
+
             builder.HasOne(c => c.CertificateType).WithMany(c => c.Certificates).HasForeignKey(c => c.CertificateTypeId).OnDelete(DeleteBehavior.ClientNoAction);
         }
     }

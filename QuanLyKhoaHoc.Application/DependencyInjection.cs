@@ -42,6 +42,8 @@ public static class DependencyInjection
 
         services.AddScoped<ApplicationServiceBase<LikeBlogMapping, LikeBlogQuery, LikeBlogCreate, LikeBlogUpdate>, LikeBlogService>();
 
+        services.AddScoped<ApplicationServiceBase<RegisterStudyMapping, RegisterStudyQuery, RegisterStudyCreate, RegisterStudyUpdate>, RegisterStudyService>();
+
         services.AddTransient<IAuthService, AuthService>();
 
         services.AddTransient<ITokenService, TokenService>();

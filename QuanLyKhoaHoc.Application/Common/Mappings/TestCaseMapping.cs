@@ -17,25 +17,34 @@
 
     public class TestCaseCreate
     {
+        [Required(ErrorMessage = "Input Không Được Bỏ Trống")]
         public string Input { get; set; } = default!;
 
+        [Required(ErrorMessage = "Output Không Được Bỏ Trống")]
         public string Output { get; set; } = default!;
 
+        [Required(ErrorMessage = "Ngôn Ngữ Lập Trình Không Được Bỏ Trống")]
         public int ProgramingLanguageId { get; set; }
 
+        [Required(ErrorMessage = "Bài Tập Không Được Bỏ Trống")]
         public int PracticeId { get; set; }
     }
 
     public class TestCaseUpdate
     {
+        [Required(ErrorMessage = "Test Case Không Được Bỏ Trống")]
         public int Id { get; set; }
 
+        [Required(ErrorMessage = "Input Không Được Bỏ Trống")]
         public string Input { get; set; } = default!;
 
+        [Required(ErrorMessage = "Output Không Được Bỏ Trống")]
         public string Output { get; set; } = default!;
 
+        [Required(ErrorMessage = "Ngôn Ngữ Lập Trình Không Được Bỏ Trống")]
         public int ProgramingLanguageId { get; set; }
 
+        [Required(ErrorMessage = "Bài Tập Không Được Bỏ Trống")]
         public int PracticeId { get; set; }
     }
 }

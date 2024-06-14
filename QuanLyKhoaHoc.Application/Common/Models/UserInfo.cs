@@ -49,8 +49,6 @@
 
         public int? WardId { get; set; }
 
-        public string Username { get; set; } = default!;
-
         public string? Avatar { get; set; } = default!;
 
         public string FullName { get; set; } = default!;

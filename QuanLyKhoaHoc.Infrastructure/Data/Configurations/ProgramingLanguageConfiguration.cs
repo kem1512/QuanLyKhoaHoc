@@ -4,7 +4,7 @@
     {
         public void Configure(EntityTypeBuilder<ProgramingLanguage> builder)
         {
-
+            builder.HasIndex(c => c.LanguageName).IsUnique();
         }
     }
 }

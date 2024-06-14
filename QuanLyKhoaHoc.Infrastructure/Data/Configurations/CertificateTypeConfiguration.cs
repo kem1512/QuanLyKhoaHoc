@@ -4,7 +4,7 @@
     {
         public void Configure(EntityTypeBuilder<CertificateType> builder)
         {
-           
+            builder.HasIndex(c => c.Name).IsUnique();
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using QuanLyKhoaHoc.Application.Common.Models;
-
-namespace QuanLyKhoaHoc.Application.Common.Mappings
+﻿namespace QuanLyKhoaHoc.Application.Common.Mappings
 {
     public class ProvinceMapping
     {
@@ -13,12 +11,16 @@ namespace QuanLyKhoaHoc.Application.Common.Mappings
 
     public class ProvinceCreate
     {
+        [Required(ErrorMessage = "Tên Tỉnh / Thành Phố Không Được Bỏ Trống")]
         public string Name { get; set; } = default!;
     }
 
-    public class ProvinceUpdate {
+    public class ProvinceUpdate
+    {
+        [Required(ErrorMessage = "Tỉnh / Thành Phố Không Được Bỏ Trống")]
         public int Id { get; set; }
 
+        [Required(ErrorMessage = "Tên Tỉnh / Thành Phố Không Được Bỏ Trống")]
         public string Name { get; set; } = default!;
     }
 }

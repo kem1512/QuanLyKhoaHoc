@@ -14,7 +14,7 @@
 
         public string ActualOutput { get; set; } = string.Empty;
 
-        public DateTime DoneTime { get; set; }
+        public DateTime? DoneTime { get; set; }
 
         public int RegisterStudyId { get; set; }
 
