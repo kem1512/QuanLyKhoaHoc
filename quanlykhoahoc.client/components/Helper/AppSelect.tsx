@@ -12,6 +12,7 @@ import {
   PagingModelOfProgramingLanguageMapping,
   PagingModelOfProvinceMapping,
   PagingModelOfSubjectDetailMapping,
+  PagingModelOfSubjectMapping,
   PagingModelOfWardMapping,
   PermissionMapping,
   PracticeClient,
@@ -89,9 +90,11 @@ function Selectable<T>({
 export function SubjectSelect({
   value,
   onChange,
+  single,
 }: {
   value?: CourseSubject[];
   onChange: any;
+  single?: boolean;
 }) {
   const SubjectService = new SubjectClient();
 
@@ -99,7 +102,23 @@ export function SubjectSelect({
     SubjectService.getEntities(null, null, null, null)
   );
 
-  return (
+  return single ? (
+    <Selectable
+      label="Chủ Đề"
+      placeholder="Chọn Chủ Đề"
+      value={value}
+      onChange={onChange}
+      serviceClient={new SubjectClient()}
+      fetchUrl="/api/province"
+      dataMapper={(data: PagingModelOfSubjectMapping) =>
+        data?.items?.map((item) => item.name) ?? []
+      }
+      valueMapper={(item) => item?.name}
+      idMapper={(data, selectedName) =>
+        data?.items?.find((item) => item.name === selectedName)
+      }
+    />
+  ) : (
     <MultiSelect
       label="Chủ Đề"
       placeholder="Chọn Chủ Đề"

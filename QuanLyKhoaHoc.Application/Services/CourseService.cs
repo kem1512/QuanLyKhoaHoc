@@ -80,7 +80,7 @@
 
         public override async Task<PagingModel<CourseMapping>> Get(CourseQuery query, CancellationToken cancellation)
         {
-            var courses = _context.Courses.Include(c => c.CourseSubjects).AsNoTracking();
+            var courses = _context.Courses.AsNoTracking();
 
             var totalCount = await courses.ApplyQuery(query, applyPagination: false).CountAsync();
 
@@ -94,7 +94,7 @@
 
         public override async Task<CourseMapping?> Get(int id, CancellationToken cancellation)
         {
-            var course = await _context.Courses.Include(c => c.CourseSubjects).ThenInclude(c => c.Subject).FirstOrDefaultAsync(c => c.Id == id, cancellation);
+            var course = await _context.Courses.Include(c => c.CourseSubjects).ThenInclude(c => c.Subject).ThenInclude(c => c.SubjectDetails).FirstOrDefaultAsync(c => c.Id == id, cancellation);
 
             if (course == null)
             {

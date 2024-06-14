@@ -7686,6 +7686,7 @@ export class SubjectMapping implements ISubjectMapping {
     name?: string;
     symbol?: string;
     isActive?: boolean;
+    subjectDetails?: SubjectDetailMapping[];
 
     constructor(data?: ISubjectMapping) {
         if (data) {
@@ -7702,6 +7703,11 @@ export class SubjectMapping implements ISubjectMapping {
             this.name = _data["name"];
             this.symbol = _data["symbol"];
             this.isActive = _data["isActive"];
+            if (Array.isArray(_data["subjectDetails"])) {
+                this.subjectDetails = [] as any;
+                for (let item of _data["subjectDetails"])
+                    this.subjectDetails!.push(SubjectDetailMapping.fromJS(item));
+            }
         }
     }
 
@@ -7718,6 +7724,11 @@ export class SubjectMapping implements ISubjectMapping {
         data["name"] = this.name;
         data["symbol"] = this.symbol;
         data["isActive"] = this.isActive;
+        if (Array.isArray(this.subjectDetails)) {
+            data["subjectDetails"] = [];
+            for (let item of this.subjectDetails)
+                data["subjectDetails"].push(item.toJSON());
+        }
         return data;
     }
 }
@@ -7726,6 +7737,63 @@ export interface ISubjectMapping {
     id?: number;
     name?: string;
     symbol?: string;
+    isActive?: boolean;
+    subjectDetails?: SubjectDetailMapping[];
+}
+
+export class SubjectDetailMapping implements ISubjectDetailMapping {
+    id?: number;
+    subjectId?: number;
+    name?: string;
+    isFinished?: boolean;
+    linkVideo?: string;
+    isActive?: boolean;
+
+    constructor(data?: ISubjectDetailMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.subjectId = _data["subjectId"];
+            this.name = _data["name"];
+            this.isFinished = _data["isFinished"];
+            this.linkVideo = _data["linkVideo"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): SubjectDetailMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new SubjectDetailMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["subjectId"] = this.subjectId;
+        data["name"] = this.name;
+        data["isFinished"] = this.isFinished;
+        data["linkVideo"] = this.linkVideo;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface ISubjectDetailMapping {
+    id?: number;
+    subjectId?: number;
+    name?: string;
+    isFinished?: boolean;
+    linkVideo?: string;
     isActive?: boolean;
 }
 
@@ -9667,62 +9735,6 @@ export interface IPagingModelOfSubjectDetailMapping {
     pageSize?: number;
     hasPreviousPage?: boolean;
     hasNextPage?: boolean;
-}
-
-export class SubjectDetailMapping implements ISubjectDetailMapping {
-    id?: number;
-    subjectId?: number;
-    name?: string;
-    isFinished?: boolean;
-    linkVideo?: string;
-    isActive?: boolean;
-
-    constructor(data?: ISubjectDetailMapping) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.subjectId = _data["subjectId"];
-            this.name = _data["name"];
-            this.isFinished = _data["isFinished"];
-            this.linkVideo = _data["linkVideo"];
-            this.isActive = _data["isActive"];
-        }
-    }
-
-    static fromJS(data: any): SubjectDetailMapping {
-        data = typeof data === 'object' ? data : {};
-        let result = new SubjectDetailMapping();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["subjectId"] = this.subjectId;
-        data["name"] = this.name;
-        data["isFinished"] = this.isFinished;
-        data["linkVideo"] = this.linkVideo;
-        data["isActive"] = this.isActive;
-        return data;
-    }
-}
-
-export interface ISubjectDetailMapping {
-    id?: number;
-    subjectId?: number;
-    name?: string;
-    isFinished?: boolean;
-    linkVideo?: string;
-    isActive?: boolean;
 }
 
 export class SubjectDetailCreate implements ISubjectDetailCreate {

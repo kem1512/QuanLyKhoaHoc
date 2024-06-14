@@ -50,17 +50,8 @@ export function CourseCard({ data }: { data: CourseMapping }) {
         </Text>
       </Card.Section>
 
-      <Card.Section className={classes.section}>
-        <Text mt="md" className={classes.label} c="dimmed">
-          Chủ Đề
-        </Text>
-        <Group gap={7} mt={5}>
-          {subjects}
-        </Group>
-      </Card.Section>
-
       <Group mt="xs">
-        <Link href={`/${code}`} style={{ flex: 1 }}>
+        <Link href={`/${id}`} style={{ flex: 1 }}>
           <Button radius="md" size="xs" w={"100%"}>
             Xem Chi Tiết
           </Button>

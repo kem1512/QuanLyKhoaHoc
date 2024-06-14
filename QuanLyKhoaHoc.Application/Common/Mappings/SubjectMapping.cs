@@ -12,6 +12,8 @@ namespace QuanLyKhoaHoc.Application.Common.Mappings
         public string Symbol { get; set; } = default!;
 
         public bool IsActive { get; set; }
+
+        public ICollection<SubjectDetailMapping> SubjectDetails { get; set; } = default!;
     }
 
     public class SubjectQuery : QueryModel { }

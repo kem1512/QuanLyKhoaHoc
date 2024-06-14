@@ -1,6 +1,4 @@
-﻿using QuanLyKhoaHoc.Application.Common.Models;
-
-namespace QuanLyKhoaHoc.Application.Common.Mappings
+﻿namespace QuanLyKhoaHoc.Application.Common.Mappings
 {
     public class CourseMapping
     {

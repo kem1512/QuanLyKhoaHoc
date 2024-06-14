@@ -5513,6 +5513,38 @@
           },
           "isActive": {
             "type": "boolean"
+          },
+          "subjectDetails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubjectDetailMapping"
+            }
+          }
+        }
+      },
+      "SubjectDetailMapping": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subjectId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "isFinished": {
+            "type": "boolean"
+          },
+          "linkVideo": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
           }
         }
       },
@@ -6435,32 +6467,6 @@
             "type": "boolean"
           },
           "hasNextPage": {
-            "type": "boolean"
-          }
-        }
-      },
-      "SubjectDetailMapping": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "subjectId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "name": {
-            "type": "string"
-          },
-          "isFinished": {
-            "type": "boolean"
-          },
-          "linkVideo": {
-            "type": "string"
-          },
-          "isActive": {
             "type": "boolean"
           }
         }

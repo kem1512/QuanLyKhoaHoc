@@ -71,8 +71,9 @@ export default function SubjectDetailHandler({ id }: { id?: number }) {
         </Grid.Col>
         <Grid.Col span={{ base: 12, lg: 6 }}>
           <SubjectSelect
+            single={true}
             onChange={(e) => {
-              setSubjectDetail((prev) => ({ ...prev, subjectId: e }));
+              setSubjectDetail((prev) => ({ ...prev, subjectId: e.id }));
             }}
           />
         </Grid.Col>
