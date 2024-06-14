@@ -41,7 +41,7 @@ export default function Detail({ params }: { params: { id: number } }) {
             </Title>
             <Accordion chevronPosition="right" variant="contained">
               {data.courseSubjects.map((item) => {
-                if (item.subject.subjectDetails.length <= 0) {
+                if (item.subject?.subjectDetails?.length <= 0) {
                   return;
                 }
                 return (
