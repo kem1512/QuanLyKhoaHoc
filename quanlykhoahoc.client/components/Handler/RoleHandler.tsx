@@ -16,7 +16,7 @@ import ActionButton from "../../components/Helper/ActionButton";
 export default function RoleHandler({ id }: { id?: number }) {
   const RoleService = new RoleClient();
 
-  const { data } = useSWR(`/api/role/${id}`, () => RoleService.getEntity(id));
+  const { data, mutate } = useSWR(`/api/role/${id}`, () => RoleService.getEntity(id));
 
   const [role, setRole] = useState<IRoleMapping>({
     roleName: "",
@@ -60,7 +60,7 @@ export default function RoleHandler({ id }: { id?: number }) {
                 return id
                   ? RoleService.updateEntity(role.id, role as RoleUpdate)
                   : RoleService.createEntity(role as RoleCreate);
-              }, `${id ? "Sửa" : "Thêm"} Thành Công`)
+              }, `${id ? "Sửa" : "Thêm"} Thành Công`, mutate)
             }
           >
             Xác Nhận

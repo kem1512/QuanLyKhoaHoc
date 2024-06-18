@@ -21,7 +21,7 @@ import {
 export default function PracticeHandler({ id }: { id?: number }) {
   const PracticeService = new PracticeClient();
 
-  const { data } = useSWR(
+  const { data, mutate } = useSWR(
     `/api/course/${id}`,
     () => PracticeService.getEntity(id),
     {
@@ -74,6 +74,17 @@ export default function PracticeHandler({ id }: { id?: number }) {
           />
         </Grid.Col>
         <Grid.Col span={{ base: 12, lg: 6 }}>
+          <TextInput
+            label="Chủ Đề"
+            placeholder="Nhập Tên Chủ Đề"
+            value={practice.topic}
+            onChange={(e) =>
+              setPractice((prev) => ({ ...prev, topic: e.target.value }))
+            }
+            labelProps={{ style: { marginBottom: 6 } }}
+          />
+        </Grid.Col>
+        <Grid.Col span={{ base: 12, lg: 6 }}>
           <SubjectDetailSelect
             onChange={(e) => {
               setPractice((prev) => ({ ...prev, subjectDetailId: e }));
@@ -110,6 +121,22 @@ export default function PracticeHandler({ id }: { id?: number }) {
           />
         </Grid.Col>
         <Grid.Col span={{ base: 12, lg: 6 }}>
+          <Select
+            label="Cấp Độ"
+            placeholder="Chọn Cấp Độ"
+            value={practice.level}
+            onChange={(value: Level) =>
+              setPractice((prev) => ({ ...prev, level: value }))
+            }
+            data={[
+              { value: Level.Beginner, label: "Beginner" },
+              { value: Level.Intermediate, label: "Intermediate" },
+              { value: Level.Advanced, label: "Advanced" },
+            ]}
+            labelProps={{ style: { marginBottom: 6 } }}
+          />
+        </Grid.Col>
+        <Grid.Col span={{ base: 12, lg: 6 }}>
           <Checkbox
             label="Đã Xóa"
             checked={practice.isDeleted}
@@ -133,22 +160,6 @@ export default function PracticeHandler({ id }: { id?: number }) {
             }
           />
         </Grid.Col>
-        <Grid.Col span={{ base: 12, lg: 6 }}>
-          <Select
-            label="Cấp Độ"
-            placeholder="Chọn Cấp Độ"
-            value={practice.level}
-            onChange={(value: Level) =>
-              setPractice((prev) => ({ ...prev, level: value }))
-            }
-            data={[
-              { value: Level.Beginner, label: "Beginner" },
-              { value: Level.Intermediate, label: "Intermediate" },
-              { value: Level.Advanced, label: "Advanced" },
-            ]}
-            labelProps={{ style: { marginBottom: 6 } }}
-          />
-        </Grid.Col>
         <Grid.Col span={12}>
           <ActionButton
             size="xs"
@@ -160,7 +171,7 @@ export default function PracticeHandler({ id }: { id?: number }) {
                       practice as PracticeUpdate
                     )
                   : PracticeService.createEntity(practice as PracticeCreate);
-              }, `${id ? "Sửa" : "Thêm"} Thành Công`)
+              }, `${id ? "Sửa" : "Thêm"} Thành Công`, mutate)
             }
           >
             Xác Nhận

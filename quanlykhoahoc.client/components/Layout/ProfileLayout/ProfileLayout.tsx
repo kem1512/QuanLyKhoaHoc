@@ -16,7 +16,7 @@ const mockdata = [
 
   {
     label: "Đổi Mật Khẩu",
-    link: "/profile/reset-password",
+    link: "/profile/change-password",
   },
   {
     label: "Khóa Học Của Tôi",

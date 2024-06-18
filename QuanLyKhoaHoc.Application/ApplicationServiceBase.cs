@@ -1,8 +1,4 @@
-﻿using AutoMapper;
-using QuanLyKhoaHoc.Application.Common.Interfaces;
-using QuanLyKhoaHoc.Application.Common.Models;
-
-namespace QuanLyKhoaHoc.Application
+﻿namespace QuanLyKhoaHoc.Application
 {
     public abstract class ApplicationServiceBase<Model, QueryModel, CreateModel, UpdateModel> : IApplicationService<Model, QueryModel, CreateModel, UpdateModel>
     {

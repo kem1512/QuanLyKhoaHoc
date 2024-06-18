@@ -1,18 +1,25 @@
 import { MultiSelect, Select } from "@mantine/core";
 import useSWR from "swr";
 import {
+  BillStatusClient,
+  BillStatusMapping,
   CertificateClient,
   CertificateMapping,
+  CourseClient,
+  CourseMapping,
   CourseSubject,
   DistrictClient,
   DistrictMapping,
+  PagingModelOfBillStatusMapping,
   PagingModelOfCertificateMapping,
+  PagingModelOfCourseMapping,
   PagingModelOfDistrictMapping,
   PagingModelOfPracticeMapping,
   PagingModelOfProgramingLanguageMapping,
   PagingModelOfProvinceMapping,
   PagingModelOfSubjectDetailMapping,
   PagingModelOfSubjectMapping,
+  PagingModelOfUserMapping,
   PagingModelOfWardMapping,
   PermissionMapping,
   PracticeClient,
@@ -24,6 +31,8 @@ import {
   RoleClient,
   SubjectClient,
   SubjectDetailClient,
+  UserClient,
+  UserMapping,
   WardClient,
   WardMapping,
 } from "../../app/web-api-client";
@@ -65,7 +74,7 @@ function Selectable<T>({
   idMapper,
   entityFetchArgs = [],
 }: SelectableProps<T>) {
-  const [shouldFetch, setShouldFetch] = useState(true);
+  const [shouldFetch, setShouldFetch] = useState(false);
 
   const { data } = useFetchData(shouldFetch ? fetchUrl : null, () =>
     serviceClient.getEntities(...entityFetchArgs)
@@ -145,8 +154,8 @@ export function SubjectDetailSelect({
 }) {
   return (
     <Selectable
-      label="Chủ Chi Tiết Đề"
-      placeholder="Chọn Chi Tiết Đề"
+      label="Chủ Chi Tiết Chủ Đề"
+      placeholder="Chọn Chi Tiết Chủ Đề"
       value={value}
       onChange={onChange}
       serviceClient={new SubjectDetailClient()}
@@ -255,7 +264,7 @@ export function ProgramingLanguageSelect({
 
   return (
     <Selectable
-      label="Chủ Ngôn Ngữ Lập Trình"
+      label="Ngôn Ngữ Lập Trình"
       placeholder="Chọn Ngôn Ngữ Lập Trình"
       value={value}
       onChange={onChange}
@@ -351,6 +360,84 @@ export function WardSelect({
       valueMapper={(item) => item?.name}
       idMapper={(data, selectedName) =>
         data?.items?.find((item) => item.name === selectedName)?.id
+      }
+    />
+  );
+}
+
+export function UserSelect({
+  value,
+  onChange,
+}: {
+  value?: UserMapping;
+  onChange: any;
+}) {
+  return (
+    <Selectable
+      label="Người Dùng"
+      placeholder="Chọn Người Dùng"
+      value={value}
+      onChange={onChange}
+      serviceClient={new UserClient()}
+      fetchUrl="/api/user"
+      dataMapper={(data: PagingModelOfUserMapping) =>
+        data?.items?.map((item) => item.email) ?? []
+      }
+      valueMapper={(item) => item?.email}
+      idMapper={(data, selectedName) =>
+        data?.items?.find((item) => item.email === selectedName)
+      }
+    />
+  );
+}
+
+export function BillStatusSelect({
+  value,
+  onChange,
+}: {
+  value?: BillStatusMapping;
+  onChange: any;
+}) {
+  return (
+    <Selectable
+      label="Trạng Thái"
+      placeholder="Chọn Trạng Thái"
+      value={value}
+      onChange={onChange}
+      serviceClient={new BillStatusClient()}
+      fetchUrl="/api/billStatus"
+      dataMapper={(data: PagingModelOfBillStatusMapping) =>
+        data?.items?.map((item) => item.name) ?? []
+      }
+      valueMapper={(item) => item?.name}
+      idMapper={(data, selectedName) =>
+        data?.items?.find((item) => item.name === selectedName)
+      }
+    />
+  );
+}
+
+export function CourseSelect({
+  value,
+  onChange,
+}: {
+  value?: CourseMapping;
+  onChange: any;
+}) {
+  return (
+    <Selectable
+      label="Trạng Thái"
+      placeholder="Chọn Trạng Thái"
+      value={value}
+      onChange={onChange}
+      serviceClient={new CourseClient()}
+      fetchUrl="/api/course"
+      dataMapper={(data: PagingModelOfCourseMapping) =>
+        data?.items?.map((item) => item.name) ?? []
+      }
+      valueMapper={(item) => item?.name}
+      idMapper={(data, selectedName) =>
+        data?.items?.find((item) => item.name === selectedName)
       }
     />
   );

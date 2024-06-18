@@ -1,11 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using QuanLyKhoaHoc.Application.Common.Interfaces;
-using QuanLyKhoaHoc.Application.Common.Models;
-using System.Net;
-using System.Net.Mail;
-using QuanLyKhoaHoc.Application.Services;
-
-namespace Microsoft.Extensions.DependencyInjection;
+﻿namespace Microsoft.Extensions.DependencyInjection;
 
 public static class DependencyInjection
 {

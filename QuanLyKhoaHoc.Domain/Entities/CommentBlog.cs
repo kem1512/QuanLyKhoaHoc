@@ -16,6 +16,10 @@
 
         public int ReplyCount { get; set; }
 
+        public DateTime CreateTime { get; set; }
+
+        public DateTime UpdateTime { get; set; }
+
         public Blog Blog { get; set; } = default!;
 
         public User User { get; set; } = default!;

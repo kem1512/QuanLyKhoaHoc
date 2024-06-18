@@ -10,13 +10,20 @@
         {
             try
             {
-                if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
+                if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
                 var likeBlog = _mapper.Map<LikeBlog>(entity);
 
                 likeBlog.UserId = int.Parse(_user.Id);
 
                 await _context.LikeBlogs.AddAsync(likeBlog, cancellation);
+
+                var blog = await _context.Blogs.FindAsync(entity.BlogId);
+
+                if(blog != null)
+                {
+                    blog.NumberOfLikes += 1;
+                }
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
@@ -37,21 +44,26 @@
         {
             try
             {
-                if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
+                if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
-                var likeBlog = await _context.LikeBlogs.FindAsync(new object[] { id }, cancellation);
+                var likeBlog = await _context.LikeBlogs.Include(c => c.Blog).FirstOrDefaultAsync(c => c.BlogId == id && c.UserId.ToString() == _user.Id, cancellation);
 
                 if (likeBlog == null)
                 {
-                    return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
+                    return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
                 if (likeBlog.UserId != int.Parse(_user.Id) && !_user.IsAdministrator)
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Xóa");
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Xóa");
                 }
 
                 _context.LikeBlogs.Remove(likeBlog);
+
+                if(likeBlog.Blog.NumberOfLikes >= 1)
+                {
+                    likeBlog.Blog.NumberOfLikes -= 1;
+                }
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
@@ -84,7 +96,7 @@
 
         public override async Task<LikeBlogMapping?> Get(int id, CancellationToken cancellation)
         {
-            var likeBlog = await _context.LikeBlogs.FindAsync(new object[] { id }, cancellation);
+            var likeBlog = await _context.LikeBlogs.FirstOrDefaultAsync(c => c.UserId.ToString() == _user.Id && c.BlogId == id);
 
             if (likeBlog == null)
             {
@@ -98,7 +110,7 @@
         {
             try
             {
-                if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
+                if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
                 if (entity.Id != id)
                 {
@@ -109,12 +121,12 @@
 
                 if (likeBlog == null)
                 {
-                    return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
+                    return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
                 if (likeBlog.UserId != int.Parse(_user.Id) && !_user.IsAdministrator)
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Sửa");
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Sửa");
                 }
 
                 _context.LikeBlogs.Update(_mapper.Map(entity, likeBlog));

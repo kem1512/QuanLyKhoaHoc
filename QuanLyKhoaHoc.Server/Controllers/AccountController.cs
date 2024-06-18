@@ -27,5 +27,11 @@
         {
             return Ok(await _accountService.UserInfoUpdate(entity, cancellation));
         }
+
+        [HttpPost("ChangePassword")]
+        public async Task<Result> ChangePassword(string currentPassword, string newPassword, CancellationToken cancellation)
+        {
+            return await _accountService.ChangePassword(currentPassword, newPassword, cancellation);
+        }
     }
 }

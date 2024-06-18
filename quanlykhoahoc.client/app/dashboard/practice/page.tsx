@@ -8,7 +8,7 @@ export default function DashboardPractice() {
 
   return (
     <DataTable
-      url="/subject"
+      url="/practice"
       fields={Object.keys(new PracticeMapping().toJSON())}
       deleteAction={(id) => PracticeService.deleteEntity(id)}
       fetchAction={(filters, sorts, page, pageSize) =>

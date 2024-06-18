@@ -10,7 +10,7 @@
         {
             try
             {
-                if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
+                if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
                 var blog = _mapper.Map<Blog>(entity);
 
@@ -37,18 +37,18 @@
         {
             try
             {
-                if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
+                if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
                 var blog = await _context.Blogs.FindAsync(new object[] { id }, cancellation);
 
                 if (blog == null)
                 {
-                    return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
+                    return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
                 if (blog.CreatorId != int.Parse(_user.Id) && !_user.IsAdministrator)
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Xóa");
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Xóa");
                 }
 
                 _context.Blogs.Remove(blog);
@@ -84,21 +84,25 @@
 
         public override async Task<BlogMapping?> Get(int id, CancellationToken cancellation)
         {
-            var blog = await _context.Blogs.FindAsync(new object[] { id }, cancellation);
+            var blog = await _context.Blogs.Include(c => c.Creator).FirstOrDefaultAsync(c => c.Id == id, cancellation);
 
             if (blog == null)
             {
                 return null;
             }
 
-            return _mapper.Map<BlogMapping>(blog);
+            var mapping = _mapper.Map<BlogMapping>(blog);
+
+            mapping.IsLiked = await _context.LikeBlogs.AnyAsync(c => c.BlogId == id);
+
+            return mapping;
         }
 
         public override async Task<Result> Update(int id, BlogUpdate entity, CancellationToken cancellation)
         {
             try
             {
-                if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
+                if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
                 if (entity.Id != id)
                 {
@@ -109,12 +113,12 @@
 
                 if (blog == null)
                 {
-                    return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
+                    return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
                 if (blog.CreatorId != int.Parse(_user.Id) && !_user.IsAdministrator)
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Sửa");
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Sửa");
                 }
 
                 _context.Blogs.Update(_mapper.Map(entity, blog));

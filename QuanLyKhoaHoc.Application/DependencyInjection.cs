@@ -1,9 +1,4 @@
-﻿using QuanLyKhoaHoc.Application;
-using QuanLyKhoaHoc.Application.Services;
-using QuanLyKhoaHoc.Domain.Entities;
-using System.Reflection;
-
-namespace Microsoft.Extensions.DependencyInjection;
+﻿namespace Microsoft.Extensions.DependencyInjection;
 public static class DependencyInjection
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
@@ -25,6 +20,10 @@ public static class DependencyInjection
         services.AddScoped<ApplicationServiceBase<WardMapping, WardQuery, WardCreate, WardUpdate>, WardService>();
 
         services.AddScoped<ApplicationServiceBase<RoleMapping, RoleQuery, RoleCreate, RoleUpdate>, RoleService>();
+
+        services.AddScoped<ApplicationServiceBase<BillMapping, BillQuery, BillCreate, BillUpdate>, BillService>();
+
+        services.AddScoped<ApplicationServiceBase<BillStatusMapping, BillStatusQuery, BillStatusCreate, BillStatusUpdate>, BillStatusService>();
 
         services.AddScoped<ApplicationServiceBase<SubjectDetailMapping, SubjectDetailQuery, SubjectDetailCreate, SubjectDetailUpdate>, SubjectDetailService>();
 

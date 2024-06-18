@@ -4,7 +4,7 @@ public class ApplicationDbContextInitialiser
 {
     private readonly ApplicationDbContext _context;
 
-    public ApplicationDbContextInitialiser( ApplicationDbContext context)
+    public ApplicationDbContextInitialiser(ApplicationDbContext context)
     {
         _context = context;
     }
@@ -63,8 +63,50 @@ public class ApplicationDbContextInitialiser
                 }
         };
 
-        if (_context.Users.All(c => c.Email != administrator.Email)) {
+        if (_context.Users.All(c => c.Email != administrator.Email))
+        {
             await _context.Users.AddAsync(administrator);
+        }
+
+        var billStatus = new List<BillStatus>()
+        {
+            new BillStatus()
+            {
+                Name = "Unpaid"
+            },
+            new BillStatus()
+            {
+                Name = "Paid"
+            },
+            new BillStatus()
+            {
+                Name = "Draft"
+            },
+            new BillStatus()
+            {
+                Name = "Issued"
+            },
+            new BillStatus()
+            {
+                Name = "Cancelled"
+            },
+            new BillStatus()
+            {
+                Name = "Overdue"
+            },
+            new BillStatus()
+            {
+                Name = "Pending"
+            },
+            new BillStatus()
+            {
+                Name = "Adjusted"
+            },
+        };
+
+        if (!await _context.BillStatus.AnyAsync())
+        {
+            await _context.BillStatus.AddRangeAsync(billStatus);
         }
 
         await _context.SaveChangesAsync();

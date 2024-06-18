@@ -66,7 +66,7 @@ export default function Login() {
       const response = await AuthService.login(
         new LoginRequest({ email, password })
       );
-      
+
       if (!response) {
         toast.error("Vui Lòng Kiểm Tra Lại Thông Tin Đăng Nhập");
         return;
@@ -177,7 +177,7 @@ export default function Login() {
                 )}
               </Stack>
 
-              <Group justify="space-between" mt="xl">
+              <Group justify="space-between" my="md">
                 <Anchor
                   component="button"
                   type="button"
@@ -189,9 +189,19 @@ export default function Login() {
                     ? "Đã Có Tài Khoản? Đăng Nhập"
                     : "Chưa Có Tài Khoản? Đăng Ký"}
                 </Anchor>
+                <Anchor
+                  component="button"
+                  type="button"
+                  c="dimmed"
+                  onClick={() => toggle()}
+                  size="xs"
+                >
+                  Quên Mật Khẩu
+                </Anchor>
                 <ActionButton
                   type="submit"
-                  radius="xl"
+                  radius="md"
+                  w="100%"
                   action={() =>
                     toast.promise(handleSubmit, {
                       pending: "Đợi Xíu",

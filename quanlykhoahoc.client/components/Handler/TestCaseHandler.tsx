@@ -13,7 +13,6 @@ import { useEffect, useState } from "react";
 import useSWR from "swr";
 import ActionButton from "../../components/Helper/ActionButton";
 import {
-  CertificateSelect,
   PracticeSelect,
   ProgramingLanguageSelect,
 } from "../Helper/AppSelect";
@@ -21,7 +20,7 @@ import {
 export default function TestCaseHandler({ id }: { id?: number }) {
   const TestCaseService = new TestCaseClient();
 
-  const { data } = useSWR(`/api/testCase/${id}`, () =>
+  const { data, mutate } = useSWR(`/api/testCase/${id}`, () =>
     TestCaseService.getEntity(id)
   );
 
@@ -84,7 +83,7 @@ export default function TestCaseHandler({ id }: { id?: number }) {
                       testCase as TestCaseUpdate
                     )
                   : TestCaseService.createEntity(testCase as TestCaseCreate);
-              }, `${id ? "Sửa" : "Thêm"} Thành Công`)
+              }, `${id ? "Sửa" : "Thêm"} Thành Công`, mutate)
             }
           >
             Xác Nhận

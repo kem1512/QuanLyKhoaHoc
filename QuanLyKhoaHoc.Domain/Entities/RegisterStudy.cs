@@ -8,7 +8,7 @@
 
         public int CourseId { get; set; }
 
-        public int CurrentSubjectId { get; set; }
+        public int? CurrentSubjectId { get; set; }
 
         public bool IsFinished { get; set; }
 

@@ -18,8 +18,8 @@ import ActionButton from "../../components/Helper/ActionButton";
 export default function BlogHandler({ id }: { id?: number }) {
   const BlogService = new BlogClient();
 
-  const { data } = useSWR(
-    `/api/course/${id}`,
+  const { data, mutate } = useSWR(
+    `/api/blog/${id}`,
     () => BlogService.getEntity(id),
     {
       revalidateIfStale: false,
@@ -120,11 +120,15 @@ export default function BlogHandler({ id }: { id?: number }) {
           <ActionButton
             size="xs"
             action={() =>
-              handleSubmit(() => {
-                return id
-                  ? BlogService.updateEntity(blog.id, blog as BlogUpdate)
-                  : BlogService.createEntity(blog as BlogCreate);
-              }, `${id ? "Sửa" : "Thêm"} Thành Công`)
+              handleSubmit(
+                () => {
+                  return id
+                    ? BlogService.updateEntity(blog.id, blog as BlogUpdate)
+                    : BlogService.createEntity(blog as BlogCreate);
+                },
+                `${id ? "Sửa" : "Thêm"} Thành Công`,
+                mutate
+              )
             }
           >
             Xác Nhận

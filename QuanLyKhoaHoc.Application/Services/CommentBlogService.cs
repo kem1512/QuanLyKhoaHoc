@@ -12,13 +12,19 @@ namespace QuanLyKhoaHoc.Application.Services
         {
             try
             {
-                if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
+                if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
                 var commentCommentBlog = _mapper.Map<CommentBlog>(entity);
 
                 commentCommentBlog.UserId = int.Parse(_user.Id);
 
                 await _context.CommentBlogs.AddAsync(commentCommentBlog, cancellation);
+
+                var blog = await _context.Blogs.FirstOrDefaultAsync(c => c.Id == entity.BlogId);
+
+                if (blog != null) {
+                    blog.NumberOfComments += 1;
+                }
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
@@ -39,21 +45,26 @@ namespace QuanLyKhoaHoc.Application.Services
         {
             try
             {
-                if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
+                if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
-                var commentCommentBlog = await _context.CommentBlogs.FindAsync(new object[] { id }, cancellation);
+                var commentCommentBlog = await _context.CommentBlogs.Include(c => c.Blog).FirstOrDefaultAsync(c => c.Id == id, cancellation);
 
                 if (commentCommentBlog == null)
                 {
-                    return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
+                    return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
                 if (commentCommentBlog.UserId != int.Parse(_user.Id) && !_user.IsAdministrator)
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Xóa");
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Xóa");
                 }
 
                 _context.CommentBlogs.Remove(commentCommentBlog);
+
+                if (commentCommentBlog.Blog.NumberOfComments >= 1)
+                {
+                    commentCommentBlog.Blog.NumberOfComments -= 1;
+                }
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
@@ -117,7 +128,7 @@ namespace QuanLyKhoaHoc.Application.Services
         {
             try
             {
-                if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
+                if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
                 if (entity.Id != id)
                 {
@@ -128,12 +139,12 @@ namespace QuanLyKhoaHoc.Application.Services
 
                 if (commentCommentBlog == null)
                 {
-                    return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
+                    return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
                 if (commentCommentBlog.UserId != int.Parse(_user.Id) && !_user.IsAdministrator)
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Sửa");
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Sửa");
                 }
 
                 _context.CommentBlogs.Update(_mapper.Map(entity, commentCommentBlog));

@@ -16,7 +16,7 @@
 
         public DbSet<Bill> Bills { get; set; }
 
-        public DbSet<BillStatus> BillStatuses { get; set; }
+        public DbSet<BillStatus> BillStatus { get; set; }
 
         public DbSet<Blog> Blogs { get; set; }
 

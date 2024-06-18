@@ -83,16 +83,22 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.Property<string>("TradingCode")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CourseId");
+                    b.HasIndex("BillStatusId");
+
+                    b.HasIndex("TradingCode")
+                        .IsUnique();
 
                     b.HasIndex("UserId");
+
+                    b.HasIndex("CourseId", "UserId")
+                        .IsUnique();
 
                     b.ToTable("Bills");
                 });
@@ -111,7 +117,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BillStatuses");
+                    b.ToTable("BillStatus");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.Blog", b =>
@@ -175,11 +181,9 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Image")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
@@ -231,6 +235,11 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("CreateTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
                     b.Property<bool>("Edited")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
@@ -243,6 +252,11 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasDefaultValue(0);
+
+                    b.Property<DateTime>("UpdateTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -502,7 +516,8 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
                     b.HasIndex("BlogId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "BlogId")
+                        .IsUnique();
 
                     b.ToTable("LikeBlogs");
                 });
@@ -757,7 +772,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
                     b.Property<int>("CourseId")
                         .HasColumnType("int");
 
-                    b.Property<int>("CurrentSubjectId")
+                    b.Property<int?>("CurrentSubjectId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("DoneTime")
@@ -1085,6 +1100,12 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.Bill", b =>
                 {
+                    b.HasOne("QuanLyKhoaHoc.Domain.Entities.BillStatus", "BillStatus")
+                        .WithMany("Bills")
+                        .HasForeignKey("BillStatusId")
+                        .OnDelete(DeleteBehavior.ClientNoAction)
+                        .IsRequired();
+
                     b.HasOne("QuanLyKhoaHoc.Domain.Entities.Course", "Course")
                         .WithMany("Bills")
                         .HasForeignKey("CourseId")
@@ -1096,6 +1117,8 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.ClientNoAction)
                         .IsRequired();
+
+                    b.Navigation("BillStatus");
 
                     b.Navigation("Course");
 
@@ -1365,8 +1388,7 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
                     b.HasOne("QuanLyKhoaHoc.Domain.Entities.Subject", "CurrentSubject")
                         .WithMany("RegisterStudies")
                         .HasForeignKey("CurrentSubjectId")
-                        .OnDelete(DeleteBehavior.ClientNoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.ClientNoAction);
 
                     b.HasOne("QuanLyKhoaHoc.Domain.Entities.User", "User")
                         .WithMany("RegisterStudies")
@@ -1467,6 +1489,11 @@ namespace QuanLyKhoaHoc.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("District");
+                });
+
+            modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.BillStatus", b =>
+                {
+                    b.Navigation("Bills");
                 });
 
             modelBuilder.Entity("QuanLyKhoaHoc.Domain.Entities.Blog", b =>

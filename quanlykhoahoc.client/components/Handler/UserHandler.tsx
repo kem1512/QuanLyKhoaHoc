@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Checkbox, Grid, Select, TextInput } from "@mantine/core";
+import { Checkbox, Grid, Select, TextInput } from "@mantine/core";
 import DashboardLayout from "../../components/Layout/DashboardLayout/DashboardLayout";
 import {
   IUserMapping,
@@ -24,7 +24,9 @@ import ActionButton from "../Helper/ActionButton";
 export default function UserHandler({ id }: { id?: number }) {
   const UserService = new UserClient();
 
-  const { data } = useSWR(`/api/user/${id}`, () => UserService.getEntity(id));
+  const { data, mutate } = useSWR(`/api/user/${id}`, () =>
+    UserService.getEntity(id)
+  );
 
   const [user, setUser] = useState<IUserMapping>({
     address: "",
@@ -189,9 +191,13 @@ export default function UserHandler({ id }: { id?: number }) {
           <ActionButton
             size="xs"
             action={() =>
-              handleSubmit(() => {
-                return UserService.updateEntity(user.id, user as UserUpdate);
-              }, "Sửa Thành Công")
+              handleSubmit(
+                () => {
+                  return UserService.updateEntity(user.id, user as UserUpdate);
+                },
+                "Sửa Thành Công",
+                mutate
+              )
             }
           >
             Xác Nhận

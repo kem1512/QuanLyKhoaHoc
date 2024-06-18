@@ -6,17 +6,25 @@ import { useRouter, useSearchParams } from "next/navigation";
 import queryString from "query-string";
 import { useDebouncedCallback } from "@mantine/hooks";
 
-async function TryFetch(action) {
+async function TryFetch(action, mutate = null) {
   try {
     var response = await action();
 
-    console.log(response);
-
     var error = response?.error;
 
+    var content = response?.content;
+
     if (error) {
-      toast.error(response?.error);
-      throw "";
+      toast.error(error);
+      throw error;
+    }
+
+    if (content) {
+      window.location.href = content;
+    }
+
+    if (mutate) {
+      mutate();
     }
   } catch (error) {
     if (error.response) {
@@ -34,8 +42,8 @@ async function TryFetch(action) {
   }
 }
 
-export async function handleSubmit(action, message) {
-  toast.promise(TryFetch(action), {
+export async function handleSubmit(action, message, mutate = null) {
+  toast.promise(TryFetch(action, mutate), {
     success: message,
     pending: "Đang Tải ...",
   });
@@ -54,7 +62,7 @@ export function useQuery() {
       sorts: sorts,
       page: page,
       pageSize: pageSize,
-      commentId: commentId
+      commentId: commentId,
     };
   }, [filters, sorts, page, pageSize, commentId]);
 
@@ -115,5 +123,8 @@ export function useSort() {
 }
 
 export function formatCurrencyVND(amount) {
-  return amount?.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
+  return amount?.toLocaleString("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  });
 }

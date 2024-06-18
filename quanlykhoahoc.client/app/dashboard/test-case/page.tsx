@@ -8,7 +8,7 @@ export default function DashboardTestCase() {
 
   return (
     <DataTable
-      url="/subject"
+      url="/test-case"
       fields={Object.keys(new TestCaseMapping().toJSON())}
       deleteAction={(id) => TestCaseService.deleteEntity(id)}
       fetchAction={(filters, sorts, page, pageSize) =>

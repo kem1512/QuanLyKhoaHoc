@@ -7,5 +7,7 @@
         Task<UserInfo?> UserInfo(CancellationToken cancellation);
 
         Task<RegisterStudyMapping?> RegisterStudy(int courseId, CancellationToken cancellation);
+
+        Task<Result> ChangePassword(string currentPassword, string newPassword, CancellationToken cancellation);
     }
 }

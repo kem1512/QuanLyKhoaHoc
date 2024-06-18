@@ -10,11 +10,11 @@
         {
             try
             {
-                if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
+                if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
                 if (!_user.IsAdministrator)
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Thêm");
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Thêm");
                 }
 
                 var course = _mapper.Map<Course>(entity);
@@ -42,23 +42,18 @@
         {
             try
             {
-                if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
-
-                if (!_user.IsAdministrator)
-                {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Xóa");
-                }
+                if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
                 var course = await _context.Courses.FindAsync(new object[] { id }, cancellation);
 
                 if (course == null)
                 {
-                    return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
+                    return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
-                if (course.CreatorId != int.Parse(_user.Id))
+                if (course.CreatorId != int.Parse(_user.Id) && !_user.IsAdministrator)
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Xóa");
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Xóa");
                 }
 
                 _context.Courses.Remove(course);
@@ -94,7 +89,11 @@
 
         public override async Task<CourseMapping?> Get(int id, CancellationToken cancellation)
         {
-            var course = await _context.Courses.Include(c => c.CourseSubjects).ThenInclude(c => c.Subject).ThenInclude(c => c.SubjectDetails).FirstOrDefaultAsync(c => c.Id == id, cancellation);
+            var course = await _context.Courses
+                .Include(c => c.CourseSubjects)
+                    .ThenInclude(c => c.Subject)
+                        .ThenInclude(c => c.SubjectDetails)
+                .FirstOrDefaultAsync(c => c.Id == id, cancellation);
 
             if (course == null)
             {
@@ -108,7 +107,7 @@
         {
             try
             {
-                if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
+                if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
                 if (entity.Id != id)
                 {
@@ -119,12 +118,12 @@
 
                 if (course == null)
                 {
-                    return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
+                    return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
                 if (course.CreatorId != int.Parse(_user.Id) && !_user.IsAdministrator)
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Sửa");
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Sửa");
                 }
 
                 var currentCourseSubjectIds = course.CourseSubjects.Select(cs => cs.Id).ToList();

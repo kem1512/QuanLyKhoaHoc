@@ -10,7 +10,7 @@
         {
             try
             {
-                if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
+                if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
                 var registerStudy = _mapper.Map<RegisterStudy>(entity);
 
@@ -37,18 +37,18 @@
         {
             try
             {
-                if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
+                if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
                 var registerStudy = await _context.RegisterStudys.FindAsync(new object[] { id }, cancellation);
 
                 if (registerStudy == null)
                 {
-                    return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
+                    return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
                 if (registerStudy.UserId != int.Parse(_user.Id) || !_user.IsAdministrator)
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Xóa");
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Xóa");
                 }
 
                 _context.RegisterStudys.Remove(registerStudy);
@@ -98,7 +98,7 @@
         {
             try
             {
-                if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
+                if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
                 if (entity.Id != id)
                 {
@@ -109,12 +109,12 @@
 
                 if (registerStudy == null)
                 {
-                    return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
+                    return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
                 if (registerStudy.UserId != int.Parse(_user.Id) || !_user.IsAdministrator)
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Sửa");
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Sửa");
                 }
 
                 _context.RegisterStudys.Update(_mapper.Map(entity, registerStudy));

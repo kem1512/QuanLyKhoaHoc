@@ -16,7 +16,7 @@ import ActionButton from "../../components/Helper/ActionButton";
 export default function ProgramingLanguageHandler({ id }: { id?: number }) {
   const ProgramingLanguageService = new ProgramingLanguageClient();
 
-  const { data } = useSWR(`/api/programingLanguage/${id}`, () =>
+  const { data, mutate } = useSWR(`/api/programingLanguage/${id}`, () =>
     ProgramingLanguageService.getEntity(id)
   );
 
@@ -59,7 +59,7 @@ export default function ProgramingLanguageHandler({ id }: { id?: number }) {
                   : ProgramingLanguageService.createEntity(
                       programingLanguage as ProgramingLanguageCreate
                     );
-              }, `${id ? "Sửa" : "Thêm"} Thành Công`)
+              }, `${id ? "Sửa" : "Thêm"} Thành Công`, mutate)
             }
           >
             Xác Nhận

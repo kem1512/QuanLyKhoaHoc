@@ -7,10 +7,6 @@ namespace QuanLyKhoaHoc.Application.Common.Interfaces
     {
         DbSet<Answers> Answers { get; }
 
-        DbSet<Bill> Bills { get; }
-
-        DbSet<BillStatus> BillStatuses { get; }
-
         DbSet<Blog> Blogs { get; }
 
         DbSet<Certificate> Certificates { get; }
@@ -62,6 +58,10 @@ namespace QuanLyKhoaHoc.Application.Common.Interfaces
         DbSet<User> Users { get; }
 
         DbSet<Ward> Wards { get; }
+
+        DbSet<Bill> Bills { get; }
+
+        DbSet<BillStatus> BillStatus { get; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     }

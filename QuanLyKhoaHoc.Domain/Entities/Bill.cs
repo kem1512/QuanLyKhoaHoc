@@ -16,6 +16,8 @@
 
         public int BillStatusId { get; set; }
 
+        public BillStatus BillStatus { get; set; } = default!;
+
         public User User { get; set; } = default!;
 
         public Course Course { get; set; } = default!;

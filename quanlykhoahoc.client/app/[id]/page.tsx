@@ -9,33 +9,27 @@ import {
   Image,
   List,
   ListItem,
+  Stack,
   Text,
   Title,
+  TypographyStylesProvider,
 } from "@mantine/core";
 import RootLayout from "../../components/Layout/RootLayout/RootLayout";
 import useSWR from "swr";
-import {
-  AccountClient,
-  CourseClient,
-  RegisterStudyClient,
-  RegisterStudyCreate,
-} from "../web-api-client";
+import { BillClient, BillCreate, CourseClient } from "../web-api-client";
 import { formatCurrencyVND, handleSubmit } from "../../lib/helper";
 import Loading from "../../components/Loading/Loading";
-import RegisterStudy from "../../components/RegisterStudy/RegisterStudy";
 import ActionButton from "../../components/Helper/ActionButton";
 
 export default function Detail({ params }: { params: { id: number } }) {
-  const RegisterStudyService = new RegisterStudyClient();
-
   const { id } = params;
 
   const { data, isLoading } = useSWR(`/api/course/${id}`, () =>
     new CourseClient().getEntity(id)
   );
 
-  const { data: registerStudy } = useSWR(`/api/registerStudy/${id}`, () =>
-    new AccountClient().registerStudy(id)
+  const { data: bill, mutate } = useSWR(`/api/bill/${id}`, () =>
+    new BillClient().getEntity(id)
   );
 
   return (
@@ -48,7 +42,13 @@ export default function Detail({ params }: { params: { id: number } }) {
             <Title order={3} mb="md">
               {data.name}
             </Title>
-            <Text mb={"md"}>{data.introduce}</Text>
+            <TypographyStylesProvider mb={"md"}>
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: data.introduce,
+                }}
+              />
+            </TypographyStylesProvider>
             <Title order={3} mb={"md"}>
               Nội Dung Khóa Học
             </Title>
@@ -81,30 +81,31 @@ export default function Detail({ params }: { params: { id: number } }) {
               })}
             </Accordion>
           </Grid.Col>
-          {registerStudy ? (
-            <RegisterStudy />
-          ) : (
-            <Grid.Col span={{ base: 12, lg: 4 }}>
-              <Image mb={"md"} src={data.imageCourse} alt={data.code} />
-              <Group justify="space-between">
-                <Title order={3}>{formatCurrencyVND(data.price)}</Title>
+          <Grid.Col span={{ base: 12, lg: 4 }}>
+            <Image mb={"md"} src={data.imageCourse} alt={data.code} />
+            <Group justify="space-between">
+              <Title order={3}>{formatCurrencyVND(data.price)}</Title>
+              {bill ? (
+                <Button>{bill.billStatus.name}</Button>
+              ) : (
                 <ActionButton
                   action={() =>
                     handleSubmit(
                       () =>
-                        RegisterStudyService.createEntity({
+                        new BillClient().createEntity({
                           courseId: id,
-                        } as RegisterStudyCreate),
-                      "Đăng Ký Thành Công"
+                        } as BillCreate),
+                      "Đăng Ký Thành Công",
+                      mutate
                     )
                   }
                 >
                   Đăng Ký Học
                 </ActionButton>
-              </Group>
-              <Text>Thời Gian Học : {data.totalCourseDuration} Ngày</Text>
-            </Grid.Col>
-          )}
+              )}
+            </Group>
+            <Text>Thời Gian Học : {data.totalCourseDuration} Ngày</Text>
+          </Grid.Col>
         </Grid>
       ) : (
         <Alert>Không Có Gì Ở Đây Cả</Alert>

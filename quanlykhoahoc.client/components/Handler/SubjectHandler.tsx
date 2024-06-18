@@ -16,7 +16,7 @@ import ActionButton from "../../components/Helper/ActionButton";
 export default function SubjectHandler({ id }: { id?: number }) {
   const SubjectService = new SubjectClient();
 
-  const { data } = useSWR(`/api/subject/${id}`, () =>
+  const { data, mutate } = useSWR(`/api/subject/${id}`, () =>
     SubjectService.getEntity(id)
   );
 
@@ -76,7 +76,7 @@ export default function SubjectHandler({ id }: { id?: number }) {
                       subject as SubjectUpdate
                     )
                   : SubjectService.createEntity(subject as SubjectCreate);
-              }, `${id ? "Sửa" : "Thêm"} Thành Công`)
+              }, `${id ? "Sửa" : "Thêm"} Thành Công`, mutate)
             }
           >
             Xác Nhận

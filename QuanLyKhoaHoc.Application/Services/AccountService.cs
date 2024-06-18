@@ -19,21 +19,53 @@
         {
             try
             {
-                if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
+                if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
                 var user = await _context.Users.FindAsync(new object[] { int.Parse(_user.Id) }, cancellation);
 
-                if (user == null)
+                if (user == null || user.Id != int.Parse(_user.Id))
                 {
-                    return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
-                }
-
-                if (user.Id != int.Parse(_user.Id))
-                {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Sửa");
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Sửa");
                 }
 
                 _context.Users.Update(_mapper.Map(entity, user));
+
+                var result = await _context.SaveChangesAsync(cancellation);
+
+                if (result > 0)
+                {
+                    return Result.Success();
+                }
+
+                return Result.Failure();
+            }
+            catch (Exception ex)
+            {
+                return Result.Failure(ex.Message);
+            }
+        }
+
+        public async Task<Result> ChangePassword(string currentPassword, string newPassword, CancellationToken cancellation)
+        {
+            try
+            {
+                if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
+
+                var user = await _context.Users.FindAsync(new object[] { int.Parse(_user.Id) }, cancellation);
+
+                if (user == null || user.Id != int.Parse(_user.Id))
+                {
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Sửa");
+                }
+
+                if (!BCrypt.Net.BCrypt.Verify(currentPassword, user.Password))
+                {
+                    return new Result(ResultStatus.Forbidden, "Mật Khẩu Bạn Nhập Không Đúng");
+                }
+
+                user.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
+
+                _context.Users.Update(user);
 
                 var result = await _context.SaveChangesAsync(cancellation);
 

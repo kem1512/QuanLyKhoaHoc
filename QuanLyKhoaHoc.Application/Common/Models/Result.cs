@@ -1,22 +1,23 @@
-﻿using QuanLyKhoaHoc.Domain;
-
-namespace QuanLyKhoaHoc.Application.Common.Models;
+﻿namespace QuanLyKhoaHoc.Application.Common.Models;
 
 public class Result
 {
-    internal Result(ResultStatus status, string? error)
+    internal Result(ResultStatus status, string? error, string? content = null)
     {
         Status = status;
         Error = error;
+        Content = content;
     }
 
     public ResultStatus Status { get; init; }
 
     public string? Error { get; init; }
 
-    public static Result Success()
+    public string? Content { get; init; }
+
+    public static Result Success(string? content = null)
     {
-        return new Result(ResultStatus.Success, null);
+        return new Result(ResultStatus.Success, null, content);
     }
 
     public static Result Failure(string errors = "Lỗi Gì Đó")

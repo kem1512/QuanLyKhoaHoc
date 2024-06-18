@@ -1,5 +1,4 @@
-﻿
-namespace QuanLyKhoaHoc.Server.Controllers
+﻿namespace QuanLyKhoaHoc.Server.Controllers
 {
     [Route("api/[controller]")]
     [Authorize(Roles = Roles.Administrator)]

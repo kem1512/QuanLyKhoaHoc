@@ -52,7 +52,7 @@ export function Comment({ blogId }: { blogId: number }) {
         query.commentId ? parseInt(query.commentId) : null,
         blogId,
         query.filters,
-        query.sorts,
+        query.sorts ?? "-CreateTime",
         query.page ? parseInt(query.page) : 1,
         query.pageSize ? parseInt(query.pageSize) : 5
       ),
@@ -91,18 +91,28 @@ export function Comment({ blogId }: { blogId: number }) {
         <ActionButton
           size="xs"
           action={() =>
-            handleSubmit(() => {
-              return (
-                commentBlog.id
-                  ? CommentBlogService.updateEntity(
-                      commentBlog.id,
-                      commentBlog as CommentBlogUpdate
-                    )
-                  : CommentBlogService.createEntity(
-                      commentBlog as CommentBlogCreate
-                    )
-              ).then(() => mutate());
-            }, `${commentBlog.id ? "Sửa" : "Thêm"} Thành Công`)
+            handleSubmit(
+              () => {
+                return (
+                  commentBlog.id
+                    ? CommentBlogService.updateEntity(
+                        commentBlog.id,
+                        commentBlog as CommentBlogUpdate
+                      )
+                    : CommentBlogService.createEntity(
+                        commentBlog as CommentBlogCreate
+                      )
+                ).then(() => {
+                  setCommentBlog({
+                    blogId,
+                    content: "",
+                    parentId: null,
+                  });
+                });
+              },
+              `${commentBlog.id ? "Sửa" : "Thêm"} Thành Công`,
+              mutate
+            )
           }
         >
           Xác Nhận

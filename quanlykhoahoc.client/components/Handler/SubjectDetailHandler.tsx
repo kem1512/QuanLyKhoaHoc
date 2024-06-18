@@ -11,15 +11,13 @@ import {
 import { handleSubmit } from "../../lib/helper";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
-import { DateTimePicker } from "@mantine/dates";
-import Editor from "../../components/Editor/RichTextEditor/RichTextEditor";
 import ActionButton from "../../components/Helper/ActionButton";
 import { SubjectSelect } from "../Helper/AppSelect";
 
 export default function SubjectDetailHandler({ id }: { id?: number }) {
   const SubjectDetailService = new SubjectDetailClient();
 
-  const { data } = useSWR(
+  const { data, mutate } = useSWR(
     `/api/course/${id}`,
     () => SubjectDetailService.getEntity(id),
     {
@@ -114,7 +112,7 @@ export default function SubjectDetailHandler({ id }: { id?: number }) {
                   : SubjectDetailService.createEntity(
                       subjectDetail as SubjectDetailCreate
                     );
-              }, `${id ? "Sửa" : "Thêm"} Thành Công`)
+              }, `${id ? "Sửa" : "Thêm"} Thành Công`, mutate)
             }
           >
             Xác Nhận

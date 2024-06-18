@@ -1,4 +1,4 @@
-﻿using QuanLyKhoaHoc.Domain.Entities;
+﻿using BCrypt.Net;
 
 namespace QuanLyKhoaHoc.Application.Services
 {
@@ -64,9 +64,9 @@ namespace QuanLyKhoaHoc.Application.Services
                 return Result.Failure("Token Không Hợp Lệ Hoặc Tài Khoản Đã Được Kích Hoạt");
             }
 
-            confirmEmail.User.IsActive = true;
+            confirmEmail.IsConfirm = true;
 
-            _context.ConfirmEmails.Remove(confirmEmail);
+            confirmEmail.User.IsActive = true;
 
             await _context.SaveChangesAsync(cancellation);
 
@@ -172,6 +172,23 @@ namespace QuanLyKhoaHoc.Application.Services
             }
 
             await _context.SaveChangesAsync(cancellation);
+        }
+
+        public async Task<Result> ChangePassword(string confirmCode, string newPassword, CancellationToken cancellation)
+        {
+            var confirmEmail = await _context.ConfirmEmails.Include(c => c.User).FirstOrDefaultAsync(c => c.ConfirmCode == confirmCode);
+
+            if(confirmEmail != null && newPassword != null)
+            {
+                confirmEmail.User.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
+
+                confirmEmail.IsConfirm = true;
+
+                await _context.SaveChangesAsync(cancellation);
+                return Result.Success();
+            }
+
+            return Result.Failure();
         }
     }
 }

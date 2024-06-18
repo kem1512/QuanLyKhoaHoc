@@ -18,7 +18,7 @@ import Editor from "../Editor/RichTextEditor/RichTextEditor";
 export default function CourseHandler({ id }: { id?: number }) {
   const CourseService = new CourseClient();
 
-  const { data } = useSWR(
+  const { data, mutate } = useSWR(
     `/api/course/${id}`,
     () => CourseService.getEntity(id),
     {
@@ -163,7 +163,7 @@ export default function CourseHandler({ id }: { id?: number }) {
                       course as CourseUpdate
                     )
                   : CourseService.createEntity((course) as CourseCreate);
-              }, `${id ? "Sửa" : "Thêm"} Thành Công`)
+              }, `${id ? "Sửa" : "Thêm"} Thành Công`, mutate)
             }
           >
             Xác Nhận

@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuanLyKhoaHoc.Domain", "Qua
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuanLyKhoaHoc.Infrastructure", "QuanLyKhoaHoc.Infrastructure\QuanLyKhoaHoc.Infrastructure.csproj", "{65A7D286-CF07-4C79-B669-465294087175}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuanLyKhoaHoc.Application", "QuanLyKhoaHoc.Application\QuanLyKhoaHoc.Application.csproj", "{CF5C2F68-525C-40DC-8275-F53614A734AE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuanLyKhoaHoc.Application", "QuanLyKhoaHoc.Application\QuanLyKhoaHoc.Application.csproj", "{CF5C2F68-525C-40DC-8275-F53614A734AE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

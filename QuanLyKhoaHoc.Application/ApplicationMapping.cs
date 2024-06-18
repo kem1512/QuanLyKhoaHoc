@@ -1,8 +1,4 @@
-﻿using AutoMapper;
-using QuanLyKhoaHoc.Application.Common.Mappings;
-using QuanLyKhoaHoc.Domain.Entities;
-
-namespace QuanLyKhoaHoc.Application
+﻿namespace QuanLyKhoaHoc.Application
 {
     public class ApplicationMapping : Profile
     {
@@ -63,6 +59,16 @@ namespace QuanLyKhoaHoc.Application
             CreateMap<LikeBlog, LikeBlogMapping>().ReverseMap();
             CreateMap<LikeBlog, LikeBlogCreate>().ReverseMap();
             CreateMap<LikeBlog, LikeBlogUpdate>().ReverseMap();
+
+            CreateMap<Bill, BillMapping>().ReverseMap();
+            CreateMap<Bill, BillCreate>().ReverseMap();
+            CreateMap<Bill, BillUpdate>().ReverseMap();
+
+            CreateMap<BillStatus, BillStatusMapping>().ReverseMap();
+            CreateMap<BillStatus, BillStatusCreate>().ReverseMap();
+            CreateMap<BillStatus, BillStatusUpdate>().ReverseMap();
+
+            CreateMap<BillStatus, BillStatusMapping>().ReverseMap();
 
             CreateMap<CommentBlog, CommentBlogMapping>().ReverseMap();
             CreateMap<CommentBlog, CommentBlogCreate>().ReverseMap();

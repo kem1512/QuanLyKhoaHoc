@@ -16,7 +16,7 @@ import ActionButton from "../../components/Helper/ActionButton";
 export default function CertificateTypeHandler({ id }: { id?: number }) {
   const CertificateTypeService = new CertificateTypeClient();
 
-  const { data } = useSWR(`/api/certificateType/${id}`, () =>
+  const { data, mutate } = useSWR(`/api/certificateType/${id}`, () =>
     CertificateTypeService.getEntity(id)
   );
 
@@ -56,7 +56,7 @@ export default function CertificateTypeHandler({ id }: { id?: number }) {
                   : CertificateTypeService.createEntity(
                       certificateType as CertificateTypeCreate
                     );
-              }, `${id ? "Sửa" : "Thêm"} Thành Công`)
+              }, `${id ? "Sửa" : "Thêm"} Thành Công`, mutate)
             }
           >
             Xác Nhận

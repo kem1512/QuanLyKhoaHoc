@@ -18,6 +18,7 @@ import {
   IconAperture,
   IconCertificate,
   IconArticle,
+  IconAnalyze,
 } from "@tabler/icons-react";
 import classes from "./DashboardNavbar.module.css";
 import React, { useState, useEffect, useCallback } from "react";
@@ -46,6 +47,19 @@ const mockdata = [
     ],
   },
   {
+    label: "Đăng Ký Học",
+    icon: IconAnalyze,
+    link: "/dashboard/register-study",
+  },
+  {
+    label: "Hóa Đơn",
+    icon: IconAnalyze,
+    links: [
+      { label: "Hóa Đơn", link: "/dashboard/bill" },
+      { label: "Trạng Thái Hóa Đơn", link: "/dashboard/bill-status" },
+    ],
+  },
+  {
     label: "Khóa Học",
     icon: IconNotes,
     initiallyOpened: true,
@@ -56,7 +70,7 @@ const mockdata = [
     icon: IconAperture,
     links: [
       { label: "Chủ Đề", link: "/dashboard/subject" },
-      { label: "Chi Tiết Chủ Đề", link: "/dashboard/subjectDetail" },
+      { label: "Chi Tiết Chủ Đề", link: "/dashboard/subject-detail" },
     ],
   },
   {
@@ -107,7 +121,10 @@ export function LinksGroup({
 }: LinksGroupProps) {
   const hasLinks = Array.isArray(links);
   const pathname = usePathname();
-  const isCurrentPath = useCallback((path: string) => pathname === path, [pathname]);
+  const isCurrentPath = useCallback(
+    (path: string) => pathname === path,
+    [pathname]
+  );
 
   const [opened, setOpened] = useState(
     hasLinks && links.some((link) => isCurrentPath(link.link))

@@ -17,7 +17,7 @@ import { CertificateSelect } from "../Helper/AppSelect";
 export default function CertificateHandler({ id }: { id?: number }) {
   const CertificateService = new CertificateClient();
 
-  const { data } = useSWR(`/api/certificate/${id}`, () =>
+  const { data, mutate } = useSWR(`/api/certificate/${id}`, () =>
     CertificateService.getEntity(id)
   );
 
@@ -94,7 +94,7 @@ export default function CertificateHandler({ id }: { id?: number }) {
                   : CertificateService.createEntity(
                       certificate as CertificateCreate
                     );
-              }, `${id ? "Sửa" : "Thêm"} Thành Công`)
+              }, `${id ? "Sửa" : "Thêm"} Thành Công`, mutate)
             }
           >
             Xác Nhận
