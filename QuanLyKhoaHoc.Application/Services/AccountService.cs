@@ -93,7 +93,7 @@
 
         public async Task<RegisterStudyMapping?> RegisterStudy(int courseId, CancellationToken cancellation)
         {
-            var registerStudy = await _context.RegisterStudys.FirstOrDefaultAsync(c => c.CourseId == courseId);
+            var registerStudy = await _context.RegisterStudys.Include(c => c.LearningProgresses).AsNoTracking().FirstOrDefaultAsync(c => c.CourseId == courseId && c.UserId.ToString() == _user.Id);
 
             if (registerStudy == null)
             {

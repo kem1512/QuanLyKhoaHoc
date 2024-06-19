@@ -21,10 +21,6 @@
         public DateTime UpdateTime { get; set; }
 
         public UserMapping Creator { get; set; } = default!;
-
-        public ICollection<CommentBlogMapping> CommentBlogs { get; set; } = default!;
-
-        public ICollection<LikeBlog> LikeBlogs { get; set; } = default!;
     }
 
     public class BlogQuery : QueryModel { }

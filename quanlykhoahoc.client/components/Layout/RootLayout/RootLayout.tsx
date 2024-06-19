@@ -7,8 +7,10 @@ import { RootFooter } from "../../Footer/Root/RootFooter";
 
 export default function RootLayout({
   children,
+  size,
 }: {
   children: React.ReactNode;
+  size?: string;
 }) {
   return (
     <AppShell header={{ height: 70 }}>
@@ -18,7 +20,7 @@ export default function RootLayout({
         </Container>
       </AppShell.Header>
       <AppShell.Main>
-        <Container size="xl" p={"xs"}>
+        <Container size={size ?? "xl"} p={"xs"}>
           <Suspense fallback={"Loading..."}>{children}</Suspense>
         </Container>
         <RootFooter />

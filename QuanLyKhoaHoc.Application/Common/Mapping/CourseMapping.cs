@@ -22,7 +22,7 @@
 
         public int NumberOfPurchases { get; set; }
 
-        public ICollection<CourseSubjectMapping> CourseSubjects { get; set; } = default!;
+        public UserMapping Creator { get; set; } = default!;
     }
 
     public class CourseQuery : QueryModel { }

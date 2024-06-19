@@ -1,7 +1,4 @@
-﻿using QuanLyKhoaHoc.Application.Common.Models;
-using System.ComponentModel.DataAnnotations;
-
-namespace QuanLyKhoaHoc.Application.Common.Mapping
+﻿namespace QuanLyKhoaHoc.Application.Common.Mapping
 {
     public class SubjectMapping
     {

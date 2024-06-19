@@ -70,8 +70,6 @@
         {
             try
             {
-                if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
-
                 var bill = await _context.Bills.FindAsync(new object[] { id }, cancellation);
 
                 if (bill == null)
@@ -131,8 +129,6 @@
         {
             try
             {
-                if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
-
                 if (entity.Id != id)
                 {
                     return Result.Failure("ID Phải Giống Nhau");

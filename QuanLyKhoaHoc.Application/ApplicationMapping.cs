@@ -64,6 +64,14 @@
             CreateMap<Bill, BillCreate>().ReverseMap();
             CreateMap<Bill, BillUpdate>().ReverseMap();
 
+            CreateMap<MakeQuestion, MakeQuestionMapping>().ReverseMap();
+            CreateMap<MakeQuestion, MakeQuestionCreate>().ReverseMap();
+            CreateMap<MakeQuestion, MakeQuestionUpdate>().ReverseMap();
+
+            CreateMap<Answers, AnswersMapping>().ReverseMap();
+            CreateMap<Answers, AnswersCreate>().ReverseMap();
+            CreateMap<Answers, AnswersUpdate>().ReverseMap();
+
             CreateMap<BillStatus, BillStatusMapping>().ReverseMap();
             CreateMap<BillStatus, BillStatusCreate>().ReverseMap();
             CreateMap<BillStatus, BillStatusUpdate>().ReverseMap();
@@ -83,8 +91,12 @@
             CreateMap<CertificateType, CertificateTypeUpdate>().ReverseMap();
 
             CreateMap<CourseSubject, CourseSubjectMapping>().ReverseMap();
+            CreateMap<CourseSubject, CourseSubjectCreate>().ReverseMap();
+            CreateMap<CourseSubject, CourseSubjectUpdate>().ReverseMap();
 
             CreateMap<Permission, PermissionMapping>().ReverseMap();
+
+            CreateMap<LearningProgress, LearningProgressMapping>().ReverseMap();
 
             CreateMap<User, UserInfo>().ReverseMap();
             CreateMap<User, UserInfoUpdate>().ReverseMap();

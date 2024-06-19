@@ -9,6 +9,8 @@ namespace QuanLyKhoaHoc.Application.Common.Mapping
         public int DistrictId { get; set; }
 
         public string Name { get; set; } = default!;
+
+        public DistrictMapping District { get; set; } = default!;
     }
 
     public class WardQuery : QueryModel

@@ -29,6 +29,10 @@ namespace QuanLyKhoaHoc.Application.Common.Mapping
         public bool IsDeleted { get; set; }
 
         public double MediumScore { get; set; }
+
+        public SubjectDetailMapping SubjectDetail { get; set; } = default!;
+
+        public ProgramingLanguageMapping ProgramingLanguage { get; set; } = default!;
     }
 
     public class PracticeQuery : QueryModel { }

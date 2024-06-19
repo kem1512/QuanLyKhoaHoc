@@ -19,6 +19,8 @@
         public BillStatusMapping BillStatus { get; set; } = default!;
 
         public UserMapping User { get; set; } = default!;
+
+        public CourseMapping Course { get; set; } = default!;
     }
 
     public class BillQuery : QueryModel { }

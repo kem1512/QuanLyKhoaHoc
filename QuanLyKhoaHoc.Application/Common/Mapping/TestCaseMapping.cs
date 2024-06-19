@@ -11,6 +11,10 @@
         public int ProgramingLanguageId { get; set; }
 
         public int PracticeId { get; set; }
+
+        public ProgramingLanguageMapping ProgramingLanguage { get; set; } = default!;
+
+        public PracticeMapping Practice { get; set; } = default!;
     }
 
     public class TestCaseQuery : QueryModel { }

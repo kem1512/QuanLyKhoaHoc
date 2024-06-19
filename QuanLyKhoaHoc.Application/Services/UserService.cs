@@ -10,11 +10,9 @@
         {
             try
             {
-                if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
-
                 if (!_user.IsAdministrator)
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Thêm");
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Thêm");
                 }
 
                 var user = _mapper.Map<User>(entity);
@@ -42,19 +40,17 @@
         {
             try
             {
-                if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
-
                 var user = await _context.Users.FindAsync(new object[] { id }, cancellation);
 
                 if (user == null)
                 {
-                    return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
+                    return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
 
-                if (user.Id != int.Parse(_user.Id) && !_user.IsAdministrator)
+                if (user.Id.ToString() != _user.Id && !_user.IsAdministrator)
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Xóa");
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Xóa");
                 }
 
                 _context.Users.Remove(user);
@@ -104,8 +100,6 @@
         {
             try
             {
-                if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
-
                 if (entity.Id != id)
                 {
                     return Result.Failure("ID Phải Giống Nhau");
@@ -115,12 +109,12 @@
 
                 if (user == null)
                 {
-                    return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
+                    return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
-                if (user.Id != int.Parse(_user.Id) && !_user.IsAdministrator)
+                if (user.Id.ToString() != _user.Id && !_user.IsAdministrator)
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Sửa");
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Sửa");
                 }
 
                 var currentPermissionIds = user.Permissions.Select(cs => cs.Id).ToList();

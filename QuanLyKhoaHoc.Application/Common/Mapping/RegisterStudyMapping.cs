@@ -19,8 +19,15 @@
         public DateTime? DoneTime { get; set; }
 
         public bool IsActive { get; set; }
-    }
 
+        public UserMapping User { get; set; } = default!;
+
+        public CourseMapping Course { get; set; } = default!;
+
+        public SubjectMapping CurrentSubject { get; set; } = default!;
+
+        public ICollection<LearningProgressMapping> LearningProgresses { get; set; } = default!;
+    }
     public class RegisterStudyQuery : QueryModel { }
 
     public class RegisterStudyCreate
@@ -30,6 +37,10 @@
 
         [Required(ErrorMessage = "Khóa Học Không Được Bỏ Trống")]
         public int CourseId { get; set; }
+
+        public int CurrentSubjectId { get; set; }
+
+        public bool IsActive { get; set; }
     }
 
     public class RegisterStudyUpdate
@@ -38,8 +49,6 @@
         public int Id { get; set; }
 
         public bool IsFinished { get; set; }
-
-        public int PercentComplete { get; set; }
 
         public bool IsActive { get; set; }
     }

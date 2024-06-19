@@ -7,6 +7,8 @@
         public int ProvinceId { get; set; }
 
         public string Name { get; set; } = default!;
+
+        public ProvinceMapping Province { get; set; } = default!;
     }
 
     public class DistrictQuery : QueryModel

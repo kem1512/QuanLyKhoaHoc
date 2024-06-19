@@ -1,6 +1,4 @@
-﻿using System.Xml.Linq;
-
-namespace QuanLyKhoaHoc.Application.Services
+﻿namespace QuanLyKhoaHoc.Application.Services
 {
     public class CommentBlogService : ApplicationServiceBase<CommentBlogMapping, CommentBlogQuery, CommentBlogCreate, CommentBlogUpdate>
     {
@@ -14,11 +12,11 @@ namespace QuanLyKhoaHoc.Application.Services
             {
                 if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
-                var commentCommentBlog = _mapper.Map<CommentBlog>(entity);
+                var commentBlog = _mapper.Map<CommentBlog>(entity);
 
-                commentCommentBlog.UserId = int.Parse(_user.Id);
+                commentBlog.UserId = int.Parse(_user.Id);
 
-                await _context.CommentBlogs.AddAsync(commentCommentBlog, cancellation);
+                await _context.CommentBlogs.AddAsync(commentBlog, cancellation);
 
                 var blog = await _context.Blogs.FirstOrDefaultAsync(c => c.Id == entity.BlogId);
 
@@ -45,25 +43,23 @@ namespace QuanLyKhoaHoc.Application.Services
         {
             try
             {
-                if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
+                var commentBlog = await _context.CommentBlogs.Include(c => c.Blog).FirstOrDefaultAsync(c => c.Id == id, cancellation);
 
-                var commentCommentBlog = await _context.CommentBlogs.Include(c => c.Blog).FirstOrDefaultAsync(c => c.Id == id, cancellation);
-
-                if (commentCommentBlog == null)
+                if (commentBlog == null)
                 {
                     return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
-                if (commentCommentBlog.UserId != int.Parse(_user.Id) && !_user.IsAdministrator)
+                if (commentBlog.UserId.ToString() != _user.Id && !_user.IsAdministrator)
                 {
                     return new Result(ResultStatus.Forbidden, "Bạn Không Thể Xóa");
                 }
 
-                _context.CommentBlogs.Remove(commentCommentBlog);
+                _context.CommentBlogs.Remove(commentBlog);
 
-                if (commentCommentBlog.Blog.NumberOfComments >= 1)
+                if (commentBlog.Blog.NumberOfComments >= 1)
                 {
-                    commentCommentBlog.Blog.NumberOfComments -= 1;
+                    commentBlog.Blog.NumberOfComments -= 1;
                 }
 
                 var result = await _context.SaveChangesAsync(cancellation);
@@ -83,13 +79,13 @@ namespace QuanLyKhoaHoc.Application.Services
 
         public override async Task<PagingModel<CommentBlogMapping>> Get(CommentBlogQuery query, CancellationToken cancellation)
         {
-            var commentCommentBlogs = _context.CommentBlogs.AsNoTracking();
+            var commentBlog = _context.CommentBlogs.AsNoTracking();
 
             if (query.ParentId != null)
             {
                 int commentPosition = -1;
 
-                commentPosition = commentCommentBlogs.ToList().FindIndex(c => c.Id == query.ParentId);
+                commentPosition = commentBlog.ToList().FindIndex(c => c.Id == query.ParentId);
 
                 if (commentPosition != -1)
                 {
@@ -99,12 +95,12 @@ namespace QuanLyKhoaHoc.Application.Services
 
             if (query.BlogId != null)
             {
-                commentCommentBlogs = commentCommentBlogs.Where(c => c.BlogId == query.BlogId);
+                commentBlog = commentBlog.Where(c => c.BlogId == query.BlogId);
             }
 
-            var totalCount = await commentCommentBlogs.ApplyQuery(query, applyPagination: false).CountAsync();
+            var totalCount = await commentBlog.ApplyQuery(query, applyPagination: false).CountAsync();
 
-            var data = await commentCommentBlogs
+            var data = await commentBlog
                 .ApplyQuery(query)
                 .ProjectTo<CommentBlogMapping>(_mapper.ConfigurationProvider)
                 .ToListAsync(cancellation);
@@ -128,26 +124,24 @@ namespace QuanLyKhoaHoc.Application.Services
         {
             try
             {
-                if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
-
                 if (entity.Id != id)
                 {
                     return Result.Failure("ID Phải Giống Nhau");
                 }
 
-                var commentCommentBlog = await _context.CommentBlogs.FindAsync(new object[] { id }, cancellation);
+                var commentBlog = await _context.CommentBlogs.FindAsync(new object[] { id }, cancellation);
 
-                if (commentCommentBlog == null)
+                if (commentBlog == null)
                 {
                     return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
-                if (commentCommentBlog.UserId != int.Parse(_user.Id) && !_user.IsAdministrator)
+                if (commentBlog.UserId.ToString() != _user.Id && !_user.IsAdministrator)
                 {
                     return new Result(ResultStatus.Forbidden, "Bạn Không Thể Sửa");
                 }
 
-                _context.CommentBlogs.Update(_mapper.Map(entity, commentCommentBlog));
+                _context.CommentBlogs.Update(_mapper.Map(entity, commentBlog));
 
                 var result = await _context.SaveChangesAsync(cancellation);
 

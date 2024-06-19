@@ -10,7 +10,7 @@ export default function DashboardBill() {
     <DataTable
       url="/bill"
       fields={Object.keys(new BillMapping().toJSON()).filter(
-        (c) => c !== "billStatus" && c !== "user"
+        (c) => c !== "billStatus" && c !== "user" && c !== "course"
       )}
       deleteAction={(id) => BillService.deleteEntity(id)}
       fetchAction={(filters, sorts, page, pageSize) =>

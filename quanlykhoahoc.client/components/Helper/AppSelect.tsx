@@ -101,7 +101,7 @@ export function SubjectSelect({
   onChange,
   single,
 }: {
-  value?: CourseSubject[];
+  value?: CourseSubject[] | CourseSubject;
   onChange: any;
   single?: boolean;
 }) {
@@ -118,7 +118,7 @@ export function SubjectSelect({
       value={value}
       onChange={onChange}
       serviceClient={new SubjectClient()}
-      fetchUrl="/api/province"
+      fetchUrl="/api/subject"
       dataMapper={(data: PagingModelOfSubjectMapping) =>
         data?.items?.map((item) => item.name) ?? []
       }
@@ -132,7 +132,7 @@ export function SubjectSelect({
       label="Chủ Đề"
       placeholder="Chọn Chủ Đề"
       data={data?.items.map((item) => item.name)}
-      value={value?.map((item) => item.subject.name)}
+      value={(value as CourseSubject[])?.map((item) => item.subject.name)}
       onChange={(e) => {
         return onChange(
           e.map((item) => {
@@ -426,8 +426,8 @@ export function CourseSelect({
 }) {
   return (
     <Selectable
-      label="Trạng Thái"
-      placeholder="Chọn Trạng Thái"
+      label="Khóa Học"
+      placeholder="Chọn Khóa Học"
       value={value}
       onChange={onChange}
       serviceClient={new CourseClient()}

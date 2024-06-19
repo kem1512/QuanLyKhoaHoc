@@ -1,4 +1,6 @@
-﻿namespace QuanLyKhoaHoc.Application.Services
+﻿using QuanLyKhoaHoc.Domain.Entities;
+
+namespace QuanLyKhoaHoc.Application.Services
 {
     public class RegisterStudyService : ApplicationServiceBase<RegisterStudyMapping, RegisterStudyQuery, RegisterStudyCreate, RegisterStudyUpdate>
     {
@@ -37,8 +39,6 @@
         {
             try
             {
-                if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
-
                 var registerStudy = await _context.RegisterStudys.FindAsync(new object[] { id }, cancellation);
 
                 if (registerStudy == null)
@@ -46,7 +46,7 @@
                     return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
-                if (registerStudy.UserId != int.Parse(_user.Id) || !_user.IsAdministrator)
+                if (registerStudy.UserId.ToString() != _user.Id && !_user.IsAdministrator)
                 {
                     return new Result(ResultStatus.Forbidden, "Bạn Không Thể Xóa");
                 }
@@ -98,8 +98,6 @@
         {
             try
             {
-                if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
-
                 if (entity.Id != id)
                 {
                     return Result.Failure("ID Phải Giống Nhau");
@@ -112,7 +110,7 @@
                     return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
-                if (registerStudy.UserId != int.Parse(_user.Id) || !_user.IsAdministrator)
+                if (registerStudy.UserId.ToString() != _user.Id && !_user.IsAdministrator)
                 {
                     return new Result(ResultStatus.Forbidden, "Bạn Không Thể Sửa");
                 }

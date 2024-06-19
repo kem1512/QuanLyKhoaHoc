@@ -79,10 +79,9 @@
           "200": {
             "description": "",
             "content": {
-              "application/octet-stream": {
+              "application/json": {
                 "schema": {
-                  "type": "string",
-                  "format": "binary"
+                  "$ref": "#/components/schemas/RegisterStudyMapping"
                 }
               }
             }
@@ -112,6 +111,204 @@
               "type": "string"
             },
             "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Answers": {
+      "get": {
+        "tags": [
+          "Answers"
+        ],
+        "operationId": "Answers_GetEntities",
+        "parameters": [
+          {
+            "name": "Filters",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "Sorts",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 2147483647.0,
+              "minimum": 1.0,
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 2147483647.0,
+              "minimum": 1.0,
+              "nullable": true
+            },
+            "x-position": 4
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingModelOfAnswersMapping"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Answers"
+        ],
+        "operationId": "Answers_CreateEntity",
+        "requestBody": {
+          "x-name": "entity",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnswersCreate"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Answers/{id}": {
+      "get": {
+        "tags": [
+          "Answers"
+        ],
+        "operationId": "Answers_GetEntity",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswersMapping"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Answers"
+        ],
+        "operationId": "Answers_UpdateEntity",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "entity",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnswersUpdate"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Answers"
+        ],
+        "operationId": "Answers_DeleteEntity",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
           }
         ],
         "responses": {
@@ -1714,6 +1911,214 @@
         }
       }
     },
+    "/api/CourseSubject": {
+      "get": {
+        "tags": [
+          "CourseSubject"
+        ],
+        "operationId": "CourseSubject_GetEntities",
+        "parameters": [
+          {
+            "name": "CourseId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "Filters",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "Sorts",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 2147483647.0,
+              "minimum": 1.0,
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 2147483647.0,
+              "minimum": 1.0,
+              "nullable": true
+            },
+            "x-position": 5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingModelOfCourseSubjectMapping"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "CourseSubject"
+        ],
+        "operationId": "CourseSubject_CreateEntity",
+        "requestBody": {
+          "x-name": "entity",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourseSubjectCreate"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/CourseSubject/{id}": {
+      "get": {
+        "tags": [
+          "CourseSubject"
+        ],
+        "operationId": "CourseSubject_GetEntity",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseSubjectMapping"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "CourseSubject"
+        ],
+        "operationId": "CourseSubject_UpdateEntity",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "entity",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourseSubjectUpdate"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "CourseSubject"
+        ],
+        "operationId": "CourseSubject_DeleteEntity",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/District": {
       "get": {
         "tags": [
@@ -2094,6 +2499,204 @@
           "LikeBlog"
         ],
         "operationId": "LikeBlog_DeleteEntity",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/MakeQuestion": {
+      "get": {
+        "tags": [
+          "MakeQuestion"
+        ],
+        "operationId": "MakeQuestion_GetEntities",
+        "parameters": [
+          {
+            "name": "Filters",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "Sorts",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 2147483647.0,
+              "minimum": 1.0,
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 2147483647.0,
+              "minimum": 1.0,
+              "nullable": true
+            },
+            "x-position": 4
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingModelOfMakeQuestionMapping"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "MakeQuestion"
+        ],
+        "operationId": "MakeQuestion_CreateEntity",
+        "requestBody": {
+          "x-name": "entity",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MakeQuestionCreate"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/MakeQuestion/{id}": {
+      "get": {
+        "tags": [
+          "MakeQuestion"
+        ],
+        "operationId": "MakeQuestion_GetEntity",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MakeQuestionMapping"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "MakeQuestion"
+        ],
+        "operationId": "MakeQuestion_UpdateEntity",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "entity",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MakeQuestionUpdate"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "MakeQuestion"
+        ],
+        "operationId": "MakeQuestion_DeleteEntity",
         "parameters": [
           {
             "name": "id",
@@ -4133,185 +4736,7 @@
   },
   "components": {
     "schemas": {
-      "UserInfoUpdate": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "districtId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "provinceId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "certificateId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "wardId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "avatar": {
-            "type": "string",
-            "nullable": true
-          },
-          "fullName": {
-            "type": "string"
-          },
-          "dateOfBirth": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "address": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "Result": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "status": {
-            "$ref": "#/components/schemas/ResultStatus"
-          },
-          "error": {
-            "type": "string",
-            "nullable": true
-          },
-          "content": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "ResultStatus": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "Success",
-          "Failure",
-          "NotFound",
-          "Forbidden"
-        ],
-        "enum": [
-          "Success",
-          "Failure",
-          "NotFound",
-          "Forbidden"
-        ]
-      },
-      "TokenRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "accessToken": {
-            "type": "string"
-          },
-          "refreshToken": {
-            "type": "string"
-          }
-        }
-      },
-      "LoginRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          }
-        }
-      },
-      "RegisterRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          }
-        }
-      },
-      "BillCreate": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "userId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "courseId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "price": {
-            "type": "number",
-            "format": "decimal"
-          },
-          "billStatusId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "vnPaySettings": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/VNPaySettings"
-              }
-            ]
-          }
-        }
-      },
-      "VNPaySettings": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "PagingModelOfBillMapping": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/BillMapping"
-            }
-          },
-          "pageNumber": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalPages": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "pageSize": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "hasPreviousPage": {
-            "type": "boolean"
-          },
-          "hasNextPage": {
-            "type": "boolean"
-          }
-        }
-      },
-      "BillMapping": {
+      "RegisterStudyMapping": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -4327,39 +4752,43 @@
             "type": "integer",
             "format": "int32"
           },
-          "price": {
-            "type": "number",
-            "format": "decimal"
-          },
-          "tradingCode": {
-            "type": "string"
-          },
-          "createTime": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "billStatusId": {
+          "currentSubjectId": {
             "type": "integer",
             "format": "int32"
           },
-          "billStatus": {
-            "$ref": "#/components/schemas/BillStatusMapping"
+          "isFinished": {
+            "type": "boolean"
+          },
+          "registerTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "percentComplete": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "doneTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
           },
           "user": {
             "$ref": "#/components/schemas/UserMapping"
-          }
-        }
-      },
-      "BillStatusMapping": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
           },
-          "name": {
-            "type": "string"
+          "course": {
+            "$ref": "#/components/schemas/CourseMapping"
+          },
+          "currentSubject": {
+            "$ref": "#/components/schemas/SubjectMapping"
+          },
+          "learningProgresses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LearningProgressMapping"
+            }
           }
         }
       },
@@ -4476,6 +4905,9 @@
           },
           "name": {
             "type": "string"
+          },
+          "province": {
+            "$ref": "#/components/schemas/ProvinceMapping"
           }
         }
       },
@@ -4512,6 +4944,22 @@
           },
           "image": {
             "type": "string"
+          },
+          "certificateType": {
+            "$ref": "#/components/schemas/CertificateTypeMapping"
+          }
+        }
+      },
+      "CertificateTypeMapping": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
           }
         }
       },
@@ -4529,6 +4977,9 @@
           },
           "name": {
             "type": "string"
+          },
+          "district": {
+            "$ref": "#/components/schemas/DistrictMapping"
           }
         }
       },
@@ -4569,7 +5020,106 @@
           }
         }
       },
-      "BillUpdate": {
+      "CourseMapping": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "introduce": {
+            "type": "string"
+          },
+          "imageCourse": {
+            "type": "string"
+          },
+          "creatorId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "code": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "totalCourseDuration": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "numberOfStudent": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "numberOfPurchases": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "creator": {
+            "$ref": "#/components/schemas/UserMapping"
+          }
+        }
+      },
+      "SubjectMapping": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "subjectDetails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubjectDetailMapping"
+            }
+          }
+        }
+      },
+      "SubjectDetailMapping": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subjectId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "isFinished": {
+            "type": "boolean"
+          },
+          "linkVideo": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/SubjectMapping"
+          }
+        }
+      },
+      "LearningProgressMapping": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -4581,144 +5131,142 @@
             "type": "integer",
             "format": "int32"
           },
-          "courseId": {
+          "registerStudyId": {
             "type": "integer",
             "format": "int32"
           },
-          "price": {
-            "type": "number",
-            "format": "decimal"
+          "currentSubjectId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "UserInfoUpdate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "districtId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
           },
-          "tradingCode": {
+          "provinceId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "certificateId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "wardId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "avatar": {
+            "type": "string",
+            "nullable": true
+          },
+          "fullName": {
             "type": "string"
           },
-          "createTime": {
+          "dateOfBirth": {
             "type": "string",
             "format": "date-time"
           },
-          "billStatusId": {
-            "type": "integer",
-            "format": "int32"
+          "address": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
-      "PagingModelOfBillStatusMapping": {
+      "Result": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/BillStatusMapping"
-            }
+          "status": {
+            "$ref": "#/components/schemas/ResultStatus"
           },
-          "pageNumber": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalPages": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "pageSize": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "hasPreviousPage": {
-            "type": "boolean"
-          },
-          "hasNextPage": {
-            "type": "boolean"
-          }
-        }
-      },
-      "BillStatusCreate": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "name": {
-            "type": "string"
-          }
-        }
-      },
-      "BillStatusUpdate": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "name": {
-            "type": "string"
-          }
-        }
-      },
-      "PagingModelOfBlogMapping": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/BlogMapping"
-            }
-          },
-          "pageNumber": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalPages": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "pageSize": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "hasPreviousPage": {
-            "type": "boolean"
-          },
-          "hasNextPage": {
-            "type": "boolean"
-          }
-        }
-      },
-      "BlogMapping": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
+          "error": {
+            "type": "string",
+            "nullable": true
           },
           "content": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ResultStatus": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Success",
+          "Failure",
+          "NotFound",
+          "Forbidden"
+        ],
+        "enum": [
+          "Success",
+          "Failure",
+          "NotFound",
+          "Forbidden"
+        ]
+      },
+      "PagingModelOfAnswersMapping": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnswersMapping"
+            }
           },
-          "image": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          },
-          "numberOfLikes": {
+          "pageNumber": {
             "type": "integer",
             "format": "int32"
           },
-          "numberOfComments": {
+          "totalPages": {
             "type": "integer",
             "format": "int32"
           },
-          "isLiked": {
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
             "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AnswersMapping": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "questionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "answer": {
+            "type": "string"
           },
           "createTime": {
             "type": "string",
@@ -4728,24 +5276,15 @@
             "type": "string",
             "format": "date-time"
           },
-          "creator": {
+          "question": {
+            "$ref": "#/components/schemas/MakeQuestion"
+          },
+          "user": {
             "$ref": "#/components/schemas/UserMapping"
-          },
-          "commentBlogs": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CommentBlogMapping"
-            }
-          },
-          "likeBlogs": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/LikeBlog"
-            }
           }
         }
       },
-      "CommentBlogMapping": {
+      "MakeQuestion": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -4753,26 +5292,40 @@
             "type": "integer",
             "format": "int32"
           },
-          "blogId": {
-            "type": "integer",
-            "format": "int32"
-          },
           "userId": {
             "type": "integer",
             "format": "int32"
           },
-          "parentId": {
+          "subjectDetailId": {
             "type": "integer",
             "format": "int32"
           },
-          "content": {
+          "question": {
             "type": "string"
           },
-          "edited": {
-            "type": "boolean"
+          "numberOfAnswers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updateTime": {
+            "type": "string",
+            "format": "date-time"
           },
           "user": {
             "$ref": "#/components/schemas/User"
+          },
+          "subjectDetail": {
+            "$ref": "#/components/schemas/SubjectDetail"
+          },
+          "answers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Answers"
+            }
           }
         }
       },
@@ -5111,7 +5664,7 @@
           }
         }
       },
-      "MakeQuestion": {
+      "Bill": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -5123,144 +5676,52 @@
             "type": "integer",
             "format": "int32"
           },
-          "subjectDetailId": {
+          "courseId": {
             "type": "integer",
             "format": "int32"
           },
-          "question": {
+          "price": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "tradingCode": {
             "type": "string"
-          },
-          "numberOfAnswers": {
-            "type": "integer",
-            "format": "int32"
           },
           "createTime": {
             "type": "string",
             "format": "date-time"
           },
-          "updateTime": {
-            "type": "string",
-            "format": "date-time"
+          "billStatusId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "billStatus": {
+            "$ref": "#/components/schemas/BillStatus"
           },
           "user": {
             "$ref": "#/components/schemas/User"
           },
-          "subjectDetail": {
-            "$ref": "#/components/schemas/SubjectDetail"
-          },
-          "answers": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Answers"
-            }
-          }
-        }
-      },
-      "SubjectDetail": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "subjectId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "name": {
-            "type": "string"
-          },
-          "isFinished": {
-            "type": "boolean"
-          },
-          "linkVideo": {
-            "type": "string"
-          },
-          "isActive": {
-            "type": "boolean"
-          },
-          "subject": {
-            "$ref": "#/components/schemas/Subject"
-          },
-          "makeQuestions": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/MakeQuestion"
-            }
-          },
-          "practices": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Practice"
-            }
-          }
-        }
-      },
-      "Subject": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "name": {
-            "type": "string"
-          },
-          "symbol": {
-            "type": "string"
-          },
-          "isActive": {
-            "type": "boolean"
-          },
-          "courseSubjects": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CourseSubject"
-            }
-          },
-          "learningProgresses": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/LearningProgress"
-            }
-          },
-          "registerStudies": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RegisterStudy"
-            }
-          },
-          "subjectDetails": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/SubjectDetail"
-            }
-          }
-        }
-      },
-      "CourseSubject": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "courseId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "subjectId": {
-            "type": "integer",
-            "format": "int32"
-          },
           "course": {
             "$ref": "#/components/schemas/Course"
+          }
+        }
+      },
+      "BillStatus": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
           },
-          "subject": {
-            "$ref": "#/components/schemas/Subject"
+          "name": {
+            "type": "string"
+          },
+          "bills": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Bill"
+            }
           }
         }
       },
@@ -5327,7 +5788,74 @@
           }
         }
       },
-      "Bill": {
+      "CourseSubject": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subjectId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "course": {
+            "$ref": "#/components/schemas/Course"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/Subject"
+          }
+        }
+      },
+      "Subject": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "courseSubjects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseSubject"
+            }
+          },
+          "learningProgresses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LearningProgress"
+            }
+          },
+          "registerStudies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RegisterStudy"
+            }
+          },
+          "subjectDetails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubjectDetail"
+            }
+          }
+        }
+      },
+      "LearningProgress": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -5339,52 +5867,22 @@
             "type": "integer",
             "format": "int32"
           },
-          "courseId": {
+          "registerStudyId": {
             "type": "integer",
             "format": "int32"
           },
-          "price": {
-            "type": "number",
-            "format": "decimal"
-          },
-          "tradingCode": {
-            "type": "string"
-          },
-          "createTime": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "billStatusId": {
+          "currentSubjectId": {
             "type": "integer",
             "format": "int32"
-          },
-          "billStatus": {
-            "$ref": "#/components/schemas/BillStatus"
           },
           "user": {
             "$ref": "#/components/schemas/User"
           },
-          "course": {
-            "$ref": "#/components/schemas/Course"
-          }
-        }
-      },
-      "BillStatus": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
+          "registerStudy": {
+            "$ref": "#/components/schemas/RegisterStudy"
           },
-          "name": {
-            "type": "string"
-          },
-          "bills": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Bill"
-            }
+          "currentSubject": {
+            "$ref": "#/components/schemas/Subject"
           }
         }
       },
@@ -5602,6 +6100,47 @@
           "Expert"
         ]
       },
+      "SubjectDetail": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subjectId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "isFinished": {
+            "type": "boolean"
+          },
+          "linkVideo": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/Subject"
+          },
+          "makeQuestions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MakeQuestion"
+            }
+          },
+          "practices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Practice"
+            }
+          }
+        }
+      },
       "ProgramingLanguage": {
         "type": "object",
         "additionalProperties": false,
@@ -5691,37 +6230,6 @@
           },
           "testCase": {
             "$ref": "#/components/schemas/TestCase"
-          }
-        }
-      },
-      "LearningProgress": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "userId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "registerStudyId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "currentSubjectId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "user": {
-            "$ref": "#/components/schemas/User"
-          },
-          "registerStudy": {
-            "$ref": "#/components/schemas/RegisterStudy"
-          },
-          "currentSubject": {
-            "$ref": "#/components/schemas/Subject"
           }
         }
       },
@@ -6001,6 +6509,383 @@
           }
         }
       },
+      "AnswersCreate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "questionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "answer": {
+            "type": "string"
+          },
+          "createTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updateTime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AnswersUpdate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "questionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "answer": {
+            "type": "string"
+          },
+          "createTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updateTime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "TokenRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "BillCreate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "price": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "billStatusId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "vnPaySettings": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/VNPaySettings"
+              }
+            ]
+          }
+        }
+      },
+      "VNPaySettings": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "PagingModelOfBillMapping": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BillMapping"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "BillMapping": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "price": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "tradingCode": {
+            "type": "string"
+          },
+          "createTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "billStatusId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "billStatus": {
+            "$ref": "#/components/schemas/BillStatusMapping"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserMapping"
+          },
+          "course": {
+            "$ref": "#/components/schemas/CourseMapping"
+          }
+        }
+      },
+      "BillStatusMapping": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "BillUpdate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "price": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "tradingCode": {
+            "type": "string"
+          },
+          "createTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "billStatusId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PagingModelOfBillStatusMapping": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BillStatusMapping"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "BillStatusCreate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "BillStatusUpdate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "PagingModelOfBlogMapping": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BlogMapping"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "BlogMapping": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "content": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "numberOfLikes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "numberOfComments": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isLiked": {
+            "type": "boolean"
+          },
+          "createTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "creator": {
+            "$ref": "#/components/schemas/UserMapping"
+          }
+        }
+      },
       "BlogCreate": {
         "type": "object",
         "additionalProperties": false,
@@ -6197,19 +7082,6 @@
           }
         }
       },
-      "CertificateTypeMapping": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "name": {
-            "type": "string"
-          }
-        }
-      },
       "CertificateTypeCreate": {
         "type": "object",
         "additionalProperties": false,
@@ -6272,6 +7144,43 @@
           },
           "hasNextPage": {
             "type": "boolean"
+          }
+        }
+      },
+      "CommentBlogMapping": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "blogId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "parentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "content": {
+            "type": "string"
+          },
+          "edited": {
+            "type": "boolean"
+          },
+          "blog": {
+            "$ref": "#/components/schemas/BlogMapping"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserMapping"
+          },
+          "parent": {
+            "$ref": "#/components/schemas/CommentBlogMapping"
           }
         }
       },
@@ -6350,131 +7259,6 @@
           }
         }
       },
-      "CourseMapping": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "name": {
-            "type": "string"
-          },
-          "introduce": {
-            "type": "string"
-          },
-          "imageCourse": {
-            "type": "string"
-          },
-          "creatorId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "code": {
-            "type": "string"
-          },
-          "price": {
-            "type": "number",
-            "format": "decimal"
-          },
-          "totalCourseDuration": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "numberOfStudent": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "numberOfPurchases": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "courseSubjects": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CourseSubjectMapping"
-            }
-          }
-        }
-      },
-      "CourseSubjectMapping": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "courseId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "subjectId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "subject": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/SubjectMapping"
-              }
-            ]
-          }
-        }
-      },
-      "SubjectMapping": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "name": {
-            "type": "string"
-          },
-          "symbol": {
-            "type": "string"
-          },
-          "isActive": {
-            "type": "boolean"
-          },
-          "subjectDetails": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/SubjectDetailMapping"
-            }
-          }
-        }
-      },
-      "SubjectDetailMapping": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "subjectId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "name": {
-            "type": "string"
-          },
-          "isFinished": {
-            "type": "boolean"
-          },
-          "linkVideo": {
-            "type": "string"
-          },
-          "isActive": {
-            "type": "boolean"
-          }
-        }
-      },
       "CourseCreate": {
         "type": "object",
         "additionalProperties": false,
@@ -6524,6 +7308,30 @@
             "items": {
               "$ref": "#/components/schemas/CourseSubjectMapping"
             }
+          }
+        }
+      },
+      "CourseSubjectMapping": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subjectId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "course": {
+            "$ref": "#/components/schemas/CourseMapping"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/SubjectMapping"
           }
         }
       },
@@ -6581,6 +7389,72 @@
             "items": {
               "$ref": "#/components/schemas/CourseSubjectMapping"
             }
+          }
+        }
+      },
+      "PagingModelOfCourseSubjectMapping": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseSubjectMapping"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CourseSubjectCreate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subjectId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "CourseSubjectUpdate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subjectId": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -6721,7 +7595,10 @@
             "format": "date-time"
           },
           "user": {
-            "$ref": "#/components/schemas/User"
+            "$ref": "#/components/schemas/UserMapping"
+          },
+          "blog": {
+            "$ref": "#/components/schemas/BlogMapping"
           }
         }
       },
@@ -6751,6 +7628,114 @@
             "format": "int32"
           },
           "blogId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PagingModelOfMakeQuestionMapping": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MakeQuestionMapping"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "MakeQuestionMapping": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subjectDetailId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "question": {
+            "type": "string"
+          },
+          "numberOfAnswers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserMapping"
+          }
+        }
+      },
+      "MakeQuestionCreate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "subjectDetailId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "question": {
+            "type": "string"
+          },
+          "numberOfAnswers": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "MakeQuestionUpdate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subjectDetailId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "question": {
+            "type": "string"
+          },
+          "numberOfAnswers": {
             "type": "integer",
             "format": "int32"
           }
@@ -6838,6 +7823,25 @@
           "mediumScore": {
             "type": "number",
             "format": "double"
+          },
+          "subjectDetail": {
+            "$ref": "#/components/schemas/SubjectDetailMapping"
+          },
+          "programingLanguage": {
+            "$ref": "#/components/schemas/ProgramingLanguageMapping"
+          }
+        }
+      },
+      "ProgramingLanguageMapping": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "languageName": {
+            "type": "string"
           }
         }
       },
@@ -6982,19 +7986,6 @@
           }
         }
       },
-      "ProgramingLanguageMapping": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "languageName": {
-            "type": "string"
-          }
-        }
-      },
       "ProgramingLanguageCreate": {
         "type": "object",
         "additionalProperties": false,
@@ -7125,47 +8116,6 @@
           }
         }
       },
-      "RegisterStudyMapping": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "userId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "courseId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "currentSubjectId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "isFinished": {
-            "type": "boolean"
-          },
-          "registerTime": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "percentComplete": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "doneTime": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "isActive": {
-            "type": "boolean"
-          }
-        }
-      },
       "RegisterStudyCreate": {
         "type": "object",
         "additionalProperties": false,
@@ -7181,6 +8131,13 @@
           "courseId": {
             "type": "integer",
             "format": "int32"
+          },
+          "currentSubjectId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isActive": {
+            "type": "boolean"
           }
         }
       },
@@ -7197,10 +8154,6 @@
           },
           "isFinished": {
             "type": "boolean"
-          },
-          "percentComplete": {
-            "type": "integer",
-            "format": "int32"
           },
           "isActive": {
             "type": "boolean"
@@ -7515,6 +8468,12 @@
           "practiceId": {
             "type": "integer",
             "format": "int32"
+          },
+          "programingLanguage": {
+            "$ref": "#/components/schemas/ProgramingLanguageMapping"
+          },
+          "practice": {
+            "$ref": "#/components/schemas/PracticeMapping"
           }
         }
       },

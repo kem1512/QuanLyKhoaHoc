@@ -17,9 +17,9 @@
         }
 
         [HttpGet("RegisterStudy")]
-        public async Task<IActionResult> RegisterStudy(int courseId, CancellationToken cancellation)
+        public async Task<RegisterStudyMapping?> RegisterStudy(int courseId, CancellationToken cancellation)
         {
-            return Ok(await _accountService.RegisterStudy(courseId, cancellation));
+            return await _accountService.RegisterStudy(courseId, cancellation);
         }
 
         [HttpPost]

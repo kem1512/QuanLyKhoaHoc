@@ -70,8 +70,13 @@ export default function SubjectDetailHandler({ id }: { id?: number }) {
         <Grid.Col span={{ base: 12, lg: 6 }}>
           <SubjectSelect
             single={true}
+            value={subjectDetail.subject}
             onChange={(e) => {
-              setSubjectDetail((prev) => ({ ...prev, subjectId: e.id }));
+              setSubjectDetail((prev) => ({
+                ...prev,
+                subjectId: e.id,
+                subject: e,
+              }));
             }}
           />
         </Grid.Col>
@@ -103,16 +108,20 @@ export default function SubjectDetailHandler({ id }: { id?: number }) {
           <ActionButton
             size="xs"
             action={() =>
-              handleSubmit(() => {
-                return id
-                  ? SubjectDetailService.updateEntity(
-                      subjectDetail.id,
-                      subjectDetail as SubjectDetailUpdate
-                    )
-                  : SubjectDetailService.createEntity(
-                      subjectDetail as SubjectDetailCreate
-                    );
-              }, `${id ? "Sửa" : "Thêm"} Thành Công`, mutate)
+              handleSubmit(
+                () => {
+                  return id
+                    ? SubjectDetailService.updateEntity(
+                        subjectDetail.id,
+                        subjectDetail as SubjectDetailUpdate
+                      )
+                    : SubjectDetailService.createEntity(
+                        subjectDetail as SubjectDetailCreate
+                      );
+                },
+                `${id ? "Sửa" : "Thêm"} Thành Công`,
+                mutate
+              )
             }
           >
             Xác Nhận

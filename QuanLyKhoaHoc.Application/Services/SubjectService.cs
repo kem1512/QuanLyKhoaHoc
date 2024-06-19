@@ -13,7 +13,7 @@
 
                 if ( !_user.IsAdministrator)
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Thêm");
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Thêm");
                 }
 
                 var subject = _mapper.Map<Subject>(entity);
@@ -42,14 +42,14 @@
 
                 if (!_user.IsAdministrator)
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Xóa");
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Xóa");
                 }
 
                 var subject = await _context.Subjects.FindAsync(new object[] { id }, cancellation);
 
                 if (subject == null)
                 {
-                    return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
+                    return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
                 _context.Subjects.Remove(subject);
@@ -102,7 +102,7 @@
 
                 if (!_user.IsAdministrator)
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Cập Nhật");
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Cập Nhật");
                 }
 
                 if (entity.Id != id)
@@ -114,7 +114,7 @@
 
                 if (subject == null)
                 {
-                    return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
+                    return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
                 _mapper.Map(entity, subject);

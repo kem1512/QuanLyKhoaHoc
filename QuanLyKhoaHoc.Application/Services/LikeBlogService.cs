@@ -44,8 +44,6 @@
         {
             try
             {
-                if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
-
                 var likeBlog = await _context.LikeBlogs.Include(c => c.Blog).FirstOrDefaultAsync(c => c.BlogId == id && c.UserId.ToString() == _user.Id, cancellation);
 
                 if (likeBlog == null)
@@ -53,7 +51,7 @@
                     return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
-                if (likeBlog.UserId != int.Parse(_user.Id) && !_user.IsAdministrator)
+                if (likeBlog.UserId.ToString() != _user.Id && !_user.IsAdministrator)
                 {
                     return new Result(ResultStatus.Forbidden, "Bạn Không Thể Xóa");
                 }
@@ -110,8 +108,6 @@
         {
             try
             {
-                if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
-
                 if (entity.Id != id)
                 {
                     return Result.Failure("ID Phải Giống Nhau");
@@ -124,7 +120,7 @@
                     return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
-                if (likeBlog.UserId != int.Parse(_user.Id) && !_user.IsAdministrator)
+                if (likeBlog.UserId.ToString() != _user.Id && !_user.IsAdministrator)
                 {
                     return new Result(ResultStatus.Forbidden, "Bạn Không Thể Sửa");
                 }

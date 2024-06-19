@@ -12,7 +12,7 @@
             {
                 if (!_user.IsAdministrator)
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Thêm");
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Thêm");
                 }
 
                 var ward = _mapper.Map<Ward>(entity);
@@ -40,14 +40,14 @@
             {
                 if (!_user.IsAdministrator)
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Xóa");
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Xóa");
                 }
 
                 var ward = await _context.Wards.FindAsync(new object[] { id }, cancellation);
 
                 if (ward == null)
                 {
-                    return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
+                    return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
                 _context.Wards.Remove(ward);
@@ -104,7 +104,7 @@
             {
                 if (!_user.IsAdministrator)
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Sửa");
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Sửa");
                 }
 
                 if (entity.Id != id)
@@ -116,7 +116,7 @@
 
                 if (ward == null)
                 {
-                    return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
+                    return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
                 _mapper.Map(entity, ward);

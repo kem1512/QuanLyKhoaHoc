@@ -12,7 +12,7 @@
             {
                 if (!_user.IsAdministrator)
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Thêm");
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Thêm");
                 }
 
                 var billStatus = _mapper.Map<BillStatus>(entity);
@@ -40,14 +40,14 @@
             {
                 if (!_user.IsAdministrator)
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Xóa");
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Xóa");
                 }
 
                 var billStatus = await _context.BillStatus.FindAsync(new object[] { id }, cancellation);
 
                 if (billStatus == null)
                 {
-                    return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
+                    return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
                 _context.BillStatus.Remove(billStatus);
@@ -99,7 +99,7 @@
             {
                 if (!_user.IsAdministrator)
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Cập Nhật");
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Cập Nhật");
                 }
 
                 if (entity.Id != id)
@@ -111,7 +111,7 @@
 
                 if (billStatus == null)
                 {
-                    return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
+                    return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
                 _mapper.Map(entity, billStatus);

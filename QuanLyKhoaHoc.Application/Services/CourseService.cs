@@ -42,8 +42,6 @@
         {
             try
             {
-                if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
-
                 var course = await _context.Courses.FindAsync(new object[] { id }, cancellation);
 
                 if (course == null)
@@ -51,7 +49,7 @@
                     return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
-                if (course.CreatorId != int.Parse(_user.Id) && !_user.IsAdministrator)
+                if (course.CreatorId.ToString() != _user.Id && !_user.IsAdministrator)
                 {
                     return new Result(ResultStatus.Forbidden, "Bạn Không Thể Xóa");
                 }
@@ -89,11 +87,7 @@
 
         public override async Task<CourseMapping?> Get(int id, CancellationToken cancellation)
         {
-            var course = await _context.Courses
-                .Include(c => c.CourseSubjects)
-                    .ThenInclude(c => c.Subject)
-                        .ThenInclude(c => c.SubjectDetails)
-                .FirstOrDefaultAsync(c => c.Id == id, cancellation);
+            var course = await _context.Courses.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id, cancellation);
 
             if (course == null)
             {
@@ -107,8 +101,6 @@
         {
             try
             {
-                if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
-
                 if (entity.Id != id)
                 {
                     return Result.Failure("ID Phải Giống Nhau");
@@ -121,7 +113,7 @@
                     return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
-                if (course.CreatorId != int.Parse(_user.Id) && !_user.IsAdministrator)
+                if (course.CreatorId.ToString() != _user.Id && !_user.IsAdministrator)
                 {
                     return new Result(ResultStatus.Forbidden, "Bạn Không Thể Sửa");
                 }
@@ -130,9 +122,7 @@
 
                 var updatedCourseSubjectIds = entity.CourseSubjects.Select(cs => cs.Id).ToList();
 
-                var subjectsToRemove = course.CourseSubjects
-                    .Where(cs => !updatedCourseSubjectIds.Contains(cs.Id))
-                    .ToList();
+                var subjectsToRemove = course.CourseSubjects.Where(cs => !updatedCourseSubjectIds.Contains(cs.Id)).ToList();
 
                 _context.CourseSubjects.RemoveRange(subjectsToRemove);
 

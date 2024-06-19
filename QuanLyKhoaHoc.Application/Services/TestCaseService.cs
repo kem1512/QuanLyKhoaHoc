@@ -1,6 +1,4 @@
-﻿using QuanLyKhoaHoc.Domain.Entities;
-
-namespace QuanLyKhoaHoc.Application.Services
+﻿namespace QuanLyKhoaHoc.Application.Services
 {
     public class TestCaseService : ApplicationServiceBase<TestCaseMapping, TestCaseQuery, TestCaseCreate, TestCaseUpdate>
     {
@@ -12,12 +10,9 @@ namespace QuanLyKhoaHoc.Application.Services
         {
             try
             {
-                if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
-
-
                 if (!_user.IsInstructorCertificate && !_user.IsAdministrator)
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Thêm");
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Thêm");
                 }
 
                 var testCase = _mapper.Map<TestCase>(entity);
@@ -43,19 +38,17 @@ namespace QuanLyKhoaHoc.Application.Services
         {
             try
             {
-                if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
-
 
                 if (!_user.IsInstructorCertificate && !_user.IsAdministrator)
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Xóa");
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Xóa");
                 }
 
                 var testCase = await _context.TestCases.FindAsync(new object[] { id }, cancellation);
 
                 if (testCase == null)
                 {
-                    return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
+                    return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
                 _context.TestCases.Remove(testCase);
@@ -105,12 +98,9 @@ namespace QuanLyKhoaHoc.Application.Services
         {
             try
             {
-                if (_user.Id == null) return new Result(Domain.ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
-
-
                 if (!_user.IsInstructorCertificate && !_user.IsAdministrator)
                 {
-                    return new Result(Domain.ResultStatus.Forbidden, "Bạn Không Thể Cập Nhật");
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Cập Nhật");
                 }
 
                 if (entity.Id != id)
@@ -122,7 +112,7 @@ namespace QuanLyKhoaHoc.Application.Services
 
                 if (testCase == null)
                 {
-                    return new Result(Domain.ResultStatus.NotFound, "Không Tìm Thấy");
+                    return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
                 _context.TestCases.Update(_mapper.Map(entity, testCase));

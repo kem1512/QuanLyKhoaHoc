@@ -11,9 +11,9 @@ export default function DashboardSubjectDetail() {
 
   return (
     <DataTable
-      url="/subjectDetail"
+      url="/subject-detail"
       fields={Object.keys(new SubjectDetailMapping().toJSON()).filter(
-        (c) => c !== "creator"
+        (c) => c !== "creator" && c !== "subject"
       )}
       deleteAction={(id) => SubjectDetailService.deleteEntity(id)}
       fetchAction={(filters, sorts, page, pageSize) =>

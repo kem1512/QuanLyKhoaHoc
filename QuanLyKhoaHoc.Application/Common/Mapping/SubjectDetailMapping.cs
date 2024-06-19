@@ -13,6 +13,8 @@
         public string LinkVideo { get; set; } = default!;
 
         public bool IsActive { get; set; }
+
+        public SubjectMapping Subject { get; set; } = default!;
     }
 
     public class SubjectDetailQuery : QueryModel { }

@@ -1,22 +1,22 @@
 ﻿namespace QuanLyKhoaHoc.Application.Services
 {
-    public class BlogService : ApplicationServiceBase<BlogMapping, BlogQuery, BlogCreate, BlogUpdate>
+    public class MakeQuestionService : ApplicationServiceBase<MakeQuestionMapping, MakeQuestionQuery, MakeQuestionCreate, MakeQuestionUpdate>
     {
-        public BlogService(IApplicationDbContext context, IMapper mapper, IUser user) : base(context, mapper, user)
+        public MakeQuestionService(IApplicationDbContext context, IMapper mapper, IUser user) : base(context, mapper, user)
         {
         }
 
-        public override async Task<Result> Create(BlogCreate entity, CancellationToken cancellation)
+        public override async Task<Result> Create(MakeQuestionCreate entity, CancellationToken cancellation)
         {
             try
             {
                 if (_user.Id == null) return new Result(ResultStatus.Forbidden, "Bạn Chưa Đăng Nhập");
 
-                var blog = _mapper.Map<Blog>(entity);
+                var makeQuestion = _mapper.Map<MakeQuestion>(entity);
 
-                blog.CreatorId = int.Parse(_user.Id);
+                makeQuestion.UserId = int.Parse(_user.Id);
 
-                await _context.Blogs.AddAsync(blog, cancellation);
+                await _context.MakeQuestions.AddAsync(makeQuestion, cancellation);
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
@@ -37,19 +37,19 @@
         {
             try
             {
-                var blog = await _context.Blogs.FindAsync(new object[] { id }, cancellation);
+                var makeQuestion = await _context.MakeQuestions.FirstOrDefaultAsync(c => c.Id == id, cancellation);
 
-                if (blog == null)
+                if (makeQuestion == null)
                 {
                     return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
-                if (blog.CreatorId.ToString() != _user.Id && !_user.IsAdministrator)
+                if (makeQuestion.UserId.ToString() != _user.Id && !_user.IsAdministrator)
                 {
                     return new Result(ResultStatus.Forbidden, "Bạn Không Thể Xóa");
                 }
 
-                _context.Blogs.Remove(blog);
+                _context.MakeQuestions.Remove(makeQuestion);
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
@@ -66,37 +66,33 @@
             }
         }
 
-        public override async Task<PagingModel<BlogMapping>> Get(BlogQuery query, CancellationToken cancellation)
+        public override async Task<PagingModel<MakeQuestionMapping>> Get(MakeQuestionQuery query, CancellationToken cancellation)
         {
-            var blogs = _context.Blogs.AsNoTracking();
+            var makeQuestion = _context.MakeQuestions.AsNoTracking();
 
-            var totalCount = await blogs.ApplyQuery(query, applyPagination: false).CountAsync();
+            var totalCount = await makeQuestion.ApplyQuery(query, applyPagination: false).CountAsync();
 
-            var data = await blogs
+            var data = await makeQuestion
                 .ApplyQuery(query)
-                .ProjectTo<BlogMapping>(_mapper.ConfigurationProvider)
+                .ProjectTo<MakeQuestionMapping>(_mapper.ConfigurationProvider)
                 .ToListAsync(cancellation);
 
-            return new PagingModel<BlogMapping>(data, totalCount, query.Page ?? 1, query.PageSize ?? 10);
+            return new PagingModel<MakeQuestionMapping>(data, totalCount, query.Page ?? 1, query.PageSize ?? 10);
         }
 
-        public override async Task<BlogMapping?> Get(int id, CancellationToken cancellation)
+        public override async Task<MakeQuestionMapping?> Get(int id, CancellationToken cancellation)
         {
-            var blog = await _context.Blogs.Include(c => c.Creator).FirstOrDefaultAsync(c => c.Id == id, cancellation);
+            var commentMakeQuestion = await _context.MakeQuestions.FindAsync(new object[] { id }, cancellation);
 
-            if (blog == null)
+            if (commentMakeQuestion == null)
             {
                 return null;
             }
 
-            var mapping = _mapper.Map<BlogMapping>(blog);
-
-            mapping.IsLiked = await _context.LikeBlogs.AnyAsync(c => c.BlogId == id);
-
-            return mapping;
+            return _mapper.Map<MakeQuestionMapping>(commentMakeQuestion);
         }
 
-        public override async Task<Result> Update(int id, BlogUpdate entity, CancellationToken cancellation)
+        public override async Task<Result> Update(int id, MakeQuestionUpdate entity, CancellationToken cancellation)
         {
             try
             {
@@ -105,23 +101,19 @@
                     return Result.Failure("ID Phải Giống Nhau");
                 }
 
-                var blog = await _context.Blogs.FindAsync(new object[] { id }, cancellation);
+                var makeQuestion = await _context.MakeQuestions.FindAsync(new object[] { id }, cancellation);
 
-                if (blog == null)
+                if (makeQuestion == null)
                 {
                     return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
-                if (blog.CreatorId.ToString() != _user.Id && !_user.IsAdministrator)
+                if (makeQuestion.UserId.ToString() != _user.Id && !_user.IsAdministrator)
                 {
                     return new Result(ResultStatus.Forbidden, "Bạn Không Thể Sửa");
                 }
 
-                var mapping = _mapper.Map(entity, blog);
-
-                mapping.UpdateTime = DateTime.UtcNow;
-
-                _context.Blogs.Update(mapping);
+                _context.MakeQuestions.Update(_mapper.Map(entity, makeQuestion));
 
                 var result = await _context.SaveChangesAsync(cancellation);
 

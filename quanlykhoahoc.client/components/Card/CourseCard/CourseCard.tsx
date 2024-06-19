@@ -16,17 +16,7 @@ import { formatCurrencyVND } from "../../../lib/helper";
 import Link from "next/link";
 
 export function CourseCard({ data }: { data: CourseMapping }) {
-  const { id, code, imageCourse, name, price, introduce, courseSubjects } = data;
-
-  const subjects = courseSubjects.map((badge) => (
-    <Badge
-      variant="light"
-      key={badge.subject.id}
-      leftSection={badge.subject.symbol}
-    >
-      {badge.subject.name}
-    </Badge>
-  ));
+  const { id, code, imageCourse, name, price, introduce } = data;
 
   return (
     <Card withBorder radius="md" p="md" className={classes.card}>

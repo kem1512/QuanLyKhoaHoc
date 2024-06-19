@@ -14,7 +14,9 @@
 
         public DateTime UpdateTime { get; set; }
 
-        public User User { get; set; } = default!;
+        public UserMapping User { get; set; } = default!;
+
+        public BlogMapping Blog { get; set; } = default!;
     }
 
     public class LikeBlogQuery : QueryModel { }

@@ -1,12 +1,12 @@
 ﻿namespace QuanLyKhoaHoc.Application.Services
 {
-    public class ProgramingLanguageService : ApplicationServiceBase<ProgramingLanguageMapping, ProgramingLanguageQuery, ProgramingLanguageCreate, ProgramingLanguageUpdate>
+    public class CourseSubjectService : ApplicationServiceBase<CourseSubjectMapping, CourseSubjectQuery, CourseSubjectCreate, CourseSubjectUpdate>
     {
-        public ProgramingLanguageService(IApplicationDbContext context, IMapper mapper, IUser user) : base(context, mapper, user)
+        public CourseSubjectService(IApplicationDbContext context, IMapper mapper, IUser user) : base(context, mapper, user)
         {
         }
 
-        public override async Task<Result> Create(ProgramingLanguageCreate entity, CancellationToken cancellation)
+        public override async Task<Result> Create(CourseSubjectCreate entity, CancellationToken cancellation)
         {
             try
             {
@@ -15,9 +15,9 @@
                     return new Result(ResultStatus.Forbidden, "Bạn Không Thể Thêm");
                 }
 
-                var programingLanguage = _mapper.Map<ProgramingLanguage>(entity);
+                var courseSubject = _mapper.Map<CourseSubject>(entity);
 
-                await _context.ProgramingLanguages.AddAsync(programingLanguage, cancellation);
+                await _context.CourseSubjects.AddAsync(courseSubject, cancellation);
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
@@ -43,14 +43,14 @@
                     return new Result(ResultStatus.Forbidden, "Bạn Không Thể Xóa");
                 }
 
-                var programingLanguage = await _context.ProgramingLanguages.FindAsync(new object[] { id }, cancellation);
+                var courseSubject = await _context.CourseSubjects.FindAsync(new object[] { id }, cancellation);
 
-                if (programingLanguage == null)
+                if (courseSubject == null)
                 {
                     return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
-                _context.ProgramingLanguages.Remove(programingLanguage);
+                _context.CourseSubjects.Remove(courseSubject);
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
@@ -67,33 +67,38 @@
             }
         }
 
-        public override async Task<PagingModel<ProgramingLanguageMapping>> Get(ProgramingLanguageQuery query, CancellationToken cancellation)
+        public override async Task<PagingModel<CourseSubjectMapping>> Get(CourseSubjectQuery query, CancellationToken cancellation)
         {
-            var programingLanguages = _context.ProgramingLanguages.AsNoTracking();
+            var courseSubjects = _context.CourseSubjects.AsNoTracking();
 
-            var totalCount = await programingLanguages.ApplyQuery(query, applyPagination: false).CountAsync();
+            if(query.CourseId != null)
+            {
+                courseSubjects = courseSubjects.Where(c => c.CourseId == query.CourseId);
+            }
 
-            var data = await programingLanguages
+            var totalCount = await courseSubjects.ApplyQuery(query, applyPagination: false).CountAsync();
+
+            var data = await courseSubjects
                 .ApplyQuery(query)
-                .ProjectTo<ProgramingLanguageMapping>(_mapper.ConfigurationProvider)
+                .ProjectTo<CourseSubjectMapping>(_mapper.ConfigurationProvider)
                 .ToListAsync(cancellation);
 
-            return new PagingModel<ProgramingLanguageMapping>(data, totalCount, query.Page ?? 1, query.PageSize ?? 10);
+            return new PagingModel<CourseSubjectMapping>(data, totalCount, query.Page ?? 1, query.PageSize ?? 10);
         }
 
-        public override async Task<ProgramingLanguageMapping?> Get(int id, CancellationToken cancellation)
+        public override async Task<CourseSubjectMapping?> Get(int id, CancellationToken cancellation)
         {
-            var programingLanguage = await _context.ProgramingLanguages.FindAsync(new object[] { id }, cancellation);
+            var courseSubject = await _context.CourseSubjects.FindAsync(new object[] { id }, cancellation);
 
-            if (programingLanguage == null)
+            if (courseSubject == null)
             {
                 return null;
             }
 
-            return _mapper.Map<ProgramingLanguageMapping>(programingLanguage);
+            return _mapper.Map<CourseSubjectMapping>(courseSubject);
         }
 
-        public override async Task<Result> Update(int id, ProgramingLanguageUpdate entity, CancellationToken cancellation)
+        public override async Task<Result> Update(int id, CourseSubjectUpdate entity, CancellationToken cancellation)
         {
             try
             {
@@ -107,14 +112,16 @@
                     return Result.Failure("ID Phải Giống Nhau");
                 }
 
-                var programingLanguage = await _context.ProgramingLanguages.FindAsync(new object[] { id }, cancellation);
+                var courseSubject = await _context.CourseSubjects.FindAsync(new object[] { id }, cancellation);
 
-                if (programingLanguage == null)
+                if (courseSubject == null)
                 {
                     return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
                 }
 
-                _context.ProgramingLanguages.Update(_mapper.Map(entity, programingLanguage));
+                _mapper.Map(entity, courseSubject);
+
+                _context.CourseSubjects.Update(courseSubject);
 
                 var result = await _context.SaveChangesAsync(cancellation);
 

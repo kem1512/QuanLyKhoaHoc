@@ -23,6 +23,8 @@ public static class DependencyInjection
 
         services.AddScoped<ApplicationServiceBase<BillMapping, BillQuery, BillCreate, BillUpdate>, BillService>();
 
+        services.AddScoped<ApplicationServiceBase<CourseSubjectMapping, CourseSubjectQuery, CourseSubjectCreate, CourseSubjectUpdate>, CourseSubjectService>();
+
         services.AddScoped<ApplicationServiceBase<BillStatusMapping, BillStatusQuery, BillStatusCreate, BillStatusUpdate>, BillStatusService>();
 
         services.AddScoped<ApplicationServiceBase<SubjectDetailMapping, SubjectDetailQuery, SubjectDetailCreate, SubjectDetailUpdate>, SubjectDetailService>();

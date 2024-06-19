@@ -9,10 +9,10 @@ export default function DashboardCourse() {
   return (
     <DataTable
       url="/course"
-      fields={Object.keys(new CourseMapping().toJSON())}
-      deleteAction={(id) =>
-        CourseService.deleteEntity(id)
-      }
+      fields={Object.keys(new CourseMapping().toJSON()).filter(
+        (c) => c !== "courseSubjects" && c !== "creator"
+      )}
+      deleteAction={(id) => CourseService.deleteEntity(id)}
       fetchAction={(filters, sorts, page, pageSize) =>
         CourseService.getEntities(filters, sorts, page, pageSize)
       }
