@@ -2,3 +2,7 @@
     text-decoration: none;
     text-transform: capitalize;
 }
+
+.overflow-hidden{
+    overflow: hidden;
+}

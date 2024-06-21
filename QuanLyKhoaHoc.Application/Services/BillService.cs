@@ -30,6 +30,9 @@
 
                 await _context.Bills.AddAsync(_mapper.Map<Bill>(bill), cancellation);
 
+                course.NumberOfStudent += 1;
+                course.NumberOfPurchases += 1;
+
                 var result = await _context.SaveChangesAsync(cancellation);
 
                 if (entity.VNPaySettings != null)
@@ -57,6 +60,10 @@
                         return Result.Success(paymentUrl);
                     }
                 }
+                else
+                {
+                    return Result.Success();
+                }
 
                 return Result.Failure();
             }
@@ -70,7 +77,7 @@
         {
             try
             {
-                var bill = await _context.Bills.FindAsync(new object[] { id }, cancellation);
+                var bill = await _context.Bills.FindAsync(id, cancellation);
 
                 if (bill == null)
                 {
@@ -134,16 +141,16 @@
                     return Result.Failure("ID Phải Giống Nhau");
                 }
 
-                var bill = await _context.Bills.FindAsync(new object[] { id }, cancellation);
+                if (!_user.IsAdministrator)
+                {
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Sửa");
+                }
+
+                var bill = await _context.Bills.FindAsync(id, cancellation);
 
                 if (bill == null)
                 {
                     return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
-                }
-
-                if (!_user.IsAdministrator)
-                {
-                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Sửa");
                 }
 
                 _context.Bills.Update(_mapper.Map(entity, bill));
@@ -161,5 +168,6 @@
             {
                 return Result.Failure(ex.Message);
             }
-        }    }
+        }
+    }
 }

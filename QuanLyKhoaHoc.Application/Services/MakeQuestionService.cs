@@ -70,6 +70,11 @@
         {
             var makeQuestion = _context.MakeQuestions.AsNoTracking();
 
+            if(query.SubjectDetailId != null)
+            {
+                makeQuestion = makeQuestion.Where(c => c.SubjectDetailId == query.SubjectDetailId);
+            }
+
             var totalCount = await makeQuestion.ApplyQuery(query, applyPagination: false).CountAsync();
 
             var data = await makeQuestion

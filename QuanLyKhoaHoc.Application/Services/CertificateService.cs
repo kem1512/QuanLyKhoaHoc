@@ -43,7 +43,7 @@
                     return new Result(ResultStatus.Forbidden, "Bạn Không Thể Xóa");
                 }
 
-                var certificate = await _context.Certificates.FindAsync(new object[] { id }, cancellation);
+                var certificate = await _context.Certificates.FindAsync(id, cancellation);
 
                 if (certificate == null)
                 {
@@ -83,7 +83,7 @@
 
         public override async Task<CertificateMapping?> Get(int id, CancellationToken cancellation)
         {
-            var certificate = await _context.Certificates.FindAsync(new object[] { id }, cancellation);
+            var certificate = await _context.Certificates.FindAsync(id, cancellation);
 
             if (certificate == null)
             {
@@ -107,7 +107,7 @@
                     return Result.Failure("ID Phải Giống Nhau");
                 }
 
-                var certificate = await _context.Certificates.FindAsync(new object[] { id }, cancellation);
+                var certificate = await _context.Certificates.FindAsync(id, cancellation);
 
                 if (certificate == null)
                 {

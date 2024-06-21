@@ -24,7 +24,7 @@ import {
 import { formatCurrencyVND, handleSubmit } from "../../lib/helper";
 import Loading from "../../components/Loading/Loading";
 import ActionButton from "../../components/Helper/ActionButton";
-import RegisterStudy from "../../components/RegisterStudy/RegisterStudy";
+import RegisterStudy from "../../components/Study/Study";
 
 export default function Detail({ params }: { params: { id: number } }) {
   const { id } = params;
@@ -51,81 +51,72 @@ export default function Detail({ params }: { params: { id: number } }) {
 
   const isBillPaid = billData?.billStatus?.name === "Paid";
 
-  return (
-    <RootLayout size={isBillPaid ? "none" : "xl"}>
-      {courseData ? (
-        isBillPaid ? (
-          <RegisterStudy subjectDetails={courseSubject} courseId={id} />
-        ) : (
-          <Grid py="md">
-            <Grid.Col span={{ base: 12, lg: 8 }}>
-              <Title order={3} mb="md">
-                {courseData.name}
-              </Title>
-              <TypographyStylesProvider mb="md">
-                <div
-                  dangerouslySetInnerHTML={{ __html: courseData.introduce }}
-                />
-              </TypographyStylesProvider>
-              <Title order={3} mb="md">
-                Nội Dung Khóa Học
-              </Title>
-              <Accordion chevronPosition="right" variant="contained">
-                {courseSubject?.items?.map((item) => (
-                  <Accordion.Item
-                    value={item.subject.id.toString()}
-                    key={item.subject.id}
-                  >
-                    <Accordion.Control>
-                      <Text>{item.subject.name}</Text>
-                    </Accordion.Control>
-                    <Accordion.Panel>
-                      <List>
-                        {item.subject.subjectDetails.map((subjectDetail) => (
-                          <ListItem key={subjectDetail.id}>
-                            <Text>{subjectDetail.name}</Text>
-                          </ListItem>
-                        ))}
-                      </List>
-                    </Accordion.Panel>
-                  </Accordion.Item>
-                ))}
-              </Accordion>
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, lg: 4 }}>
-              <Image
-                mb="md"
-                src={courseData.imageCourse}
-                alt={courseData.code}
-              />
-              <Group justify="space-between">
-                <Title order={3}>{formatCurrencyVND(courseData.price)}</Title>
-                {billData ? (
-                  <Button>{billData.billStatus.name}</Button>
-                ) : (
-                  <ActionButton
-                    action={() =>
-                      handleSubmit(
-                        async () =>
-                          new BillClient().createEntity({
-                            courseId: id,
-                          } as BillCreate),
-                        "Đăng Ký Thành Công",
-                        mutate
-                      )
-                    }
-                  >
-                    Đăng Ký Học
-                  </ActionButton>
-                )}
-              </Group>
-              <Text>Thời Gian Học: {courseData.totalCourseDuration} Ngày</Text>
-            </Grid.Col>
-          </Grid>
-        )
-      ) : (
-        <Alert>Không Có Gì Ở Đây Cả</Alert>
-      )}
-    </RootLayout>
+  return courseData ? (
+    isBillPaid ? (
+      <RegisterStudy courseId={id} />
+    ) : (
+      <RootLayout>
+        <Grid py="md">
+          <Grid.Col span={{ base: 12, lg: 8 }}>
+            <Title order={3} mb="md">
+              {courseData.name}
+            </Title>
+            <TypographyStylesProvider mb="md">
+              <div dangerouslySetInnerHTML={{ __html: courseData.introduce }} />
+            </TypographyStylesProvider>
+            <Title order={3} mb="md">
+              Nội Dung Khóa Học
+            </Title>
+            <Accordion chevronPosition="right" variant="contained">
+              {courseSubject?.items?.map((item) => (
+                <Accordion.Item
+                  value={item.subject.id.toString()}
+                  key={item.subject.id}
+                >
+                  <Accordion.Control>
+                    <Text>{item.subject.name}</Text>
+                  </Accordion.Control>
+                  <Accordion.Panel>
+                    <List>
+                      {item.subject.subjectDetails.map((subjectDetail) => (
+                        <ListItem key={subjectDetail.id}>
+                          <Text>{subjectDetail.name}</Text>
+                        </ListItem>
+                      ))}
+                    </List>
+                  </Accordion.Panel>
+                </Accordion.Item>
+              ))}
+            </Accordion>
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, lg: 4 }}>
+            <Image mb="md" src={courseData.imageCourse} alt={courseData.code} />
+            <Group justify="space-between">
+              <Title order={3}>{formatCurrencyVND(courseData.price)}</Title>
+              {billData ? (
+                <Button>{billData.billStatus.name}</Button>
+              ) : (
+                <ActionButton
+                  action={() =>
+                    handleSubmit(
+                      async () =>
+                        new BillClient().createEntity({
+                          courseId: id,
+                        } as BillCreate),
+                      mutate
+                    )
+                  }
+                >
+                  Đăng Ký Học
+                </ActionButton>
+              )}
+            </Group>
+            <Text>Thời Gian Học: {courseData.totalCourseDuration} Ngày</Text>
+          </Grid.Col>
+        </Grid>
+      </RootLayout>
+    )
+  ) : (
+    <Alert>Không Có Gì Ở Đây Cả</Alert>
   );
 }

@@ -16,7 +16,7 @@
 
         public int PercentComplete { get; set; }
 
-        public DateTime DoneTime { get; set; } 
+        public DateTime DoneTime { get; set; }
 
         public bool IsActive { get; set; }
 

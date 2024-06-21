@@ -29,8 +29,6 @@ public static class DependencyInjection
             return client;
         });
 
-        services.AddScoped<IEmailService, EmailService>();
-
         return services;
     }
 }

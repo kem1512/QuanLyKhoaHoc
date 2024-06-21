@@ -45,11 +45,21 @@ public static class DependencyInjection
 
         services.AddScoped<ApplicationServiceBase<RegisterStudyMapping, RegisterStudyQuery, RegisterStudyCreate, RegisterStudyUpdate>, RegisterStudyService>();
 
+        services.AddScoped<ApplicationServiceBase<MakeQuestionMapping, MakeQuestionQuery, MakeQuestionCreate, MakeQuestionUpdate>, MakeQuestionService>();
+
+        services.AddScoped<ApplicationServiceBase<AnswersMapping, AnswersQuery, AnswersCreate, AnswersUpdate>, AnswersService>();
+
+        services.AddScoped<ApplicationServiceBase<NotificationMapping, NotificationQuery, NotificationCreate, NotificationUpdate>, NotificationService>();
+
+        services.AddScoped<ApplicationServiceBase<LearningProgressMapping, LearningProgressQuery, LearningProgressCreate, LearningProgressUpdate>, LearningProgressService>();
+
         services.AddTransient<IAuthService, AuthService>();
 
         services.AddTransient<ITokenService, TokenService>();
 
         services.AddTransient<IAccountService, AccountService>();
+
+        services.AddTransient<IStatisticalService, StatisticalService>();
 
         return services;
     }

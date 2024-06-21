@@ -9,10 +9,12 @@ export default function DashboardPractice() {
   return (
     <DataTable
       url="/practice"
-      fields={Object.keys(new PracticeMapping().toJSON())}
+      fields={Object.keys(new PracticeMapping().toJSON()).filter(
+        (c) => c !== "subjectDetail" && c !== "programingLanguage"
+      )}
       deleteAction={(id) => PracticeService.deleteEntity(id)}
       fetchAction={(filters, sorts, page, pageSize) =>
-        PracticeService.getEntities(filters, sorts, page, pageSize)
+        PracticeService.getEntities(null, filters, sorts, page, pageSize)
       }
     />
   );

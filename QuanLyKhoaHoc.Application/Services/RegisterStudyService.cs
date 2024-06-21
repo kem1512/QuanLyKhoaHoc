@@ -22,6 +22,8 @@ namespace QuanLyKhoaHoc.Application.Services
 
                 var result = await _context.SaveChangesAsync(cancellation);
 
+                await _context.LearningProgress.AddAsync(new LearningProgress() { RegisterStudyId = registerStudy.Id, UserId = int.Parse(_user.Id), CurrentSubjectId = entity.CurrentSubjectId });
+
                 if (result > 0)
                 {
                     return Result.Success();

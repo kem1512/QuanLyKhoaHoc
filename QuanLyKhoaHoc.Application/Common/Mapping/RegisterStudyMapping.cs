@@ -25,8 +25,6 @@
         public CourseMapping Course { get; set; } = default!;
 
         public SubjectMapping CurrentSubject { get; set; } = default!;
-
-        public ICollection<LearningProgressMapping> LearningProgresses { get; set; } = default!;
     }
     public class RegisterStudyQuery : QueryModel { }
 

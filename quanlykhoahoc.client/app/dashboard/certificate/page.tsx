@@ -9,7 +9,9 @@ export default function DashboardCertificate() {
   return (
     <DataTable
       url="/certificate"
-      fields={Object.keys(new CertificateMapping().toJSON())}
+      fields={Object.keys(new CertificateMapping().toJSON()).filter(
+        (c) => c !== "certificateType"
+      )}
       deleteAction={(id) => CertificateService.deleteEntity(id)}
       fetchAction={(filters, sorts, page, pageSize) =>
         CertificateService.getEntities(filters, sorts, page, pageSize)

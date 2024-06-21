@@ -13,13 +13,17 @@ import {
   Button,
   Center,
 } from "@mantine/core";
-import classes from "./Comment.module.css";
+import classes from "./Question.module.css";
 import useSWR from "swr";
 import {
-  CommentBlogClient,
-  CommentBlogCreate,
-  CommentBlogUpdate,
-  ICommentBlogMapping,
+  MakeQuestionClient,
+  MakeQuestionCreate,
+  MakeQuestionUpdate,
+  IMakeQuestionMapping,
+  IAnswersMapping,
+  AnswersClient,
+  AnswersUpdate,
+  AnswersCreate,
 } from "../../app/web-api-client";
 import { handleSubmit, useQuery } from "../../lib/helper";
 import Editor from "../Editor/RichTextEditor/RichTextEditor";
@@ -29,28 +33,35 @@ import { IconDots } from "@tabler/icons-react";
 import Loading from "../Loading/Loading";
 import { modals } from "@mantine/modals";
 import { useSelector } from "react-redux";
-import Link from "next/link";
 import AppPagination from "../AppPagination/AppPagination";
+import { Answers } from "../Answers/Answers";
 
-export function Comment({ blogId }: { blogId: number }) {
+export function Question({ subjectDetailId }: { subjectDetailId: number }) {
+  const [showAnswers, setShowAnswers] = useState<boolean[]>();
+
   const query = useQuery();
 
-  const CommentBlogService = new CommentBlogClient();
+  const MakeQuestionService = new MakeQuestionClient();
+
+  const AnswersService = new AnswersClient();
 
   const user = useSelector((state: any) => state.auth.user);
 
-  const [commentBlog, setCommentBlog] = useState<ICommentBlogMapping>({
-    blogId,
-    content: "",
-    parentId: null,
+  const [answers, setAnswers] = useState<IAnswersMapping>({
+    questionId: 0,
+    answer: "",
+  });
+
+  const [makeQuestion, setMakeQuestion] = useState<IMakeQuestionMapping>({
+    subjectDetailId: subjectDetailId,
+    question: "",
   });
 
   const { data, mutate, isLoading } = useSWR(
-    `/api/commentBlog/${blogId}/${new URLSearchParams(query)}`,
+    `/api/question/${subjectDetailId}/${new URLSearchParams(query)}`,
     () =>
-      new CommentBlogClient().getEntities(
-        query.commentId ? parseInt(query.commentId) : null,
-        blogId,
+      new MakeQuestionClient().getEntities(
+        subjectDetailId,
         query.filters,
         query.sorts ?? "-CreateTime",
         query.page ? parseInt(query.page) : 1,
@@ -74,7 +85,9 @@ export function Comment({ blogId }: { blogId: number }) {
       labels: { confirm: "Chắc Chắn", cancel: "Hủy" },
       onConfirm: () =>
         handleSubmit(() => {
-          return CommentBlogService.deleteEntity(id);
+          return answers.question
+            ? MakeQuestionService.deleteEntity(id)
+            : AnswersService.deleteEntity(id);
         }, "Xóa Thành Công")
           .then(() => mutate())
           .then(() => mutate()),
@@ -84,8 +97,12 @@ export function Comment({ blogId }: { blogId: number }) {
   return (
     <Stack gap={"sm"}>
       <Editor
-        content={commentBlog.content}
-        onChange={(e) => setCommentBlog((prev) => ({ ...prev, content: e }))}
+        content={answers.id ? answers.answer : makeQuestion.question}
+        onChange={(e) =>
+          answers.questionId
+            ? setAnswers((prev) => ({ ...prev, answer: e }))
+            : setMakeQuestion((prev) => ({ ...prev, question: e }))
+        }
       />
       <Group gap={"xs"}>
         <ActionButton
@@ -94,40 +111,53 @@ export function Comment({ blogId }: { blogId: number }) {
             handleSubmit(
               () => {
                 return (
-                  commentBlog.id
-                    ? CommentBlogService.updateEntity(
-                        commentBlog.id,
-                        commentBlog as CommentBlogUpdate
+                  answers.questionId
+                    ? answers.id
+                      ? AnswersService.updateEntity(
+                          answers.id,
+                          answers as AnswersUpdate
+                        )
+                      : AnswersService.createEntity(answers as AnswersCreate)
+                    : makeQuestion.id
+                    ? MakeQuestionService.updateEntity(
+                        makeQuestion.id,
+                        makeQuestion as MakeQuestionUpdate
                       )
-                    : CommentBlogService.createEntity(
-                        commentBlog as CommentBlogCreate
+                    : MakeQuestionService.createEntity(
+                        makeQuestion as MakeQuestionCreate
                       )
                 ).then(() => {
-                  setCommentBlog({
-                    blogId,
-                    content: "",
-                    parentId: null,
+                  setMakeQuestion({
+                    subjectDetailId,
+                    question: "",
+                  });
+                  setAnswers({
+                    questionId: 0,
+                    answer: "",
                   });
                 });
               },
-              `${commentBlog.id ? "Sửa" : "Thêm"} Thành Công`,
+              `${makeQuestion.id ? "Sửa" : "Thêm"} Thành Công`,
               mutate
             )
           }
         >
           Xác Nhận
         </ActionButton>
-        {commentBlog.id || commentBlog.parentId ? (
+        {makeQuestion.id || answers.questionId || answers.id ? (
           <Button
             color="red"
             size="xs"
-            onClick={() =>
-              setCommentBlog({
-                blogId,
-                content: "",
-                parentId: null,
-              })
-            }
+            onClick={() => {
+              setMakeQuestion({
+                subjectDetailId,
+                question: "",
+              });
+              setAnswers({
+                questionId: 0,
+                answer: "",
+              });
+            }}
           >
             Hủy
           </Button>
@@ -137,7 +167,7 @@ export function Comment({ blogId }: { blogId: number }) {
         <Loading />
       ) : data?.items?.length && data.items.length >= 0 ? (
         <>
-          {data.items.map((item) => {
+          {data.items.map((item, index) => {
             return (
               <Paper
                 key={item.id}
@@ -145,7 +175,7 @@ export function Comment({ blogId }: { blogId: number }) {
                 radius="md"
                 className={classes.comment}
                 data-active={
-                  item.id.toString() === query.commentId ? true : undefined
+                  item.id.toString() === query.commentId || undefined
                 }
               >
                 <Group justify="space-between">
@@ -156,21 +186,43 @@ export function Comment({ blogId }: { blogId: number }) {
                   />
                   <Stack me={"auto"} gap={5}>
                     <Text fz="sm" fw={"bold"}>
-                      {item.user.username}
+                      {item.user?.username}
                     </Text>
                     <TypographyStylesProvider>
                       <div
                         style={{ fontSize: "var(--mantine-font-size-sm)" }}
                         dangerouslySetInnerHTML={{
-                          __html: item.content,
+                          __html: item.question,
                         }}
                       />
                     </TypographyStylesProvider>
-                    {item.parentId ? (
-                      <Link href={`/blog/${blogId}?commentId=${item.parentId}`}>
-                        <Text fz={"sm"}>Xem Bình Luận</Text>
-                      </Link>
-                    ) : undefined}
+                    {item.numberOfAnswers > 0 && (
+                      <>
+                        <Text
+                          fz={"sm"}
+                          fw={"bold"}
+                          style={{ cursor: "pointer" }}
+                          size="xs"
+                          onClick={() =>
+                            setShowAnswers((prev) => ({
+                              ...prev,
+                              [index]: !showAnswers[index],
+                            }))
+                          }
+                        >
+                          Xem {item.numberOfAnswers} Câu Trả Lời
+                        </Text>
+                      </>
+                    )}
+                    {showAnswers && showAnswers[index] && (
+                      <Answers
+                        handleSubmit={handleSubmit}
+                        questionId={item.id}
+                        setAnswers={(e) => setAnswers(e)}
+                        handleDelete={(e) => handleDelete(e)}
+                        user={user}
+                      />
+                    )}
                   </Stack>
                   <Menu>
                     <Menu.Target>
@@ -179,9 +231,9 @@ export function Comment({ blogId }: { blogId: number }) {
                       </ActionIcon>
                     </Menu.Target>
                     <Menu.Dropdown>
-                      {user.email === item.user.email && (
+                      {user?.email === item.user.email && (
                         <>
-                          <Menu.Item onClick={() => setCommentBlog(item)}>
+                          <Menu.Item onClick={() => setMakeQuestion(item)}>
                             Sửa
                           </Menu.Item>
                           <Menu.Item onClick={() => handleDelete(item.id)}>
@@ -191,9 +243,9 @@ export function Comment({ blogId }: { blogId: number }) {
                       )}
                       <Menu.Item
                         onClick={() =>
-                          setCommentBlog((prev) => ({
+                          setAnswers((prev) => ({
                             ...prev,
-                            parentId: item.id,
+                            questionId: item.id,
                           }))
                         }
                       >

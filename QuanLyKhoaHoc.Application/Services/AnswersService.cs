@@ -18,10 +18,10 @@
 
                 await _context.Answers.AddAsync(answers, cancellation);
 
-                var question = await _context.Blogs.FirstOrDefaultAsync(c => c.Id == entity.QuestionId);
+                var question = await _context.MakeQuestions.FirstOrDefaultAsync(c => c.Id == entity.QuestionId);
 
                 if (question != null) {
-                    question.NumberOfComments += 1;
+                    question.NumberOfAnswers += 1;
                 }
 
                 var result = await _context.SaveChangesAsync(cancellation);
@@ -43,7 +43,7 @@
         {
             try
             {
-                var answers = await _context.Answers.Include(c => c.Question).FirstOrDefaultAsync(c => c.Id == id, cancellation);
+                var answers = await _context.Answers.AsNoTracking().Include(c => c.Question).FirstOrDefaultAsync(c => c.Id == id, cancellation);
 
                 if (answers == null)
                 {
@@ -81,6 +81,11 @@
         {
             var answers = _context.Answers.AsNoTracking();
 
+            if (query.QuestionId != null)
+            {
+                answers = answers.Where(c => c.QuestionId == query.QuestionId);
+            }
+
             var totalCount = await answers.ApplyQuery(query, applyPagination: false).CountAsync();
 
             var data = await answers
@@ -93,7 +98,7 @@
 
         public override async Task<AnswersMapping?> Get(int id, CancellationToken cancellation)
         {
-            var commentAnswers = await _context.Answers.FindAsync(new object[] { id }, cancellation);
+            var commentAnswers = await _context.Answers.FindAsync(id, cancellation);
 
             if (commentAnswers == null)
             {
@@ -112,7 +117,7 @@
                     return Result.Failure("ID Phải Giống Nhau");
                 }
 
-                var answers = await _context.Answers.FindAsync(new object[] { id }, cancellation);
+                var answers = await _context.Answers.FindAsync(id, cancellation);
 
                 if (answers == null)
                 {

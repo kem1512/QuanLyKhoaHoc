@@ -73,6 +73,11 @@
         {
             var practices = _context.Practices.AsNoTracking();
 
+            if(query.SubjectDetailId != null)
+            {
+                practices = practices.Where(c => c.SubjectDetailId == query.SubjectDetailId);
+            }
+
             var totalCount = await practices.ApplyQuery(query, applyPagination: false).CountAsync();
 
             var data = await practices

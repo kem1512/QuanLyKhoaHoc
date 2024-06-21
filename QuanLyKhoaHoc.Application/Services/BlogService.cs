@@ -37,7 +37,7 @@
         {
             try
             {
-                var blog = await _context.Blogs.FindAsync(new object[] { id }, cancellation);
+                var blog = await _context.Blogs.FindAsync(id, cancellation);
 
                 if (blog == null)
                 {

@@ -43,7 +43,7 @@
                     return new Result(ResultStatus.Forbidden, "Bạn Không Thể Xóa");
                 }
 
-                var certificateType = await _context.CertificateTypes.FindAsync(new object[] { id }, cancellation);
+                var certificateType = await _context.CertificateTypes.FindAsync(id, cancellation);
 
                 if (certificateType == null)
                 {
@@ -83,7 +83,7 @@
 
         public override async Task<CertificateTypeMapping?> Get(int id, CancellationToken cancellation)
         {
-            var certificateType = await _context.CertificateTypes.FindAsync(new object[] { id }, cancellation);
+            var certificateType = await _context.CertificateTypes.FindAsync(id, cancellation);
 
             if (certificateType == null)
             {
@@ -107,7 +107,7 @@
                     return Result.Failure("ID Phải Giống Nhau");
                 }
 
-                var certificateType = await _context.CertificateTypes.FindAsync(new object[] { id }, cancellation);
+                var certificateType = await _context.CertificateTypes.FindAsync(id, cancellation);
 
                 if (certificateType == null)
                 {

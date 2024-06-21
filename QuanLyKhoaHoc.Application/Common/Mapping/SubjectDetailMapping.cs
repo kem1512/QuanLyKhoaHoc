@@ -15,6 +15,8 @@
         public bool IsActive { get; set; }
 
         public SubjectMapping Subject { get; set; } = default!;
+
+        public 
     }
 
     public class SubjectDetailQuery : QueryModel { }

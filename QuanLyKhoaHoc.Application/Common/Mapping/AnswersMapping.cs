@@ -21,7 +21,7 @@
 
     public class AnswersQuery : QueryModel
     {
-
+        public int? QuestionId { get; set; }
     }
 
     public class AnswersCreate
@@ -31,10 +31,6 @@
         public int UserId { get; set; }
 
         public string Answer { get; set; } = default!;
-
-        public DateTime CreateTime { get; set; }
-
-        public DateTime UpdateTime { get; set; }
     }
 
     public class AnswersUpdate

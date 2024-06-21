@@ -36,6 +36,14 @@
             CreateMap<Role, RoleCreate>().ReverseMap();
             CreateMap<Role, RoleUpdate>().ReverseMap();
 
+            CreateMap<LearningProgress, LearningProgressMapping>().ReverseMap();
+            CreateMap<LearningProgress, LearningProgressCreate>().ReverseMap();
+            CreateMap<LearningProgress, LearningProgressUpdate>().ReverseMap();
+
+            CreateMap<Notification, NotificationMapping>().ReverseMap();
+            CreateMap<Notification, NotificationCreate>().ReverseMap();
+            CreateMap<Notification, NotificationUpdate>().ReverseMap();
+
             CreateMap<SubjectDetail, SubjectDetailMapping>().ReverseMap();
             CreateMap<SubjectDetail, SubjectDetailCreate>().ReverseMap();
             CreateMap<SubjectDetail, SubjectDetailUpdate>().ReverseMap();

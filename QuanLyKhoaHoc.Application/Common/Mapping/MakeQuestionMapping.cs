@@ -19,15 +19,16 @@
         public UserMapping User { get; set; } = default!;
     }
 
-    public class MakeQuestionQuery : QueryModel { }
+    public class MakeQuestionQuery : QueryModel
+    {
+        public int? SubjectDetailId { get; set; }
+    }
 
     public class MakeQuestionCreate
     {
         public int SubjectDetailId { get; set; }
 
         public string Question { get; set; } = default!;
-
-        public int NumberOfAnswers { get; set; }
     }
 
     public class MakeQuestionUpdate
@@ -37,7 +38,5 @@
         public int SubjectDetailId { get; set; }
 
         public string Question { get; set; } = default!;
-
-        public int NumberOfAnswers { get; set; }
     }
 }

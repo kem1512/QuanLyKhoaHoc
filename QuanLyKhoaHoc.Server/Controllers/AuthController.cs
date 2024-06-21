@@ -24,15 +24,15 @@
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterRequest request, CancellationToken cancellation)
+        public async Task<Result> Register(RegisterRequest request, CancellationToken cancellation)
         {
-            return Ok(await _jwtService.Register(request, cancellation));
+            return await _jwtService.Register(request, cancellation);
         }
 
         [HttpPost("refresh")]
-        public async Task<ActionResult<TokenRequest>> Refresh(string refreshToken, CancellationToken cancellation)
+        public async Task<TokenRequest?> RefreshAccessToken(string refreshToken, CancellationToken cancellation)
         {
-            return Ok(await _jwtService.RefreshAccessToken(refreshToken, cancellation));
+            return await _jwtService.RefreshAccessToken(refreshToken, cancellation);
         }
 
         [HttpGet("ConfirmEmail")]

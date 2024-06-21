@@ -17,6 +17,7 @@ import { IconArrowUpRight, IconArrowDownRight } from "@tabler/icons-react";
 import { BarChart, DonutChart } from "@mantine/charts";
 import useSWR from "swr";
 import { StatisticalClient } from "../web-api-client";
+import { useState } from "react";
 
 const icons = {
   up: IconArrowUpRight,
@@ -25,21 +26,21 @@ const icons = {
 
 const data = [
   {
-    label: "Page views",
+    label: "Số Khóa Học",
     stats: "456,578",
     progress: 65,
     color: "teal",
     icon: "up",
   },
   {
-    label: "New users",
+    label: "Số Học Viên",
     stats: "2,550",
     progress: 72,
     color: "blue",
     icon: "up",
   },
   {
-    label: "Orders",
+    label: "Doanh Thu Trong Ngày",
     stats: "4,735",
     progress: 52,
     color: "red",
@@ -48,9 +49,19 @@ const data = [
 ];
 
 export default function Dashboard() {
+  const [statistical, setStatistical] = useState({
+    startDate: new Date(),
+    endDate: new Date(),
+    topN: 5,
+  });
+
   const { data: check } = useSWR(
-    "/api/statistical",
-    () => new StatisticalClient().check(),
+    `/api/statistical/${statistical.startDate}/${statistical.endDate}`,
+    () =>
+      new StatisticalClient().getTotalRevenue(
+        statistical.startDate,
+        statistical.endDate
+      ),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,

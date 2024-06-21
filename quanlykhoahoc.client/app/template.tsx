@@ -25,7 +25,7 @@ function AuthHandler({ onAuthComplete }: { onAuthComplete: () => void }) {
   const refreshAuthToken = useCallback(async () => {
     if (!accessToken && refreshToken) {
       try {
-        const response = await AuthService.refresh(refreshToken);
+        const response = await AuthService.refreshAccessToken(refreshToken);
 
         const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
           response;

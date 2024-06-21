@@ -35,7 +35,10 @@ namespace QuanLyKhoaHoc.Application.Common.Mapping
         public ProgramingLanguageMapping ProgramingLanguage { get; set; } = default!;
     }
 
-    public class PracticeQuery : QueryModel { }
+    public class PracticeQuery : QueryModel
+    {
+        public int? SubjectDetailId { get; set; }
+    }
 
     public class PracticeCreate
     {

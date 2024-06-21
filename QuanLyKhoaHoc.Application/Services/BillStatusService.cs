@@ -43,7 +43,7 @@
                     return new Result(ResultStatus.Forbidden, "Bạn Không Thể Xóa");
                 }
 
-                var billStatus = await _context.BillStatus.FindAsync(new object[] { id }, cancellation);
+                var billStatus = await _context.BillStatus.FindAsync(id, cancellation);
 
                 if (billStatus == null)
                 {
@@ -83,7 +83,7 @@
 
         public override async Task<BillStatusMapping?> Get(int id, CancellationToken cancellation)
         {
-            var billStatus = await _context.BillStatus.FindAsync(new object[] { id }, cancellation);
+            var billStatus = await _context.BillStatus.FindAsync(id, cancellation);
 
             if (billStatus == null)
             {
@@ -107,7 +107,7 @@
                     return Result.Failure("ID Phải Giống Nhau");
                 }
 
-                var billStatus = await _context.BillStatus.FindAsync(new object[] { id }, cancellation);
+                var billStatus = await _context.BillStatus.FindAsync(id, cancellation);
 
                 if (billStatus == null)
                 {

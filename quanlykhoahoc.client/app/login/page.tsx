@@ -58,27 +58,33 @@ export default function Login() {
           return;
         }
 
-        await AuthService.register(new RegisterRequest({ email, password }));
+        var r = await AuthService.register(
+          new RegisterRequest({ email, password })
+        );
 
-        toast("Vui Lòng Kiểm Tra Email Để Kích Hoạt Tài Khoản");
-      }
+        if (r.error) {
+          toast.error(r.error);
+        } else {
+          const response = await AuthService.login(
+            new LoginRequest({ email, password })
+          );
 
-      const response = await AuthService.login(
-        new LoginRequest({ email, password })
-      );
+          if (!response) {
+            toast.error("Vui Lòng Kiểm Tra Lại Thông Tin Đăng Nhập");
+            return;
+          }
 
-      if (!response) {
-        toast.error("Vui Lòng Kiểm Tra Lại Thông Tin Đăng Nhập");
-        return;
-      }
+          const { refreshToken } = response;
 
-      const { refreshToken } = response;
+          if (refreshToken) {
+            Cookies.set("refreshToken", refreshToken, { expires: 30 });
+            setTimeout(() => {
+              router.push("/");
+            }, 1000);
+          }
 
-      if (refreshToken) {
-        Cookies.set("refreshToken", refreshToken, { expires: 30 });
-        setTimeout(() => {
-          router.push("/");
-        }, 1000);
+          toast("Vui Lòng Kiểm Tra Email Để Kích Hoạt Tài Khoản");
+        }
       }
     } catch (error: any) {
       const errors = error.errors || {};

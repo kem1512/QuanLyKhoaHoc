@@ -110,7 +110,7 @@
 
         public override async Task<CommentBlogMapping?> Get(int id, CancellationToken cancellation)
         {
-            var commentCommentBlog = await _context.CommentBlogs.FindAsync(new object[] { id }, cancellation);
+            var commentCommentBlog = await _context.CommentBlogs.FindAsync(id, cancellation);
 
             if (commentCommentBlog == null)
             {
@@ -129,7 +129,7 @@
                     return Result.Failure("ID Phải Giống Nhau");
                 }
 
-                var commentBlog = await _context.CommentBlogs.FindAsync(new object[] { id }, cancellation);
+                var commentBlog = await _context.CommentBlogs.FindAsync(id, cancellation);
 
                 if (commentBlog == null)
                 {
@@ -140,6 +140,8 @@
                 {
                     return new Result(ResultStatus.Forbidden, "Bạn Không Thể Sửa");
                 }
+
+                commentBlog.Edited = true;
 
                 _context.CommentBlogs.Update(_mapper.Map(entity, commentBlog));
 

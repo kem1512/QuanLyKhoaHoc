@@ -42,7 +42,12 @@
         {
             try
             {
-                var course = await _context.Courses.FindAsync(new object[] { id }, cancellation);
+                if (!_user.IsAdministrator)
+                {
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Xóa");
+                }
+
+                var course = await _context.Courses.FindAsync(id, cancellation);
 
                 if (course == null)
                 {
@@ -101,6 +106,11 @@
         {
             try
             {
+                if (!_user.IsAdministrator)
+                {
+                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Sửa");
+                }
+
                 if (entity.Id != id)
                 {
                     return Result.Failure("ID Phải Giống Nhau");
@@ -111,11 +121,6 @@
                 if (course == null)
                 {
                     return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
-                }
-
-                if (course.CreatorId.ToString() != _user.Id && !_user.IsAdministrator)
-                {
-                    return new Result(ResultStatus.Forbidden, "Bạn Không Thể Sửa");
                 }
 
                 var currentCourseSubjectIds = course.CourseSubjects.Select(cs => cs.Id).ToList();

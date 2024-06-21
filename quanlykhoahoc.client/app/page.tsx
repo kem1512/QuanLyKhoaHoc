@@ -22,7 +22,11 @@ export default function Home() {
         query.sorts,
         query.page ? parseInt(query.page) : 1,
         query.pageSize ? parseInt(query.pageSize) : 9
-      )
+      ),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
   );
 
   return (
