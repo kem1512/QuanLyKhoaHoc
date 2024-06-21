@@ -64,27 +64,28 @@ export default function Login() {
 
         if (r.error) {
           toast.error(r.error);
-        } else {
-          const response = await AuthService.login(
-            new LoginRequest({ email, password })
-          );
-
-          if (!response) {
-            toast.error("Vui Lòng Kiểm Tra Lại Thông Tin Đăng Nhập");
-            return;
-          }
-
-          const { refreshToken } = response;
-
-          if (refreshToken) {
-            Cookies.set("refreshToken", refreshToken, { expires: 30 });
-            setTimeout(() => {
-              router.push("/");
-            }, 1000);
-          }
-
-          toast("Vui Lòng Kiểm Tra Email Để Kích Hoạt Tài Khoản");
+          return;
         }
+        
+        toast("Vui Lòng Kiểm Tra Email Để Kích Hoạt Tài Khoản");
+      }
+
+      const response = await AuthService.login(
+        new LoginRequest({ email, password })
+      );
+
+      if (!response) {
+        toast.error("Vui Lòng Kiểm Tra Lại Thông Tin Đăng Nhập");
+        return;
+      }
+
+      const { refreshToken } = response;
+
+      if (refreshToken) {
+        Cookies.set("refreshToken", refreshToken, { expires: 30 });
+        setTimeout(() => {
+          router.push("/");
+        }, 1000);
       }
     } catch (error: any) {
       const errors = error.errors || {};
