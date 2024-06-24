@@ -1,6 +1,4 @@
-﻿using QuanLyKhoaHoc.Domain.Entities;
-
-namespace QuanLyKhoaHoc.Application.Services
+﻿namespace QuanLyKhoaHoc.Application.Services
 {
     public class RegisterStudyService : ApplicationServiceBase<RegisterStudyMapping, RegisterStudyQuery, RegisterStudyCreate, RegisterStudyUpdate>
     {
@@ -74,6 +72,16 @@ namespace QuanLyKhoaHoc.Application.Services
         {
             var registerStudies = _context.RegisterStudys.AsNoTracking();
 
+            if(query.CourseId != null)
+            {
+                registerStudies = registerStudies.Where(c => c.CourseId  == query.CourseId && c.UserId.ToString() == _user.Id);
+            }
+
+            if(query.UserId != null)
+            {
+                registerStudies = registerStudies.Where(c => c.UserId == query.UserId);
+            }
+
             var totalCount = await registerStudies.ApplyQuery(query, applyPagination: false).CountAsync();
 
             var data = await registerStudies
@@ -105,7 +113,9 @@ namespace QuanLyKhoaHoc.Application.Services
                     return Result.Failure("ID Phải Giống Nhau");
                 }
 
-                var registerStudy = await _context.RegisterStudys.FindAsync(new object[] { id }, cancellation);
+                var registerStudy = await _context.RegisterStudys
+                    .Include(c => c.LearningProgresses)
+                    .FirstOrDefaultAsync(c => c.Id == id, cancellation);
 
                 if (registerStudy == null)
                 {
@@ -115,6 +125,19 @@ namespace QuanLyKhoaHoc.Application.Services
                 if (registerStudy.UserId.ToString() != _user.Id && !_user.IsAdministrator)
                 {
                     return new Result(ResultStatus.Forbidden, "Bạn Không Thể Sửa");
+                }
+
+                foreach (var item in entity.LearningProgresses)
+                {
+                    item.UserId = registerStudy.UserId;
+                }
+
+                foreach (var lp in registerStudy.LearningProgresses)
+                {
+                    if (!entity.LearningProgresses.Any(e => e.Id == lp.Id))
+                    {
+                        _context.LearningProgress.Remove(lp);
+                    }
                 }
 
                 _context.RegisterStudys.Update(_mapper.Map(entity, registerStudy));

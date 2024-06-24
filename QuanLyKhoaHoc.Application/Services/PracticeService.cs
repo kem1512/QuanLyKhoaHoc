@@ -85,6 +85,14 @@
                 .ProjectTo<PracticeMapping>(_mapper.ConfigurationProvider)
                 .ToListAsync(cancellation);
 
+            if(query.Includes == null)
+            {
+                foreach (var item in practices)
+                {
+                    item.TestCases = [];
+                }
+            }
+
             return new PagingModel<PracticeMapping>(data, totalCount, query.Page ?? 1, query.PageSize ?? 10);
         }
 

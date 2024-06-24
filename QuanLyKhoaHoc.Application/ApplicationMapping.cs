@@ -4,7 +4,7 @@
     {
         public ApplicationMapping()
         {
-            CreateMap<Subject, SubjectMapping>().ReverseMap();
+            CreateMap<Subject, SubjectMapping>();
             CreateMap<Subject, SubjectCreate>().ReverseMap();
             CreateMap<Subject, SubjectUpdate>().ReverseMap();
 
@@ -16,9 +16,17 @@
             CreateMap<Blog, BlogCreate>().ReverseMap();
             CreateMap<Blog, BlogUpdate>().ReverseMap();
 
+            CreateMap<DoHomework, DoHomeworkMapping>().ReverseMap();
+            CreateMap<DoHomework, DoHomeworkCreate>().ReverseMap();
+            CreateMap<DoHomework, DoHomeworkUpdate>().ReverseMap();
+
             CreateMap<Province, ProvinceMapping>().ReverseMap();
             CreateMap<Province, ProvinceCreate>().ReverseMap();
             CreateMap<Province, ProvinceUpdate>().ReverseMap();
+
+            CreateMap<RunTestCase, RunTestCaseMapping>().ReverseMap();
+            CreateMap<RunTestCase, RunTestCaseCreate>().ReverseMap();
+            CreateMap<RunTestCase, RunTestCaseUpdate>().ReverseMap();
 
             CreateMap<District, DistrictMapping>().ReverseMap();
             CreateMap<District, DistrictCreate>().ReverseMap();

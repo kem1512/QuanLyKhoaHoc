@@ -20,13 +20,17 @@
 
         public bool IsActive { get; set; }
 
-        public UserMapping User { get; set; } = default!;
-
         public CourseMapping Course { get; set; } = default!;
 
-        public SubjectMapping CurrentSubject { get; set; } = default!;
+        public ICollection<LearningProgressMapping> LearningProgresses { get; set; } = default!;
     }
-    public class RegisterStudyQuery : QueryModel { }
+
+    public class RegisterStudyQuery : QueryModel
+    {
+        public int? CourseId { get; set; }
+
+        public int? UserId { get; set; }
+    }
 
     public class RegisterStudyCreate
     {
@@ -49,5 +53,7 @@
         public bool IsFinished { get; set; }
 
         public bool IsActive { get; set; }
+
+        public ICollection<LearningProgressMapping> LearningProgresses { get; set; } = default!;
     }
 }

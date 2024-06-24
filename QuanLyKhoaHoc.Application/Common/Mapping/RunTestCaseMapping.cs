@@ -13,6 +13,8 @@
         public double RunTime { get; set; }
     }
 
+    public class RunTestCaseQuery : QueryModel { }
+
     public class RunTestCaseCreate
     {
         [Required(ErrorMessage = "Bài Tập Về Nhà Không Được Bỏ Trống")]

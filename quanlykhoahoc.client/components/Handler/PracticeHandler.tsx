@@ -1,6 +1,13 @@
 "use client";
 
-import { Grid, TextInput, NumberInput, Checkbox, Select } from "@mantine/core";
+import {
+  Grid,
+  TextInput,
+  NumberInput,
+  Checkbox,
+  Select,
+  Flex,
+} from "@mantine/core";
 import DashboardLayout from "../../components/Layout/DashboardLayout/DashboardLayout";
 import {
   PracticeClient,
@@ -17,6 +24,7 @@ import {
   ProgramingLanguageSelect,
   SubjectDetailSelect,
 } from "../Helper/AppSelect";
+import TestCaseHandler from "./TestCaseHandler";
 
 export default function PracticeHandler({ id }: { id?: number }) {
   const PracticeService = new PracticeClient();
@@ -161,22 +169,31 @@ export default function PracticeHandler({ id }: { id?: number }) {
           />
         </Grid.Col>
         <Grid.Col span={12}>
-          <ActionButton
-            size="xs"
-            action={() =>
-              handleSubmit(() => {
-                return id
-                  ? PracticeService.updateEntity(
-                      practice.id,
-                      practice as PracticeUpdate
-                    )
-                  : PracticeService.createEntity(practice as PracticeCreate);
-              }, `${id ? "Sửa" : "Thêm"} Thành Công`, mutate)
-            }
-          >
-            Xác Nhận
-          </ActionButton>
+          <Flex justify={"end"}>
+            <ActionButton
+              size="xs"
+              action={() =>
+                handleSubmit(
+                  () => {
+                    return id
+                      ? PracticeService.updateEntity(
+                          practice.id,
+                          practice as PracticeUpdate
+                        )
+                      : PracticeService.createEntity(
+                          practice as PracticeCreate
+                        );
+                  },
+                  `${id ? "Sửa" : "Thêm"} Thành Công`,
+                  mutate
+                )
+              }
+            >
+              Xác Nhận
+            </ActionButton>
+          </Flex>
         </Grid.Col>
+        {practice.id && <TestCaseHandler practice={practice} />}
       </Grid>
     </DashboardLayout>
   );

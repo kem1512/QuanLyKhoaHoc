@@ -16,10 +16,13 @@
 
         public SubjectMapping Subject { get; set; } = default!;
 
-        public 
+        public bool Completed { get; set; }
     }
 
-    public class SubjectDetailQuery : QueryModel { }
+    public class SubjectDetailQuery : QueryModel
+    {
+        public int? SubjectId { get; set; }
+    }
 
     public class SubjectDetailCreate
     {

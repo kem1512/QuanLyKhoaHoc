@@ -17,7 +17,10 @@
         public PracticeMapping Practice { get; set; } = default!;
     }
 
-    public class TestCaseQuery : QueryModel { }
+    public class TestCaseQuery : QueryModel
+    {
+        public int? PracticeId { get; set; }
+    }
 
     public class TestCaseCreate
     {

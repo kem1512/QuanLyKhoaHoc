@@ -11,9 +11,16 @@
         public bool IsActive { get; set; }
 
         public ICollection<SubjectDetailMapping> SubjectDetails { get; set; } = default!;
+
+        public ICollection<LearningProgressMapping> LearningProgresses { get; set; } = default!;
     }
 
-    public class SubjectQuery : QueryModel { }
+    public class SubjectQuery : QueryModel
+    {
+        public int? CourseId { get; set; }
+
+        public bool? Includes {  get; set; }
+    }
 
     public class SubjectCreate
     {

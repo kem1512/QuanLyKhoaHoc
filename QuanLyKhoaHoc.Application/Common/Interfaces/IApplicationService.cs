@@ -1,5 +1,4 @@
-﻿using QuanLyKhoaHoc.Application.Common.Models;
-namespace QuanLyKhoaHoc.Application.Common.Interfaces
+﻿namespace QuanLyKhoaHoc.Application.Common.Interfaces
 {
     public interface IApplicationService<Model, QueryModel, CreateModel, UpdateModel>
     {

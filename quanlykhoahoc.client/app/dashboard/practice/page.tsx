@@ -14,7 +14,7 @@ export default function DashboardPractice() {
       )}
       deleteAction={(id) => PracticeService.deleteEntity(id)}
       fetchAction={(filters, sorts, page, pageSize) =>
-        PracticeService.getEntities(null, filters, sorts, page, pageSize)
+        PracticeService.getEntities(null, null, filters, sorts, page, pageSize)
       }
     />
   );

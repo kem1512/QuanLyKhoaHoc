@@ -1,25 +1,27 @@
 "use client";
 
-import { Checkbox, Grid, Input, TextInput } from "@mantine/core";
-import DashboardLayout from "../../components/Layout/DashboardLayout/DashboardLayout";
+import { Button, Grid, TextInput, Title } from "@mantine/core";
 import {
-  RegisterStudyClient,
-  RegisterStudyCreate,
-  RegisterStudyUpdate,
   IRegisterStudyMapping,
+  RegisterStudyClient,
+  RegisterStudyUpdate,
 } from "../../app/web-api-client";
-import { handleSubmit } from "../../lib/helper";
-import { useEffect, useState } from "react";
 import useSWR from "swr";
-import ActionButton from "../../components/Helper/ActionButton";
-import { CourseSelect, SubjectSelect, UserSelect } from "../Helper/AppSelect";
+import { SubjectSelect } from "../Helper/AppSelect";
+import { useEffect, useState } from "react";
+import Loading from "../Loading/Loading";
+import { handleSubmit } from "../../lib/helper";
 
-export default function RegisterStudyHandler({ id }: { id?: number }) {
+export default function RegisterStudyHandler({ userId }: { userId?: number }) {
   const RegisterStudyService = new RegisterStudyClient();
 
-  const { data, mutate } = useSWR(
-    `/api/registerStudy/${id}`,
-    () => RegisterStudyService.getEntity(id),
+  const [registerStudies, setRegisterStudies] =
+    useState<IRegisterStudyMapping[]>();
+
+  const { data, isLoading } = useSWR(
+    `/api/registerStudy/${userId}`,
+    () =>
+      RegisterStudyService.getEntities(null, userId, null, null, null, null),
     {
       revalidateIfStale: false,
       revalidateOnFocus: false,
@@ -27,83 +29,69 @@ export default function RegisterStudyHandler({ id }: { id?: number }) {
     }
   );
 
-  const [registerStudy, setRegisterStudy] = useState<IRegisterStudyMapping>({
-    userId: 0,
-    courseId: 0,
-    currentSubjectId: 0,
-    isActive: false,
-    doneTime: new Date(),
-    registerTime: new Date(),
-  });
-
   useEffect(() => {
-    if (data) setRegisterStudy(data);
+    if (data?.items) setRegisterStudies(data.items);
   }, [data]);
 
-  return (
-    <DashboardLayout>
-      <Grid>
-        <Grid.Col span={{ base: 12, lg: 6 }}>
-          <UserSelect
-            value={registerStudy.user}
-            onChange={(e) =>
-              setRegisterStudy((prev) => ({ ...prev, userId: e.id }))
-            }
-          />
-        </Grid.Col>
-        <Grid.Col span={{ base: 12, lg: 6 }}>
-          <CourseSelect
-            value={registerStudy.course}
-            onChange={(e) =>
-              setRegisterStudy((prev) => ({ ...prev, courseId: e.id }))
-            }
-          />
-        </Grid.Col>
-        <Grid.Col span={{ base: 12, lg: 6 }}>
-          <SubjectSelect
-            single={true}
-            value={registerStudy.currentSubject}
-            onChange={(e) =>
-              setRegisterStudy((prev) => ({ ...prev, currentSubjectId: e.id }))
-            }
-          />
-        </Grid.Col>
-        <Grid.Col span={{ base: 12, lg: 6 }}>
-          <Checkbox
-            label="Đã Kích Hoạt"
-            checked={registerStudy.isActive}
-            onChange={() =>
-              setRegisterStudy((prev) => ({
-                ...prev,
-                isActive: !prev.isActive,
-              }))
-            }
-          />
-        </Grid.Col>
-        <Grid.Col span={12}>
-          <ActionButton
-            size="xs"
-            action={() =>
-              handleSubmit(
-                () => {
-                  return id
-                    ? RegisterStudyService.updateEntity(
-                        registerStudy.id,
-                        registerStudy as RegisterStudyUpdate
-                      )
-                    : RegisterStudyService.createEntity(
-                        registerStudy as RegisterStudyCreate
-                      );
-                },
-                `${id ? "Sửa" : "Thêm"} Thành Công`,
-                mutate
-              )
-            }
-          >
-            Xác Nhận
-          </ActionButton>
-        </Grid.Col>
-      </Grid>
-    </DashboardLayout>
+  return isLoading ? (
+    <Loading />
+  ) : (
+    registerStudies?.map((item, index) => {
+      return (
+        <>
+          <Grid.Col key={index}>
+            <Title order={4}>Khóa Học</Title>
+          </Grid.Col>
+          <Grid.Col span={{ base: 6, lg: 3 }}>
+            <TextInput
+              value={item.course.name}
+              label="Tên Khóa Học"
+              labelProps={{ style: { marginBottom: 6 } }}
+              readOnly
+            />
+          </Grid.Col>
+          <Grid.Col span={{ base: 6, lg: 3 }}>
+            <TextInput
+              value={item.percentComplete}
+              label="Phần Trăm Hoàn Thành"
+              labelProps={{ style: { marginBottom: 6 } }}
+              readOnly
+            />
+          </Grid.Col>
+          <Grid.Col span={{ base: 6, lg: 3 }}>
+            <SubjectSelect
+              value={item.learningProgresses}
+              onChange={(e) =>
+                setRegisterStudies((prev) => {
+                  const newStudies = [...prev];
+                  newStudies[index] = {
+                    ...newStudies[index],
+                    learningProgresses: e,
+                  };
+                  return newStudies;
+                })
+              }
+              courseId={item.courseId}
+            />
+          </Grid.Col>
+          <Grid.Col span={{ base: 6, lg: 3 }}>
+            <Button
+              onClick={() =>
+                handleSubmit(
+                  () =>
+                    new RegisterStudyClient().updateEntity(
+                      item.id,
+                      item as RegisterStudyUpdate
+                    ),
+                  "Sửa Thành Công"
+                )
+              }
+            >
+              Cập Nhật
+            </Button>
+          </Grid.Col>
+        </>
+      );
+    })
   );
 }

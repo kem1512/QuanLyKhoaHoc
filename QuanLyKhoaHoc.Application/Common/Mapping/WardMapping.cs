@@ -1,6 +1,4 @@
-﻿using QuanLyKhoaHoc.Application.Common.Models;
-
-namespace QuanLyKhoaHoc.Application.Common.Mapping
+﻿namespace QuanLyKhoaHoc.Application.Common.Mapping
 {
     public class WardMapping
     {

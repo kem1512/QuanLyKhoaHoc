@@ -5,8 +5,7 @@
     [ApiController]
     public class PracticeController : BaseController<PracticeMapping, PracticeQuery, PracticeCreate, PracticeUpdate>
     {
-        public PracticeController(ApplicationServiceBase<PracticeMapping, PracticeQuery, PracticeCreate, PracticeUpdate> context)
-            : base(context)
+        public PracticeController(ApplicationServiceBase<PracticeMapping, PracticeQuery, PracticeCreate, PracticeUpdate> context) : base(context)
         {
         }
 

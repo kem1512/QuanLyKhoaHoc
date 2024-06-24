@@ -12,7 +12,7 @@ export default function DashboardSubject() {
       fields={Object.keys(new SubjectMapping().toJSON())}
       deleteAction={(id) => SubjectService.deleteEntity(id)}
       fetchAction={(filters, sorts, page, pageSize) =>
-        SubjectService.getEntities(filters, sorts, page, pageSize)
+        SubjectService.getEntities(null, null, filters, sorts, page, pageSize)
       }
     />
   );

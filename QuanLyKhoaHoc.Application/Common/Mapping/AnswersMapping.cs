@@ -14,9 +14,9 @@
 
         public DateTime UpdateTime { get; set; }
 
-        public MakeQuestion Question { get; set; } = default!;
+        public UserInfo User { get; set; } = default!;
 
-        public UserMapping User { get; set; } = default!;
+        public MakeQuestionMapping Question { get; set; } = default!;
     }
 
     public class AnswersQuery : QueryModel

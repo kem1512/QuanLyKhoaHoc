@@ -22,7 +22,7 @@
 
         public int NumberOfPurchases { get; set; }
 
-        public UserMapping Creator { get; set; } = default!;
+        public BillMapping Bill { get; set; } = default!;
     }
 
     public class CourseQuery : QueryModel { }

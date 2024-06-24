@@ -16,7 +16,7 @@
 
         public DateTime UpdateTime { get; set; }
 
-        public UserMapping User { get; set; } = default!;
+        public UserInfo User { get; set; } = default!;
     }
 
     public class MakeQuestionQuery : QueryModel

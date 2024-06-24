@@ -13,7 +13,6 @@ global using System.Security.Claims;
 global using System.Security.Cryptography;
 global using System.Text;
 global using QuanLyKhoaHoc.Application.Common.Extension;
-global using System.Net.Mail;
 global using QuanLyKhoaHoc.Domain;
 global using System.ComponentModel.DataAnnotations;
 global using QuanLyKhoaHoc.Application;

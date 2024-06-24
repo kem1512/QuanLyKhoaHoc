@@ -1,6 +1,4 @@
-﻿using QuanLyKhoaHoc.Domain.Entities;
-
-namespace QuanLyKhoaHoc.Application.Services
+﻿namespace QuanLyKhoaHoc.Application.Services
 {
     public class SubjectDetailService : ApplicationServiceBase<SubjectDetailMapping, SubjectDetailQuery, SubjectDetailCreate, SubjectDetailUpdate>
     {
@@ -72,6 +70,11 @@ namespace QuanLyKhoaHoc.Application.Services
         public override async Task<PagingModel<SubjectDetailMapping>> Get(SubjectDetailQuery query, CancellationToken cancellation)
         {
             var subjectDetails = _context.SubjectDetails.AsNoTracking();
+
+            if(query.SubjectId != null)
+            {
+                subjectDetails = subjectDetails.Where(c => c.SubjectId == query.SubjectId);
+            }
 
             var totalCount = await subjectDetails.ApplyQuery(query, applyPagination: false).CountAsync();
 

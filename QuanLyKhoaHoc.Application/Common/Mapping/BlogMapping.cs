@@ -14,11 +14,11 @@
 
         public int NumberOfComments { get; set; }
 
-        public bool IsLiked { get; set; }
-
         public DateTime CreateTime { get; set; }
 
         public DateTime UpdateTime { get; set; }
+
+        public bool IsLiked { get; set; }
 
         public UserMapping Creator { get; set; } = default!;
     }

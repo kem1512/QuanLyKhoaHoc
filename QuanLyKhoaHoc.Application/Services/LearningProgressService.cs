@@ -1,6 +1,4 @@
-﻿using static QuanLyKhoaHoc.Application.Common.Mapping.LearningProgressQuery;
-
-namespace QuanLyKhoaHoc.Application.Services
+﻿namespace QuanLyKhoaHoc.Application.Services
 {
     public class LearningProgressService : ApplicationServiceBase<LearningProgressMapping, LearningProgressQuery, LearningProgressCreate, LearningProgressUpdate>
     {

@@ -99,7 +99,11 @@
                 return null;
             }
 
-            return _mapper.Map<CourseMapping>(course);
+            var mapping = _mapper.Map<CourseMapping>(course);
+
+            mapping.Bill = _mapper.Map<BillMapping>(await _context.Bills.Include(c => c.BillStatus).FirstOrDefaultAsync(c => c.CourseId == id));
+
+            return mapping;
         }
 
         public override async Task<Result> Update(int id, CourseUpdate entity, CancellationToken cancellation)

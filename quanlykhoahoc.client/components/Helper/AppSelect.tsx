@@ -7,9 +7,10 @@ import {
   CertificateMapping,
   CourseClient,
   CourseMapping,
-  CourseSubject,
+  CourseSubjectMapping,
   DistrictClient,
   DistrictMapping,
+  LearningProgressMapping,
   PagingModelOfBillStatusMapping,
   PagingModelOfCertificateMapping,
   PagingModelOfCourseMapping,
@@ -18,14 +19,13 @@ import {
   PagingModelOfProgramingLanguageMapping,
   PagingModelOfProvinceMapping,
   PagingModelOfSubjectDetailMapping,
-  PagingModelOfSubjectMapping,
   PagingModelOfUserMapping,
   PagingModelOfWardMapping,
   PermissionMapping,
   PracticeClient,
   PracticeMapping,
-  ProgramingLanguage,
   ProgramingLanguageClient,
+  ProgramingLanguageMapping,
   ProvinceClient,
   ProvinceMapping,
   RoleClient,
@@ -96,51 +96,33 @@ function Selectable<T>({
   );
 }
 
-export function SubjectSelect({
-  value,
-  onChange,
-  single,
-}: {
-  value?: CourseSubject[] | CourseSubject;
-  onChange: any;
-  single?: boolean;
-}) {
+export function SubjectSelect({ value = [], onChange, courseId }) {
   const SubjectService = new SubjectClient();
 
-  const { data } = useSWR("/api/subject", () =>
-    SubjectService.getEntities(null, null, null, null)
+  const { data } = useSWR(`/api/subject/${courseId}`, () =>
+    SubjectService.getEntities(courseId, null, null, null, null, null)
   );
 
-  return single ? (
-    <Selectable
-      label="Chủ Đề"
-      placeholder="Chọn Chủ Đề"
-      value={value}
-      onChange={onChange}
-      serviceClient={new SubjectClient()}
-      fetchUrl="/api/subject"
-      dataMapper={(data: PagingModelOfSubjectMapping) =>
-        data?.items?.map((item) => item.name) ?? []
-      }
-      valueMapper={(item) => item?.name}
-      idMapper={(data, selectedName) =>
-        data?.items?.find((item) => item.name === selectedName)
-      }
-    />
-  ) : (
+  const subjects = data?.items || [];
+  const selectedSubjects = subjects.filter((subject) =>
+    value.some((item) => item.currentSubjectId === subject.id)
+  );
+
+  const handleChange = (selectedNames) => {
+    const updatedValues = selectedNames.map((name) => {
+      const subject = subjects.find((subject) => subject.name === name);
+      return { currentSubjectId: subject.id };
+    });
+    onChange(updatedValues);
+  };
+
+  return (
     <MultiSelect
       label="Chủ Đề"
       placeholder="Chọn Chủ Đề"
-      data={data?.items.map((item) => item.name)}
-      value={(value as CourseSubject[])?.map((item) => item.subject.name)}
-      onChange={(e) => {
-        return onChange(
-          e.map((item) => {
-            var subject = data.items.find((c) => c.name === item);
-            return { subjectId: subject.id, subject: subject };
-          })
-        );
-      }}
+      data={subjects.map((subject) => subject.name)}
+      value={selectedSubjects.map((subject) => subject.name)}
+      onChange={handleChange}
     />
   );
 }
@@ -149,7 +131,7 @@ export function SubjectDetailSelect({
   value,
   onChange,
 }: {
-  value?: CourseSubject[];
+  value?: CourseSubjectMapping[];
   onChange: any;
 }) {
   return (
@@ -257,7 +239,7 @@ export function ProgramingLanguageSelect({
   value,
   onChange,
 }: {
-  value?: ProgramingLanguage[];
+  value?: ProgramingLanguageMapping[];
   onChange: any;
 }) {
   const ProgramingLanguageService = new ProgramingLanguageClient();

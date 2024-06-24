@@ -37,7 +37,7 @@ import AppPagination from "../AppPagination/AppPagination";
 import { Answers } from "../Answers/Answers";
 
 export function Question({ subjectDetailId }: { subjectDetailId: number }) {
-  const [showAnswers, setShowAnswers] = useState<boolean[]>();
+  const [showAnswers, setShowAnswers] = useState<boolean[]>(Array().fill(false));
 
   const query = useQuery();
 
@@ -206,7 +206,7 @@ export function Question({ subjectDetailId }: { subjectDetailId: number }) {
                           onClick={() =>
                             setShowAnswers((prev) => ({
                               ...prev,
-                              [index]: !showAnswers[index],
+                              [index]: !prev[index],
                             }))
                           }
                         >

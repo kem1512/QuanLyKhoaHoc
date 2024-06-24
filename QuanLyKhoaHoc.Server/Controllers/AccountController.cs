@@ -12,8 +12,8 @@
         }
 
         [HttpGet]
-        public async Task<IActionResult> UserInfo(CancellationToken cancellation) {
-            return Ok(await _accountService.UserInfo(cancellation));
+        public async Task<UserInfo?> UserInfo(CancellationToken cancellation) {
+            return await _accountService.UserInfo(cancellation);
         }
 
         [HttpGet("RegisterStudy")]
@@ -23,9 +23,9 @@
         }
 
         [HttpPost]
-        public async Task<IActionResult> UserInfoUpdate(UserInfoUpdate entity, CancellationToken cancellation)
+        public async Task<Result> UserInfoUpdate(UserInfoUpdate entity, CancellationToken cancellation)
         {
-            return Ok(await _accountService.UserInfoUpdate(entity, cancellation));
+            return await _accountService.UserInfoUpdate(entity, cancellation);
         }
 
         [HttpPost("ChangePassword")]

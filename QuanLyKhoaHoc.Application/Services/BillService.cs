@@ -141,16 +141,26 @@
                     return Result.Failure("ID Phải Giống Nhau");
                 }
 
-                if (!_user.IsAdministrator)
+                if (_user.Id == null || !_user.IsAdministrator)
                 {
                     return new Result(ResultStatus.Forbidden, "Bạn Không Thể Sửa");
                 }
 
-                var bill = await _context.Bills.FindAsync(id, cancellation);
+                var bill = await _context.Bills.Include(c => c.BillStatus).AsNoTracking().FirstOrDefaultAsync(c => c.Id == id, cancellation);
 
                 if (bill == null)
                 {
                     return new Result(ResultStatus.NotFound, "Không Tìm Thấy");
+                }
+
+                if(entity.BillStatusId == 2)
+                {
+                    var courseSubject = _context.CourseSubjects.Where(c => c.CourseId == bill.CourseId).AsNoTracking();
+
+                    foreach (var x in courseSubject)
+                    {
+                        await _context.RegisterStudys.AddAsync(new RegisterStudy() { CourseId = x.CourseId, CurrentSubjectId = x.SubjectId, UserId = int.Parse(_user.Id),  });
+                    }
                 }
 
                 _context.Bills.Update(_mapper.Map(entity, bill));

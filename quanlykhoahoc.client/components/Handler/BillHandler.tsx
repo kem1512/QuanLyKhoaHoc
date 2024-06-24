@@ -9,6 +9,7 @@ import {
   BillUpdate,
   IBillCreate,
   IBillMapping,
+  IBillSingle,
 } from "../../app/web-api-client";
 import { handleSubmit } from "../../lib/helper";
 import { useEffect, useState } from "react";
@@ -29,7 +30,7 @@ export default function BillHandler({ id }: { id?: number }) {
     }
   );
 
-  const [bill, setBill] = useState<IBillMapping>({
+  const [bill, setBill] = useState<IBillSingle>({
     courseId: 0,
     userId: 0,
     price: 0,
@@ -53,7 +54,11 @@ export default function BillHandler({ id }: { id?: number }) {
           <BillStatusSelect
             value={bill.billStatus}
             onChange={(e) =>
-              setBill((prev) => ({ ...prev, billStatusId: e.id }))
+              setBill((prev) => ({
+                ...prev,
+                billStatusId: e.id,
+                billStatus: e,
+              }))
             }
           />
         </Grid.Col>

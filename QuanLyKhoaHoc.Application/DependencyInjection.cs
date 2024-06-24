@@ -53,6 +53,8 @@ public static class DependencyInjection
 
         services.AddScoped<ApplicationServiceBase<LearningProgressMapping, LearningProgressQuery, LearningProgressCreate, LearningProgressUpdate>, LearningProgressService>();
 
+        services.AddScoped<ApplicationServiceBase<DoHomeworkMapping, DoHomeworkQuery, DoHomeworkCreate, DoHomeworkUpdate>, DoHomeworkService>();
+
         services.AddTransient<IAuthService, AuthService>();
 
         services.AddTransient<ITokenService, TokenService>();

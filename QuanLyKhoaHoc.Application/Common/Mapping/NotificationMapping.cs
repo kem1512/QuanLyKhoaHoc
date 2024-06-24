@@ -13,6 +13,10 @@
         public string Link { get; set; } = default!;
 
         public bool IsSeen { get; set; }
+
+        public DateTime CreateTime { get; set; }
+
+        public UserMapping User { get; set; } = default!;
     }
 
     public class NotificationQuery : QueryModel { }

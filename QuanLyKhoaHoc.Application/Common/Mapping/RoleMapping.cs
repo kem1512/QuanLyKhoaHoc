@@ -8,7 +8,6 @@
 
         public string RoleName { get; set; } = default!;
     }
-
     public class RoleQuery : QueryModel { }
 
     public class RoleCreate

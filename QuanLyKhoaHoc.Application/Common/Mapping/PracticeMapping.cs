@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace QuanLyKhoaHoc.Application.Common.Mapping
+﻿namespace QuanLyKhoaHoc.Application.Common.Mapping
 {
     public class PracticeMapping
     {
@@ -30,14 +28,14 @@ namespace QuanLyKhoaHoc.Application.Common.Mapping
 
         public double MediumScore { get; set; }
 
-        public SubjectDetailMapping SubjectDetail { get; set; } = default!;
-
-        public ProgramingLanguageMapping ProgramingLanguage { get; set; } = default!;
+        public ICollection<TestCaseMapping> TestCases { get; set; } = default!;
     }
 
     public class PracticeQuery : QueryModel
     {
         public int? SubjectDetailId { get; set; }
+
+        public bool? Includes { get; set; }
     }
 
     public class PracticeCreate

@@ -1,7 +1,6 @@
 "use client";
 
 import { Checkbox, Grid, TextInput } from "@mantine/core";
-import DashboardLayout from "../../components/Layout/DashboardLayout/DashboardLayout";
 import {
   ISubjectMapping,
   SubjectClient,
@@ -12,6 +11,8 @@ import { handleSubmit } from "../../lib/helper";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 import ActionButton from "../../components/Helper/ActionButton";
+import SubjectDetailHandler from "./SubjectDetailHandler";
+import DashboardLayout from "../Layout/DashboardLayout/DashboardLayout";
 
 export default function SubjectHandler({ id }: { id?: number }) {
   const SubjectService = new SubjectClient();
@@ -69,19 +70,28 @@ export default function SubjectHandler({ id }: { id?: number }) {
           <ActionButton
             size="xs"
             action={() =>
-              handleSubmit(() => {
-                return id
-                  ? SubjectService.updateEntity(
-                      subject.id,
-                      subject as SubjectUpdate
-                    )
-                  : SubjectService.createEntity(subject as SubjectCreate);
-              }, `${id ? "Sửa" : "Thêm"} Thành Công`, mutate)
+              handleSubmit(
+                () => {
+                  return id
+                    ? SubjectService.updateEntity(
+                        subject.id,
+                        subject as SubjectUpdate
+                      )
+                    : SubjectService.createEntity(subject as SubjectCreate);
+                },
+                `${id ? "Sửa" : "Thêm"} Thành Công`,
+                mutate
+              )
             }
           >
             Xác Nhận
           </ActionButton>
         </Grid.Col>
+        {subject.id && (
+          <Grid.Col span={12}>
+            <SubjectDetailHandler subjectId={subject.id} />
+          </Grid.Col>
+        )}
       </Grid>
     </DashboardLayout>
   );

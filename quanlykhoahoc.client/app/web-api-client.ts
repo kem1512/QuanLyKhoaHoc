@@ -21,14 +21,14 @@ export class AccountClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    userInfo(): Promise<FileResponse> {
+    userInfo(): Promise<UserInfo> {
         let url_ = this.baseUrl + "/api/Account";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
             method: "GET",
             headers: {
-                "Accept": "application/octet-stream",
+                "Accept": "application/json",
                 "Authorization": `Bearer ${store.getState().auth.accessToken}`
             }
         };
@@ -38,30 +38,26 @@ export class AccountClient {
         });
     }
 
-    protected processUserInfo(response: Response): Promise<FileResponse> {
+    protected processUserInfo(response: Response): Promise<UserInfo> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
-            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-            if (fileName) {
-                fileName = decodeURIComponent(fileName);
-            } else {
-                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            }
-            return response.blob().then(blob => { return { fileName: fileName, data: blob, status: status, headers: _headers }; });
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UserInfo.fromJS(resultData200);
+            return result200;
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<FileResponse>(null as any);
+        return Promise.resolve<UserInfo>(null as any);
     }
 
-    userInfoUpdate(entity: UserInfoUpdate): Promise<FileResponse> {
+    userInfoUpdate(entity: UserInfoUpdate): Promise<Result> {
         let url_ = this.baseUrl + "/api/Account";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -72,7 +68,7 @@ export class AccountClient {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/octet-stream",
+                "Accept": "application/json",
                 "Authorization": `Bearer ${store.getState().auth.accessToken}`
             }
         };
@@ -82,27 +78,23 @@ export class AccountClient {
         });
     }
 
-    protected processUserInfoUpdate(response: Response): Promise<FileResponse> {
+    protected processUserInfoUpdate(response: Response): Promise<Result> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
-            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-            if (fileName) {
-                fileName = decodeURIComponent(fileName);
-            } else {
-                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            }
-            return response.blob().then(blob => { return { fileName: fileName, data: blob, status: status, headers: _headers }; });
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<FileResponse>(null as any);
+        return Promise.resolve<Result>(null as any);
     }
 
     registerStudy(courseId: number | undefined): Promise<RegisterStudyMapping> {
@@ -2615,6 +2607,224 @@ export class DistrictClient {
     }
 }
 
+export class DoHomeworkClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : (typeof window !== 'undefined' ? window : { fetch }) as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getEntities(practiceId: number | null | undefined, filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfDoHomeworkMapping> {
+        let url_ = this.baseUrl + "/api/DoHomework?";
+        if (practiceId !== undefined && practiceId !== null)
+            url_ += "PracticeId=" + encodeURIComponent("" + practiceId) + "&";
+        if (filters !== undefined && filters !== null)
+            url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
+        if (sorts !== undefined && sorts !== null)
+            url_ += "Sorts=" + encodeURIComponent("" + sorts) + "&";
+        if (page !== undefined && page !== null)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize !== undefined && pageSize !== null)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetEntities(_response);
+        });
+    }
+
+    protected processGetEntities(response: Response): Promise<PagingModelOfDoHomeworkMapping> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PagingModelOfDoHomeworkMapping.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PagingModelOfDoHomeworkMapping>(null as any);
+    }
+
+    createEntity(entity: DoHomeworkCreate): Promise<Result> {
+        let url_ = this.baseUrl + "/api/DoHomework";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(entity);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateEntity(_response);
+        });
+    }
+
+    protected processCreateEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    getEntity(id: number): Promise<DoHomeworkMapping> {
+        let url_ = this.baseUrl + "/api/DoHomework/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetEntity(_response);
+        });
+    }
+
+    protected processGetEntity(response: Response): Promise<DoHomeworkMapping> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DoHomeworkMapping.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<DoHomeworkMapping>(null as any);
+    }
+
+    updateEntity(id: number, entity: DoHomeworkUpdate): Promise<Result> {
+        let url_ = this.baseUrl + "/api/DoHomework/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(entity);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateEntity(_response);
+        });
+    }
+
+    protected processUpdateEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    deleteEntity(id: number): Promise<Result> {
+        let url_ = this.baseUrl + "/api/DoHomework/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteEntity(_response);
+        });
+    }
+
+    protected processDeleteEntity(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+}
+
 export class LearningProgressClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -3277,10 +3487,12 @@ export class PracticeClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    getEntities(subjectDetailId: number | null | undefined, filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfPracticeMapping> {
+    getEntities(subjectDetailId: number | null | undefined, includes: boolean | null | undefined, filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfPracticeMapping> {
         let url_ = this.baseUrl + "/api/Practice?";
         if (subjectDetailId !== undefined && subjectDetailId !== null)
             url_ += "SubjectDetailId=" + encodeURIComponent("" + subjectDetailId) + "&";
+        if (includes !== undefined && includes !== null)
+            url_ += "Includes=" + encodeURIComponent("" + includes) + "&";
         if (filters !== undefined && filters !== null)
             url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
         if (sorts !== undefined && sorts !== null)
@@ -3927,8 +4139,12 @@ export class RegisterStudyClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    getEntities(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfRegisterStudyMapping> {
+    getEntities(courseId: number | null | undefined, userId: number | null | undefined, filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfRegisterStudyMapping> {
         let url_ = this.baseUrl + "/api/RegisterStudy?";
+        if (courseId !== undefined && courseId !== null)
+            url_ += "CourseId=" + encodeURIComponent("" + courseId) + "&";
+        if (userId !== undefined && userId !== null)
+            url_ += "UserId=" + encodeURIComponent("" + userId) + "&";
         if (filters !== undefined && filters !== null)
             url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
         if (sorts !== undefined && sorts !== null)
@@ -4349,6 +4565,61 @@ export class RoleClient {
     }
 }
 
+export class RunTestCaseClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : (typeof window !== 'undefined' ? window : { fetch }) as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    runTestCase(code: string | undefined): Promise<FileResponse> {
+        let url_ = this.baseUrl + "/api/RunTestCase?";
+        if (code === null)
+            throw new Error("The parameter 'code' cannot be null.");
+        else if (code !== undefined)
+            url_ += "code=" + encodeURIComponent("" + code) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+                "Accept": "application/octet-stream",
+                "Authorization": `Bearer ${store.getState().auth.accessToken}`
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processRunTestCase(_response);
+        });
+    }
+
+    protected processRunTestCase(response: Response): Promise<FileResponse> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
+            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+            if (fileName) {
+                fileName = decodeURIComponent(fileName);
+            } else {
+                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            }
+            return response.blob().then(blob => { return { fileName: fileName, data: blob, status: status, headers: _headers }; });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FileResponse>(null as any);
+    }
+}
+
 export class StatisticalClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -4462,8 +4733,12 @@ export class SubjectClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    getEntities(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfSubjectMapping> {
+    getEntities(courseId: number | null | undefined, includes: boolean | null | undefined, filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfSubjectMapping> {
         let url_ = this.baseUrl + "/api/Subject?";
+        if (courseId !== undefined && courseId !== null)
+            url_ += "CourseId=" + encodeURIComponent("" + courseId) + "&";
+        if (includes !== undefined && includes !== null)
+            url_ += "Includes=" + encodeURIComponent("" + includes) + "&";
         if (filters !== undefined && filters !== null)
             url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
         if (sorts !== undefined && sorts !== null)
@@ -4678,8 +4953,10 @@ export class SubjectDetailClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    getEntities(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfSubjectDetailMapping> {
+    getEntities(subjectId: number | null | undefined, filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfSubjectDetailMapping> {
         let url_ = this.baseUrl + "/api/SubjectDetail?";
+        if (subjectId !== undefined && subjectId !== null)
+            url_ += "SubjectId=" + encodeURIComponent("" + subjectId) + "&";
         if (filters !== undefined && filters !== null)
             url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
         if (sorts !== undefined && sorts !== null)
@@ -4894,8 +5171,10 @@ export class TestCaseClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    getEntities(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfTestCaseMapping> {
+    getEntities(practiceId: number | null | undefined, filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfTestCaseMapping> {
         let url_ = this.baseUrl + "/api/TestCase?";
+        if (practiceId !== undefined && practiceId !== null)
+            url_ += "PracticeId=" + encodeURIComponent("" + practiceId) + "&";
         if (filters !== undefined && filters !== null)
             url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
         if (sorts !== undefined && sorts !== null)
@@ -5534,87 +5813,7 @@ export class WardClient {
     }
 }
 
-export class RegisterStudyMapping implements IRegisterStudyMapping {
-    id?: number;
-    userId?: number;
-    courseId?: number;
-    currentSubjectId?: number;
-    isFinished?: boolean;
-    registerTime?: Date;
-    percentComplete?: number;
-    doneTime?: Date | undefined;
-    isActive?: boolean;
-    user?: UserMapping;
-    course?: CourseMapping;
-    currentSubject?: SubjectMapping;
-
-    constructor(data?: IRegisterStudyMapping) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.userId = _data["userId"];
-            this.courseId = _data["courseId"];
-            this.currentSubjectId = _data["currentSubjectId"];
-            this.isFinished = _data["isFinished"];
-            this.registerTime = _data["registerTime"] ? new Date(_data["registerTime"].toString()) : <any>undefined;
-            this.percentComplete = _data["percentComplete"];
-            this.doneTime = _data["doneTime"] ? new Date(_data["doneTime"].toString()) : <any>undefined;
-            this.isActive = _data["isActive"];
-            this.user = _data["user"] ? UserMapping.fromJS(_data["user"]) : <any>undefined;
-            this.course = _data["course"] ? CourseMapping.fromJS(_data["course"]) : <any>undefined;
-            this.currentSubject = _data["currentSubject"] ? SubjectMapping.fromJS(_data["currentSubject"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): RegisterStudyMapping {
-        data = typeof data === 'object' ? data : {};
-        let result = new RegisterStudyMapping();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["userId"] = this.userId;
-        data["courseId"] = this.courseId;
-        data["currentSubjectId"] = this.currentSubjectId;
-        data["isFinished"] = this.isFinished;
-        data["registerTime"] = this.registerTime ? this.registerTime.toISOString() : <any>undefined;
-        data["percentComplete"] = this.percentComplete;
-        data["doneTime"] = this.doneTime ? this.doneTime.toISOString() : <any>undefined;
-        data["isActive"] = this.isActive;
-        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
-        data["course"] = this.course ? this.course.toJSON() : <any>undefined;
-        data["currentSubject"] = this.currentSubject ? this.currentSubject.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface IRegisterStudyMapping {
-    id?: number;
-    userId?: number;
-    courseId?: number;
-    currentSubjectId?: number;
-    isFinished?: boolean;
-    registerTime?: Date;
-    percentComplete?: number;
-    doneTime?: Date | undefined;
-    isActive?: boolean;
-    user?: UserMapping;
-    course?: CourseMapping;
-    currentSubject?: SubjectMapping;
-}
-
-export class UserMapping implements IUserMapping {
+export class UserInfo implements IUserInfo {
     id?: number;
     districtId?: number | undefined;
     provinceId?: number | undefined;
@@ -5629,14 +5828,12 @@ export class UserMapping implements IUserMapping {
     dateOfBirth?: Date;
     isActive?: boolean;
     address?: string | undefined;
-    userStatus?: UserStatus;
     district?: DistrictMapping;
     province?: ProvinceMapping;
     certificate?: CertificateMapping;
     ward?: WardMapping;
-    permissions?: PermissionMapping[];
 
-    constructor(data?: IUserMapping) {
+    constructor(data?: IUserInfo) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -5661,22 +5858,16 @@ export class UserMapping implements IUserMapping {
             this.dateOfBirth = _data["dateOfBirth"] ? new Date(_data["dateOfBirth"].toString()) : <any>undefined;
             this.isActive = _data["isActive"];
             this.address = _data["address"];
-            this.userStatus = _data["userStatus"];
             this.district = _data["district"] ? DistrictMapping.fromJS(_data["district"]) : <any>undefined;
             this.province = _data["province"] ? ProvinceMapping.fromJS(_data["province"]) : <any>undefined;
             this.certificate = _data["certificate"] ? CertificateMapping.fromJS(_data["certificate"]) : <any>undefined;
             this.ward = _data["ward"] ? WardMapping.fromJS(_data["ward"]) : <any>undefined;
-            if (Array.isArray(_data["permissions"])) {
-                this.permissions = [] as any;
-                for (let item of _data["permissions"])
-                    this.permissions!.push(PermissionMapping.fromJS(item));
-            }
         }
     }
 
-    static fromJS(data: any): UserMapping {
+    static fromJS(data: any): UserInfo {
         data = typeof data === 'object' ? data : {};
-        let result = new UserMapping();
+        let result = new UserInfo();
         result.init(data);
         return result;
     }
@@ -5697,21 +5888,15 @@ export class UserMapping implements IUserMapping {
         data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
         data["isActive"] = this.isActive;
         data["address"] = this.address;
-        data["userStatus"] = this.userStatus;
         data["district"] = this.district ? this.district.toJSON() : <any>undefined;
         data["province"] = this.province ? this.province.toJSON() : <any>undefined;
         data["certificate"] = this.certificate ? this.certificate.toJSON() : <any>undefined;
         data["ward"] = this.ward ? this.ward.toJSON() : <any>undefined;
-        if (Array.isArray(this.permissions)) {
-            data["permissions"] = [];
-            for (let item of this.permissions)
-                data["permissions"].push(item.toJSON());
-        }
         return data;
     }
 }
 
-export interface IUserMapping {
+export interface IUserInfo {
     id?: number;
     districtId?: number | undefined;
     provinceId?: number | undefined;
@@ -5726,19 +5911,10 @@ export interface IUserMapping {
     dateOfBirth?: Date;
     isActive?: boolean;
     address?: string | undefined;
-    userStatus?: UserStatus;
     district?: DistrictMapping;
     province?: ProvinceMapping;
     certificate?: CertificateMapping;
     ward?: WardMapping;
-    permissions?: PermissionMapping[];
-}
-
-export enum UserStatus {
-    Active = "Active",
-    Inactive = "Inactive",
-    Banned = "Banned",
-    Pending = "Pending",
 }
 
 export class DistrictMapping implements IDistrictMapping {
@@ -5973,13 +6149,20 @@ export interface IWardMapping {
     district?: DistrictMapping;
 }
 
-export class PermissionMapping implements IPermissionMapping {
+export class RegisterStudyMapping implements IRegisterStudyMapping {
     id?: number;
     userId?: number;
-    roleId?: number;
-    role?: RoleMapping;
+    courseId?: number;
+    currentSubjectId?: number;
+    isFinished?: boolean;
+    registerTime?: Date;
+    percentComplete?: number;
+    doneTime?: Date | undefined;
+    isActive?: boolean;
+    course?: CourseMapping;
+    learningProgresses?: LearningProgressMapping[];
 
-    constructor(data?: IPermissionMapping) {
+    constructor(data?: IRegisterStudyMapping) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -5992,14 +6175,25 @@ export class PermissionMapping implements IPermissionMapping {
         if (_data) {
             this.id = _data["id"];
             this.userId = _data["userId"];
-            this.roleId = _data["roleId"];
-            this.role = _data["role"] ? RoleMapping.fromJS(_data["role"]) : <any>undefined;
+            this.courseId = _data["courseId"];
+            this.currentSubjectId = _data["currentSubjectId"];
+            this.isFinished = _data["isFinished"];
+            this.registerTime = _data["registerTime"] ? new Date(_data["registerTime"].toString()) : <any>undefined;
+            this.percentComplete = _data["percentComplete"];
+            this.doneTime = _data["doneTime"] ? new Date(_data["doneTime"].toString()) : <any>undefined;
+            this.isActive = _data["isActive"];
+            this.course = _data["course"] ? CourseMapping.fromJS(_data["course"]) : <any>undefined;
+            if (Array.isArray(_data["learningProgresses"])) {
+                this.learningProgresses = [] as any;
+                for (let item of _data["learningProgresses"])
+                    this.learningProgresses!.push(LearningProgressMapping.fromJS(item));
+            }
         }
     }
 
-    static fromJS(data: any): PermissionMapping {
+    static fromJS(data: any): RegisterStudyMapping {
         data = typeof data === 'object' ? data : {};
-        let result = new PermissionMapping();
+        let result = new RegisterStudyMapping();
         result.init(data);
         return result;
     }
@@ -6008,61 +6202,35 @@ export class PermissionMapping implements IPermissionMapping {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["userId"] = this.userId;
-        data["roleId"] = this.roleId;
-        data["role"] = this.role ? this.role.toJSON() : <any>undefined;
+        data["courseId"] = this.courseId;
+        data["currentSubjectId"] = this.currentSubjectId;
+        data["isFinished"] = this.isFinished;
+        data["registerTime"] = this.registerTime ? this.registerTime.toISOString() : <any>undefined;
+        data["percentComplete"] = this.percentComplete;
+        data["doneTime"] = this.doneTime ? this.doneTime.toISOString() : <any>undefined;
+        data["isActive"] = this.isActive;
+        data["course"] = this.course ? this.course.toJSON() : <any>undefined;
+        if (Array.isArray(this.learningProgresses)) {
+            data["learningProgresses"] = [];
+            for (let item of this.learningProgresses)
+                data["learningProgresses"].push(item.toJSON());
+        }
         return data;
     }
 }
 
-export interface IPermissionMapping {
+export interface IRegisterStudyMapping {
     id?: number;
     userId?: number;
-    roleId?: number;
-    role?: RoleMapping;
-}
-
-export class RoleMapping implements IRoleMapping {
-    id?: number;
-    roleCode?: string;
-    roleName?: string;
-
-    constructor(data?: IRoleMapping) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.roleCode = _data["roleCode"];
-            this.roleName = _data["roleName"];
-        }
-    }
-
-    static fromJS(data: any): RoleMapping {
-        data = typeof data === 'object' ? data : {};
-        let result = new RoleMapping();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["roleCode"] = this.roleCode;
-        data["roleName"] = this.roleName;
-        return data;
-    }
-}
-
-export interface IRoleMapping {
-    id?: number;
-    roleCode?: string;
-    roleName?: string;
+    courseId?: number;
+    currentSubjectId?: number;
+    isFinished?: boolean;
+    registerTime?: Date;
+    percentComplete?: number;
+    doneTime?: Date | undefined;
+    isActive?: boolean;
+    course?: CourseMapping;
+    learningProgresses?: LearningProgressMapping[];
 }
 
 export class CourseMapping implements ICourseMapping {
@@ -6076,7 +6244,7 @@ export class CourseMapping implements ICourseMapping {
     totalCourseDuration?: number;
     numberOfStudent?: number;
     numberOfPurchases?: number;
-    creator?: UserMapping;
+    bill?: BillMapping;
 
     constructor(data?: ICourseMapping) {
         if (data) {
@@ -6099,7 +6267,7 @@ export class CourseMapping implements ICourseMapping {
             this.totalCourseDuration = _data["totalCourseDuration"];
             this.numberOfStudent = _data["numberOfStudent"];
             this.numberOfPurchases = _data["numberOfPurchases"];
-            this.creator = _data["creator"] ? UserMapping.fromJS(_data["creator"]) : <any>undefined;
+            this.bill = _data["bill"] ? BillMapping.fromJS(_data["bill"]) : <any>undefined;
         }
     }
 
@@ -6122,7 +6290,7 @@ export class CourseMapping implements ICourseMapping {
         data["totalCourseDuration"] = this.totalCourseDuration;
         data["numberOfStudent"] = this.numberOfStudent;
         data["numberOfPurchases"] = this.numberOfPurchases;
-        data["creator"] = this.creator ? this.creator.toJSON() : <any>undefined;
+        data["bill"] = this.bill ? this.bill.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -6138,17 +6306,86 @@ export interface ICourseMapping {
     totalCourseDuration?: number;
     numberOfStudent?: number;
     numberOfPurchases?: number;
-    creator?: UserMapping;
+    bill?: BillMapping;
 }
 
-export class SubjectMapping implements ISubjectMapping {
+export class BillMapping implements IBillMapping {
+    id?: number;
+    userId?: number;
+    courseId?: number;
+    price?: number;
+    tradingCode?: string;
+    createTime?: Date;
+    billStatusId?: number;
+    billStatus?: BillStatusMapping;
+    user?: UserMapping;
+    course?: CourseMapping;
+
+    constructor(data?: IBillMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.userId = _data["userId"];
+            this.courseId = _data["courseId"];
+            this.price = _data["price"];
+            this.tradingCode = _data["tradingCode"];
+            this.createTime = _data["createTime"] ? new Date(_data["createTime"].toString()) : <any>undefined;
+            this.billStatusId = _data["billStatusId"];
+            this.billStatus = _data["billStatus"] ? BillStatusMapping.fromJS(_data["billStatus"]) : <any>undefined;
+            this.user = _data["user"] ? UserMapping.fromJS(_data["user"]) : <any>undefined;
+            this.course = _data["course"] ? CourseMapping.fromJS(_data["course"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): BillMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new BillMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["userId"] = this.userId;
+        data["courseId"] = this.courseId;
+        data["price"] = this.price;
+        data["tradingCode"] = this.tradingCode;
+        data["createTime"] = this.createTime ? this.createTime.toISOString() : <any>undefined;
+        data["billStatusId"] = this.billStatusId;
+        data["billStatus"] = this.billStatus ? this.billStatus.toJSON() : <any>undefined;
+        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
+        data["course"] = this.course ? this.course.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IBillMapping {
+    id?: number;
+    userId?: number;
+    courseId?: number;
+    price?: number;
+    tradingCode?: string;
+    createTime?: Date;
+    billStatusId?: number;
+    billStatus?: BillStatusMapping;
+    user?: UserMapping;
+    course?: CourseMapping;
+}
+
+export class BillStatusMapping implements IBillStatusMapping {
     id?: number;
     name?: string;
-    symbol?: string;
-    isActive?: boolean;
-    subjectDetails?: SubjectDetailMapping[];
 
-    constructor(data?: ISubjectMapping) {
+    constructor(data?: IBillStatusMapping) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -6161,19 +6398,12 @@ export class SubjectMapping implements ISubjectMapping {
         if (_data) {
             this.id = _data["id"];
             this.name = _data["name"];
-            this.symbol = _data["symbol"];
-            this.isActive = _data["isActive"];
-            if (Array.isArray(_data["subjectDetails"])) {
-                this.subjectDetails = [] as any;
-                for (let item of _data["subjectDetails"])
-                    this.subjectDetails!.push(SubjectDetailMapping.fromJS(item));
-            }
         }
     }
 
-    static fromJS(data: any): SubjectMapping {
+    static fromJS(data: any): BillStatusMapping {
         data = typeof data === 'object' ? data : {};
-        let result = new SubjectMapping();
+        let result = new BillStatusMapping();
         result.init(data);
         return result;
     }
@@ -6182,35 +6412,29 @@ export class SubjectMapping implements ISubjectMapping {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["name"] = this.name;
-        data["symbol"] = this.symbol;
-        data["isActive"] = this.isActive;
-        if (Array.isArray(this.subjectDetails)) {
-            data["subjectDetails"] = [];
-            for (let item of this.subjectDetails)
-                data["subjectDetails"].push(item.toJSON());
-        }
         return data;
     }
 }
 
-export interface ISubjectMapping {
+export interface IBillStatusMapping {
     id?: number;
     name?: string;
-    symbol?: string;
-    isActive?: boolean;
-    subjectDetails?: SubjectDetailMapping[];
 }
 
-export class SubjectDetailMapping implements ISubjectDetailMapping {
+export class UserMapping implements IUserMapping {
     id?: number;
-    subjectId?: number;
-    name?: string;
-    isFinished?: boolean;
-    linkVideo?: string;
+    username?: string;
+    createTime?: Date;
+    email?: string;
+    updateTime?: Date;
+    fullName?: string;
+    dateOfBirth?: Date;
     isActive?: boolean;
-    subject?: SubjectMapping;
+    userStatus?: UserStatus;
+    certificate?: CertificateMapping;
+    registerStudies?: RegisterStudyMapping[];
 
-    constructor(data?: ISubjectDetailMapping) {
+    constructor(data?: IUserMapping) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -6222,18 +6446,26 @@ export class SubjectDetailMapping implements ISubjectDetailMapping {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
-            this.subjectId = _data["subjectId"];
-            this.name = _data["name"];
-            this.isFinished = _data["isFinished"];
-            this.linkVideo = _data["linkVideo"];
+            this.username = _data["username"];
+            this.createTime = _data["createTime"] ? new Date(_data["createTime"].toString()) : <any>undefined;
+            this.email = _data["email"];
+            this.updateTime = _data["updateTime"] ? new Date(_data["updateTime"].toString()) : <any>undefined;
+            this.fullName = _data["fullName"];
+            this.dateOfBirth = _data["dateOfBirth"] ? new Date(_data["dateOfBirth"].toString()) : <any>undefined;
             this.isActive = _data["isActive"];
-            this.subject = _data["subject"] ? SubjectMapping.fromJS(_data["subject"]) : <any>undefined;
+            this.userStatus = _data["userStatus"];
+            this.certificate = _data["certificate"] ? CertificateMapping.fromJS(_data["certificate"]) : <any>undefined;
+            if (Array.isArray(_data["registerStudies"])) {
+                this.registerStudies = [] as any;
+                for (let item of _data["registerStudies"])
+                    this.registerStudies!.push(RegisterStudyMapping.fromJS(item));
+            }
         }
     }
 
-    static fromJS(data: any): SubjectDetailMapping {
+    static fromJS(data: any): UserMapping {
         data = typeof data === 'object' ? data : {};
-        let result = new SubjectDetailMapping();
+        let result = new UserMapping();
         result.init(data);
         return result;
     }
@@ -6241,24 +6473,142 @@ export class SubjectDetailMapping implements ISubjectDetailMapping {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
-        data["subjectId"] = this.subjectId;
-        data["name"] = this.name;
-        data["isFinished"] = this.isFinished;
-        data["linkVideo"] = this.linkVideo;
+        data["username"] = this.username;
+        data["createTime"] = this.createTime ? this.createTime.toISOString() : <any>undefined;
+        data["email"] = this.email;
+        data["updateTime"] = this.updateTime ? this.updateTime.toISOString() : <any>undefined;
+        data["fullName"] = this.fullName;
+        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
         data["isActive"] = this.isActive;
-        data["subject"] = this.subject ? this.subject.toJSON() : <any>undefined;
+        data["userStatus"] = this.userStatus;
+        data["certificate"] = this.certificate ? this.certificate.toJSON() : <any>undefined;
+        if (Array.isArray(this.registerStudies)) {
+            data["registerStudies"] = [];
+            for (let item of this.registerStudies)
+                data["registerStudies"].push(item.toJSON());
+        }
         return data;
     }
 }
 
-export interface ISubjectDetailMapping {
+export interface IUserMapping {
     id?: number;
-    subjectId?: number;
-    name?: string;
-    isFinished?: boolean;
-    linkVideo?: string;
+    username?: string;
+    createTime?: Date;
+    email?: string;
+    updateTime?: Date;
+    fullName?: string;
+    dateOfBirth?: Date;
     isActive?: boolean;
-    subject?: SubjectMapping;
+    userStatus?: UserStatus;
+    certificate?: CertificateMapping;
+    registerStudies?: RegisterStudyMapping[];
+}
+
+export enum UserStatus {
+    Active = "Active",
+    Inactive = "Inactive",
+    Banned = "Banned",
+    Pending = "Pending",
+}
+
+export class LearningProgressMapping implements ILearningProgressMapping {
+    id?: number;
+    userId?: number;
+    registerStudyId?: number;
+    currentSubjectId?: number;
+
+    constructor(data?: ILearningProgressMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.userId = _data["userId"];
+            this.registerStudyId = _data["registerStudyId"];
+            this.currentSubjectId = _data["currentSubjectId"];
+        }
+    }
+
+    static fromJS(data: any): LearningProgressMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new LearningProgressMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["userId"] = this.userId;
+        data["registerStudyId"] = this.registerStudyId;
+        data["currentSubjectId"] = this.currentSubjectId;
+        return data;
+    }
+}
+
+export interface ILearningProgressMapping {
+    id?: number;
+    userId?: number;
+    registerStudyId?: number;
+    currentSubjectId?: number;
+}
+
+export class Result implements IResult {
+    status?: ResultStatus;
+    error?: string | undefined;
+    content?: string | undefined;
+
+    constructor(data?: IResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.status = _data["status"];
+            this.error = _data["error"];
+            this.content = _data["content"];
+        }
+    }
+
+    static fromJS(data: any): Result {
+        data = typeof data === 'object' ? data : {};
+        let result = new Result();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["status"] = this.status;
+        data["error"] = this.error;
+        data["content"] = this.content;
+        return data;
+    }
+}
+
+export interface IResult {
+    status?: ResultStatus;
+    error?: string | undefined;
+    content?: string | undefined;
+}
+
+export enum ResultStatus {
+    Success = "Success",
+    Failure = "Failure",
+    NotFound = "NotFound",
+    Forbidden = "Forbidden",
 }
 
 export class UserInfoUpdate implements IUserInfoUpdate {
@@ -6323,57 +6673,6 @@ export interface IUserInfoUpdate {
     fullName?: string;
     dateOfBirth?: Date;
     address?: string | undefined;
-}
-
-export class Result implements IResult {
-    status?: ResultStatus;
-    error?: string | undefined;
-    content?: string | undefined;
-
-    constructor(data?: IResult) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.status = _data["status"];
-            this.error = _data["error"];
-            this.content = _data["content"];
-        }
-    }
-
-    static fromJS(data: any): Result {
-        data = typeof data === 'object' ? data : {};
-        let result = new Result();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["status"] = this.status;
-        data["error"] = this.error;
-        data["content"] = this.content;
-        return data;
-    }
-}
-
-export interface IResult {
-    status?: ResultStatus;
-    error?: string | undefined;
-    content?: string | undefined;
-}
-
-export enum ResultStatus {
-    Success = "Success",
-    Failure = "Failure",
-    NotFound = "NotFound",
-    Forbidden = "Forbidden",
 }
 
 export class PagingModelOfAnswersMapping implements IPagingModelOfAnswersMapping {
@@ -6451,8 +6750,8 @@ export class AnswersMapping implements IAnswersMapping {
     answer?: string;
     createTime?: Date;
     updateTime?: Date;
-    question?: MakeQuestion;
-    user?: UserMapping;
+    user?: UserInfo;
+    question?: MakeQuestionMapping;
 
     constructor(data?: IAnswersMapping) {
         if (data) {
@@ -6471,8 +6770,8 @@ export class AnswersMapping implements IAnswersMapping {
             this.answer = _data["answer"];
             this.createTime = _data["createTime"] ? new Date(_data["createTime"].toString()) : <any>undefined;
             this.updateTime = _data["updateTime"] ? new Date(_data["updateTime"].toString()) : <any>undefined;
-            this.question = _data["question"] ? MakeQuestion.fromJS(_data["question"]) : <any>undefined;
-            this.user = _data["user"] ? UserMapping.fromJS(_data["user"]) : <any>undefined;
+            this.user = _data["user"] ? UserInfo.fromJS(_data["user"]) : <any>undefined;
+            this.question = _data["question"] ? MakeQuestionMapping.fromJS(_data["question"]) : <any>undefined;
         }
     }
 
@@ -6491,8 +6790,8 @@ export class AnswersMapping implements IAnswersMapping {
         data["answer"] = this.answer;
         data["createTime"] = this.createTime ? this.createTime.toISOString() : <any>undefined;
         data["updateTime"] = this.updateTime ? this.updateTime.toISOString() : <any>undefined;
-        data["question"] = this.question ? this.question.toJSON() : <any>undefined;
         data["user"] = this.user ? this.user.toJSON() : <any>undefined;
+        data["question"] = this.question ? this.question.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -6504,11 +6803,11 @@ export interface IAnswersMapping {
     answer?: string;
     createTime?: Date;
     updateTime?: Date;
-    question?: MakeQuestion;
-    user?: UserMapping;
+    user?: UserInfo;
+    question?: MakeQuestionMapping;
 }
 
-export class MakeQuestion implements IMakeQuestion {
+export class MakeQuestionMapping implements IMakeQuestionMapping {
     id?: number;
     userId?: number;
     subjectDetailId?: number;
@@ -6516,11 +6815,9 @@ export class MakeQuestion implements IMakeQuestion {
     numberOfAnswers?: number;
     createTime?: Date;
     updateTime?: Date;
-    user?: User;
-    subjectDetail?: SubjectDetail;
-    answers?: Answers[];
+    user?: UserInfo;
 
-    constructor(data?: IMakeQuestion) {
+    constructor(data?: IMakeQuestionMapping) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -6538,19 +6835,13 @@ export class MakeQuestion implements IMakeQuestion {
             this.numberOfAnswers = _data["numberOfAnswers"];
             this.createTime = _data["createTime"] ? new Date(_data["createTime"].toString()) : <any>undefined;
             this.updateTime = _data["updateTime"] ? new Date(_data["updateTime"].toString()) : <any>undefined;
-            this.user = _data["user"] ? User.fromJS(_data["user"]) : <any>undefined;
-            this.subjectDetail = _data["subjectDetail"] ? SubjectDetail.fromJS(_data["subjectDetail"]) : <any>undefined;
-            if (Array.isArray(_data["answers"])) {
-                this.answers = [] as any;
-                for (let item of _data["answers"])
-                    this.answers!.push(Answers.fromJS(item));
-            }
+            this.user = _data["user"] ? UserInfo.fromJS(_data["user"]) : <any>undefined;
         }
     }
 
-    static fromJS(data: any): MakeQuestion {
+    static fromJS(data: any): MakeQuestionMapping {
         data = typeof data === 'object' ? data : {};
-        let result = new MakeQuestion();
+        let result = new MakeQuestionMapping();
         result.init(data);
         return result;
     }
@@ -6565,17 +6856,11 @@ export class MakeQuestion implements IMakeQuestion {
         data["createTime"] = this.createTime ? this.createTime.toISOString() : <any>undefined;
         data["updateTime"] = this.updateTime ? this.updateTime.toISOString() : <any>undefined;
         data["user"] = this.user ? this.user.toJSON() : <any>undefined;
-        data["subjectDetail"] = this.subjectDetail ? this.subjectDetail.toJSON() : <any>undefined;
-        if (Array.isArray(this.answers)) {
-            data["answers"] = [];
-            for (let item of this.answers)
-                data["answers"].push(item.toJSON());
-        }
         return data;
     }
 }
 
-export interface IMakeQuestion {
+export interface IMakeQuestionMapping {
     id?: number;
     userId?: number;
     subjectDetailId?: number;
@@ -6583,2247 +6868,7 @@ export interface IMakeQuestion {
     numberOfAnswers?: number;
     createTime?: Date;
     updateTime?: Date;
-    user?: User;
-    subjectDetail?: SubjectDetail;
-    answers?: Answers[];
-}
-
-export class User implements IUser {
-    id?: number;
-    districtId?: number | undefined;
-    provinceId?: number | undefined;
-    certificateId?: number | undefined;
-    wardId?: number | undefined;
-    username?: string;
-    createTime?: Date;
-    avatar?: string | undefined;
-    email?: string;
-    updateTime?: Date;
-    password?: string;
-    fullName?: string;
-    dateOfBirth?: Date;
-    isActive?: boolean;
-    address?: string | undefined;
-    userStatus?: UserStatus;
-    district?: District;
-    province?: Province;
-    certificate?: Certificate;
-    ward?: Ward;
-    answers?: Answers[];
-    bills?: Bill[];
-    blogs?: Blog[];
-    commentBlogs?: CommentBlog[];
-    confirmEmails?: ConfirmEmail[];
-    courses?: Course[];
-    doHomeworks?: DoHomework[];
-    learningProgresses?: LearningProgress[];
-    likeBlogs?: LikeBlog[];
-    makeQuestions?: MakeQuestion[];
-    notifications?: Notification[];
-    permissions?: Permission[];
-    refreshTokens?: RefreshToken[];
-    registerStudies?: RegisterStudy[];
-
-    constructor(data?: IUser) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.districtId = _data["districtId"];
-            this.provinceId = _data["provinceId"];
-            this.certificateId = _data["certificateId"];
-            this.wardId = _data["wardId"];
-            this.username = _data["username"];
-            this.createTime = _data["createTime"] ? new Date(_data["createTime"].toString()) : <any>undefined;
-            this.avatar = _data["avatar"];
-            this.email = _data["email"];
-            this.updateTime = _data["updateTime"] ? new Date(_data["updateTime"].toString()) : <any>undefined;
-            this.password = _data["password"];
-            this.fullName = _data["fullName"];
-            this.dateOfBirth = _data["dateOfBirth"] ? new Date(_data["dateOfBirth"].toString()) : <any>undefined;
-            this.isActive = _data["isActive"];
-            this.address = _data["address"];
-            this.userStatus = _data["userStatus"];
-            this.district = _data["district"] ? District.fromJS(_data["district"]) : <any>undefined;
-            this.province = _data["province"] ? Province.fromJS(_data["province"]) : <any>undefined;
-            this.certificate = _data["certificate"] ? Certificate.fromJS(_data["certificate"]) : <any>undefined;
-            this.ward = _data["ward"] ? Ward.fromJS(_data["ward"]) : <any>undefined;
-            if (Array.isArray(_data["answers"])) {
-                this.answers = [] as any;
-                for (let item of _data["answers"])
-                    this.answers!.push(Answers.fromJS(item));
-            }
-            if (Array.isArray(_data["bills"])) {
-                this.bills = [] as any;
-                for (let item of _data["bills"])
-                    this.bills!.push(Bill.fromJS(item));
-            }
-            if (Array.isArray(_data["blogs"])) {
-                this.blogs = [] as any;
-                for (let item of _data["blogs"])
-                    this.blogs!.push(Blog.fromJS(item));
-            }
-            if (Array.isArray(_data["commentBlogs"])) {
-                this.commentBlogs = [] as any;
-                for (let item of _data["commentBlogs"])
-                    this.commentBlogs!.push(CommentBlog.fromJS(item));
-            }
-            if (Array.isArray(_data["confirmEmails"])) {
-                this.confirmEmails = [] as any;
-                for (let item of _data["confirmEmails"])
-                    this.confirmEmails!.push(ConfirmEmail.fromJS(item));
-            }
-            if (Array.isArray(_data["courses"])) {
-                this.courses = [] as any;
-                for (let item of _data["courses"])
-                    this.courses!.push(Course.fromJS(item));
-            }
-            if (Array.isArray(_data["doHomeworks"])) {
-                this.doHomeworks = [] as any;
-                for (let item of _data["doHomeworks"])
-                    this.doHomeworks!.push(DoHomework.fromJS(item));
-            }
-            if (Array.isArray(_data["learningProgresses"])) {
-                this.learningProgresses = [] as any;
-                for (let item of _data["learningProgresses"])
-                    this.learningProgresses!.push(LearningProgress.fromJS(item));
-            }
-            if (Array.isArray(_data["likeBlogs"])) {
-                this.likeBlogs = [] as any;
-                for (let item of _data["likeBlogs"])
-                    this.likeBlogs!.push(LikeBlog.fromJS(item));
-            }
-            if (Array.isArray(_data["makeQuestions"])) {
-                this.makeQuestions = [] as any;
-                for (let item of _data["makeQuestions"])
-                    this.makeQuestions!.push(MakeQuestion.fromJS(item));
-            }
-            if (Array.isArray(_data["notifications"])) {
-                this.notifications = [] as any;
-                for (let item of _data["notifications"])
-                    this.notifications!.push(Notification.fromJS(item));
-            }
-            if (Array.isArray(_data["permissions"])) {
-                this.permissions = [] as any;
-                for (let item of _data["permissions"])
-                    this.permissions!.push(Permission.fromJS(item));
-            }
-            if (Array.isArray(_data["refreshTokens"])) {
-                this.refreshTokens = [] as any;
-                for (let item of _data["refreshTokens"])
-                    this.refreshTokens!.push(RefreshToken.fromJS(item));
-            }
-            if (Array.isArray(_data["registerStudies"])) {
-                this.registerStudies = [] as any;
-                for (let item of _data["registerStudies"])
-                    this.registerStudies!.push(RegisterStudy.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): User {
-        data = typeof data === 'object' ? data : {};
-        let result = new User();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["districtId"] = this.districtId;
-        data["provinceId"] = this.provinceId;
-        data["certificateId"] = this.certificateId;
-        data["wardId"] = this.wardId;
-        data["username"] = this.username;
-        data["createTime"] = this.createTime ? this.createTime.toISOString() : <any>undefined;
-        data["avatar"] = this.avatar;
-        data["email"] = this.email;
-        data["updateTime"] = this.updateTime ? this.updateTime.toISOString() : <any>undefined;
-        data["password"] = this.password;
-        data["fullName"] = this.fullName;
-        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
-        data["isActive"] = this.isActive;
-        data["address"] = this.address;
-        data["userStatus"] = this.userStatus;
-        data["district"] = this.district ? this.district.toJSON() : <any>undefined;
-        data["province"] = this.province ? this.province.toJSON() : <any>undefined;
-        data["certificate"] = this.certificate ? this.certificate.toJSON() : <any>undefined;
-        data["ward"] = this.ward ? this.ward.toJSON() : <any>undefined;
-        if (Array.isArray(this.answers)) {
-            data["answers"] = [];
-            for (let item of this.answers)
-                data["answers"].push(item.toJSON());
-        }
-        if (Array.isArray(this.bills)) {
-            data["bills"] = [];
-            for (let item of this.bills)
-                data["bills"].push(item.toJSON());
-        }
-        if (Array.isArray(this.blogs)) {
-            data["blogs"] = [];
-            for (let item of this.blogs)
-                data["blogs"].push(item.toJSON());
-        }
-        if (Array.isArray(this.commentBlogs)) {
-            data["commentBlogs"] = [];
-            for (let item of this.commentBlogs)
-                data["commentBlogs"].push(item.toJSON());
-        }
-        if (Array.isArray(this.confirmEmails)) {
-            data["confirmEmails"] = [];
-            for (let item of this.confirmEmails)
-                data["confirmEmails"].push(item.toJSON());
-        }
-        if (Array.isArray(this.courses)) {
-            data["courses"] = [];
-            for (let item of this.courses)
-                data["courses"].push(item.toJSON());
-        }
-        if (Array.isArray(this.doHomeworks)) {
-            data["doHomeworks"] = [];
-            for (let item of this.doHomeworks)
-                data["doHomeworks"].push(item.toJSON());
-        }
-        if (Array.isArray(this.learningProgresses)) {
-            data["learningProgresses"] = [];
-            for (let item of this.learningProgresses)
-                data["learningProgresses"].push(item.toJSON());
-        }
-        if (Array.isArray(this.likeBlogs)) {
-            data["likeBlogs"] = [];
-            for (let item of this.likeBlogs)
-                data["likeBlogs"].push(item.toJSON());
-        }
-        if (Array.isArray(this.makeQuestions)) {
-            data["makeQuestions"] = [];
-            for (let item of this.makeQuestions)
-                data["makeQuestions"].push(item.toJSON());
-        }
-        if (Array.isArray(this.notifications)) {
-            data["notifications"] = [];
-            for (let item of this.notifications)
-                data["notifications"].push(item.toJSON());
-        }
-        if (Array.isArray(this.permissions)) {
-            data["permissions"] = [];
-            for (let item of this.permissions)
-                data["permissions"].push(item.toJSON());
-        }
-        if (Array.isArray(this.refreshTokens)) {
-            data["refreshTokens"] = [];
-            for (let item of this.refreshTokens)
-                data["refreshTokens"].push(item.toJSON());
-        }
-        if (Array.isArray(this.registerStudies)) {
-            data["registerStudies"] = [];
-            for (let item of this.registerStudies)
-                data["registerStudies"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface IUser {
-    id?: number;
-    districtId?: number | undefined;
-    provinceId?: number | undefined;
-    certificateId?: number | undefined;
-    wardId?: number | undefined;
-    username?: string;
-    createTime?: Date;
-    avatar?: string | undefined;
-    email?: string;
-    updateTime?: Date;
-    password?: string;
-    fullName?: string;
-    dateOfBirth?: Date;
-    isActive?: boolean;
-    address?: string | undefined;
-    userStatus?: UserStatus;
-    district?: District;
-    province?: Province;
-    certificate?: Certificate;
-    ward?: Ward;
-    answers?: Answers[];
-    bills?: Bill[];
-    blogs?: Blog[];
-    commentBlogs?: CommentBlog[];
-    confirmEmails?: ConfirmEmail[];
-    courses?: Course[];
-    doHomeworks?: DoHomework[];
-    learningProgresses?: LearningProgress[];
-    likeBlogs?: LikeBlog[];
-    makeQuestions?: MakeQuestion[];
-    notifications?: Notification[];
-    permissions?: Permission[];
-    refreshTokens?: RefreshToken[];
-    registerStudies?: RegisterStudy[];
-}
-
-export class District implements IDistrict {
-    id?: number;
-    provinceId?: number;
-    name?: string;
-    province?: Province;
-    users?: User[];
-    wards?: Ward[];
-
-    constructor(data?: IDistrict) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.provinceId = _data["provinceId"];
-            this.name = _data["name"];
-            this.province = _data["province"] ? Province.fromJS(_data["province"]) : <any>undefined;
-            if (Array.isArray(_data["users"])) {
-                this.users = [] as any;
-                for (let item of _data["users"])
-                    this.users!.push(User.fromJS(item));
-            }
-            if (Array.isArray(_data["wards"])) {
-                this.wards = [] as any;
-                for (let item of _data["wards"])
-                    this.wards!.push(Ward.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): District {
-        data = typeof data === 'object' ? data : {};
-        let result = new District();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["provinceId"] = this.provinceId;
-        data["name"] = this.name;
-        data["province"] = this.province ? this.province.toJSON() : <any>undefined;
-        if (Array.isArray(this.users)) {
-            data["users"] = [];
-            for (let item of this.users)
-                data["users"].push(item.toJSON());
-        }
-        if (Array.isArray(this.wards)) {
-            data["wards"] = [];
-            for (let item of this.wards)
-                data["wards"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface IDistrict {
-    id?: number;
-    provinceId?: number;
-    name?: string;
-    province?: Province;
-    users?: User[];
-    wards?: Ward[];
-}
-
-export class Province implements IProvince {
-    id?: number;
-    name?: string;
-    districts?: District[];
-    users?: User[];
-
-    constructor(data?: IProvince) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.name = _data["name"];
-            if (Array.isArray(_data["districts"])) {
-                this.districts = [] as any;
-                for (let item of _data["districts"])
-                    this.districts!.push(District.fromJS(item));
-            }
-            if (Array.isArray(_data["users"])) {
-                this.users = [] as any;
-                for (let item of _data["users"])
-                    this.users!.push(User.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): Province {
-        data = typeof data === 'object' ? data : {};
-        let result = new Province();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["name"] = this.name;
-        if (Array.isArray(this.districts)) {
-            data["districts"] = [];
-            for (let item of this.districts)
-                data["districts"].push(item.toJSON());
-        }
-        if (Array.isArray(this.users)) {
-            data["users"] = [];
-            for (let item of this.users)
-                data["users"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface IProvince {
-    id?: number;
-    name?: string;
-    districts?: District[];
-    users?: User[];
-}
-
-export class Ward implements IWard {
-    id?: number;
-    districtId?: number;
-    name?: string;
-    district?: District;
-    users?: User[];
-
-    constructor(data?: IWard) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.districtId = _data["districtId"];
-            this.name = _data["name"];
-            this.district = _data["district"] ? District.fromJS(_data["district"]) : <any>undefined;
-            if (Array.isArray(_data["users"])) {
-                this.users = [] as any;
-                for (let item of _data["users"])
-                    this.users!.push(User.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): Ward {
-        data = typeof data === 'object' ? data : {};
-        let result = new Ward();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["districtId"] = this.districtId;
-        data["name"] = this.name;
-        data["district"] = this.district ? this.district.toJSON() : <any>undefined;
-        if (Array.isArray(this.users)) {
-            data["users"] = [];
-            for (let item of this.users)
-                data["users"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface IWard {
-    id?: number;
-    districtId?: number;
-    name?: string;
-    district?: District;
-    users?: User[];
-}
-
-export class Certificate implements ICertificate {
-    id?: number;
-    certificateTypeId?: number;
-    name?: string;
-    description?: string | undefined;
-    image?: string | undefined;
-    certificateType?: CertificateType;
-    users?: User[];
-
-    constructor(data?: ICertificate) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.certificateTypeId = _data["certificateTypeId"];
-            this.name = _data["name"];
-            this.description = _data["description"];
-            this.image = _data["image"];
-            this.certificateType = _data["certificateType"] ? CertificateType.fromJS(_data["certificateType"]) : <any>undefined;
-            if (Array.isArray(_data["users"])) {
-                this.users = [] as any;
-                for (let item of _data["users"])
-                    this.users!.push(User.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): Certificate {
-        data = typeof data === 'object' ? data : {};
-        let result = new Certificate();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["certificateTypeId"] = this.certificateTypeId;
-        data["name"] = this.name;
-        data["description"] = this.description;
-        data["image"] = this.image;
-        data["certificateType"] = this.certificateType ? this.certificateType.toJSON() : <any>undefined;
-        if (Array.isArray(this.users)) {
-            data["users"] = [];
-            for (let item of this.users)
-                data["users"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface ICertificate {
-    id?: number;
-    certificateTypeId?: number;
-    name?: string;
-    description?: string | undefined;
-    image?: string | undefined;
-    certificateType?: CertificateType;
-    users?: User[];
-}
-
-export class CertificateType implements ICertificateType {
-    id?: number;
-    name?: string;
-    certificates?: Certificate[];
-
-    constructor(data?: ICertificateType) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.name = _data["name"];
-            if (Array.isArray(_data["certificates"])) {
-                this.certificates = [] as any;
-                for (let item of _data["certificates"])
-                    this.certificates!.push(Certificate.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): CertificateType {
-        data = typeof data === 'object' ? data : {};
-        let result = new CertificateType();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["name"] = this.name;
-        if (Array.isArray(this.certificates)) {
-            data["certificates"] = [];
-            for (let item of this.certificates)
-                data["certificates"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface ICertificateType {
-    id?: number;
-    name?: string;
-    certificates?: Certificate[];
-}
-
-export class Answers implements IAnswers {
-    id?: number;
-    questionId?: number;
-    userId?: number;
-    answer?: string;
-    createTime?: Date;
-    updateTime?: Date;
-    question?: MakeQuestion;
-    user?: User;
-
-    constructor(data?: IAnswers) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.questionId = _data["questionId"];
-            this.userId = _data["userId"];
-            this.answer = _data["answer"];
-            this.createTime = _data["createTime"] ? new Date(_data["createTime"].toString()) : <any>undefined;
-            this.updateTime = _data["updateTime"] ? new Date(_data["updateTime"].toString()) : <any>undefined;
-            this.question = _data["question"] ? MakeQuestion.fromJS(_data["question"]) : <any>undefined;
-            this.user = _data["user"] ? User.fromJS(_data["user"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): Answers {
-        data = typeof data === 'object' ? data : {};
-        let result = new Answers();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["questionId"] = this.questionId;
-        data["userId"] = this.userId;
-        data["answer"] = this.answer;
-        data["createTime"] = this.createTime ? this.createTime.toISOString() : <any>undefined;
-        data["updateTime"] = this.updateTime ? this.updateTime.toISOString() : <any>undefined;
-        data["question"] = this.question ? this.question.toJSON() : <any>undefined;
-        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface IAnswers {
-    id?: number;
-    questionId?: number;
-    userId?: number;
-    answer?: string;
-    createTime?: Date;
-    updateTime?: Date;
-    question?: MakeQuestion;
-    user?: User;
-}
-
-export class Bill implements IBill {
-    id?: number;
-    userId?: number;
-    courseId?: number;
-    price?: number;
-    tradingCode?: string;
-    createTime?: Date;
-    billStatusId?: number;
-    billStatus?: BillStatus;
-    user?: User;
-    course?: Course;
-
-    constructor(data?: IBill) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.userId = _data["userId"];
-            this.courseId = _data["courseId"];
-            this.price = _data["price"];
-            this.tradingCode = _data["tradingCode"];
-            this.createTime = _data["createTime"] ? new Date(_data["createTime"].toString()) : <any>undefined;
-            this.billStatusId = _data["billStatusId"];
-            this.billStatus = _data["billStatus"] ? BillStatus.fromJS(_data["billStatus"]) : <any>undefined;
-            this.user = _data["user"] ? User.fromJS(_data["user"]) : <any>undefined;
-            this.course = _data["course"] ? Course.fromJS(_data["course"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): Bill {
-        data = typeof data === 'object' ? data : {};
-        let result = new Bill();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["userId"] = this.userId;
-        data["courseId"] = this.courseId;
-        data["price"] = this.price;
-        data["tradingCode"] = this.tradingCode;
-        data["createTime"] = this.createTime ? this.createTime.toISOString() : <any>undefined;
-        data["billStatusId"] = this.billStatusId;
-        data["billStatus"] = this.billStatus ? this.billStatus.toJSON() : <any>undefined;
-        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
-        data["course"] = this.course ? this.course.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface IBill {
-    id?: number;
-    userId?: number;
-    courseId?: number;
-    price?: number;
-    tradingCode?: string;
-    createTime?: Date;
-    billStatusId?: number;
-    billStatus?: BillStatus;
-    user?: User;
-    course?: Course;
-}
-
-export class BillStatus implements IBillStatus {
-    id?: number;
-    name?: string;
-    bills?: Bill[];
-
-    constructor(data?: IBillStatus) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.name = _data["name"];
-            if (Array.isArray(_data["bills"])) {
-                this.bills = [] as any;
-                for (let item of _data["bills"])
-                    this.bills!.push(Bill.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): BillStatus {
-        data = typeof data === 'object' ? data : {};
-        let result = new BillStatus();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["name"] = this.name;
-        if (Array.isArray(this.bills)) {
-            data["bills"] = [];
-            for (let item of this.bills)
-                data["bills"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface IBillStatus {
-    id?: number;
-    name?: string;
-    bills?: Bill[];
-}
-
-export class Course implements ICourse {
-    id?: number;
-    name?: string;
-    introduce?: string;
-    imageCourse?: string;
-    creatorId?: number;
-    code?: string;
-    price?: number;
-    totalCourseDuration?: number;
-    numberOfStudent?: number;
-    numberOfPurchases?: number;
-    creator?: User;
-    bills?: Bill[];
-    courseSubjects?: CourseSubject[];
-    registerStudies?: RegisterStudy[];
-
-    constructor(data?: ICourse) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.name = _data["name"];
-            this.introduce = _data["introduce"];
-            this.imageCourse = _data["imageCourse"];
-            this.creatorId = _data["creatorId"];
-            this.code = _data["code"];
-            this.price = _data["price"];
-            this.totalCourseDuration = _data["totalCourseDuration"];
-            this.numberOfStudent = _data["numberOfStudent"];
-            this.numberOfPurchases = _data["numberOfPurchases"];
-            this.creator = _data["creator"] ? User.fromJS(_data["creator"]) : <any>undefined;
-            if (Array.isArray(_data["bills"])) {
-                this.bills = [] as any;
-                for (let item of _data["bills"])
-                    this.bills!.push(Bill.fromJS(item));
-            }
-            if (Array.isArray(_data["courseSubjects"])) {
-                this.courseSubjects = [] as any;
-                for (let item of _data["courseSubjects"])
-                    this.courseSubjects!.push(CourseSubject.fromJS(item));
-            }
-            if (Array.isArray(_data["registerStudies"])) {
-                this.registerStudies = [] as any;
-                for (let item of _data["registerStudies"])
-                    this.registerStudies!.push(RegisterStudy.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): Course {
-        data = typeof data === 'object' ? data : {};
-        let result = new Course();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["name"] = this.name;
-        data["introduce"] = this.introduce;
-        data["imageCourse"] = this.imageCourse;
-        data["creatorId"] = this.creatorId;
-        data["code"] = this.code;
-        data["price"] = this.price;
-        data["totalCourseDuration"] = this.totalCourseDuration;
-        data["numberOfStudent"] = this.numberOfStudent;
-        data["numberOfPurchases"] = this.numberOfPurchases;
-        data["creator"] = this.creator ? this.creator.toJSON() : <any>undefined;
-        if (Array.isArray(this.bills)) {
-            data["bills"] = [];
-            for (let item of this.bills)
-                data["bills"].push(item.toJSON());
-        }
-        if (Array.isArray(this.courseSubjects)) {
-            data["courseSubjects"] = [];
-            for (let item of this.courseSubjects)
-                data["courseSubjects"].push(item.toJSON());
-        }
-        if (Array.isArray(this.registerStudies)) {
-            data["registerStudies"] = [];
-            for (let item of this.registerStudies)
-                data["registerStudies"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface ICourse {
-    id?: number;
-    name?: string;
-    introduce?: string;
-    imageCourse?: string;
-    creatorId?: number;
-    code?: string;
-    price?: number;
-    totalCourseDuration?: number;
-    numberOfStudent?: number;
-    numberOfPurchases?: number;
-    creator?: User;
-    bills?: Bill[];
-    courseSubjects?: CourseSubject[];
-    registerStudies?: RegisterStudy[];
-}
-
-export class CourseSubject implements ICourseSubject {
-    id?: number;
-    courseId?: number;
-    subjectId?: number;
-    course?: Course;
-    subject?: Subject;
-
-    constructor(data?: ICourseSubject) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.courseId = _data["courseId"];
-            this.subjectId = _data["subjectId"];
-            this.course = _data["course"] ? Course.fromJS(_data["course"]) : <any>undefined;
-            this.subject = _data["subject"] ? Subject.fromJS(_data["subject"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): CourseSubject {
-        data = typeof data === 'object' ? data : {};
-        let result = new CourseSubject();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["courseId"] = this.courseId;
-        data["subjectId"] = this.subjectId;
-        data["course"] = this.course ? this.course.toJSON() : <any>undefined;
-        data["subject"] = this.subject ? this.subject.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface ICourseSubject {
-    id?: number;
-    courseId?: number;
-    subjectId?: number;
-    course?: Course;
-    subject?: Subject;
-}
-
-export class Subject implements ISubject {
-    id?: number;
-    name?: string;
-    symbol?: string;
-    isActive?: boolean;
-    courseSubjects?: CourseSubject[];
-    learningProgresses?: LearningProgress[];
-    registerStudies?: RegisterStudy[];
-    subjectDetails?: SubjectDetail[];
-
-    constructor(data?: ISubject) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.name = _data["name"];
-            this.symbol = _data["symbol"];
-            this.isActive = _data["isActive"];
-            if (Array.isArray(_data["courseSubjects"])) {
-                this.courseSubjects = [] as any;
-                for (let item of _data["courseSubjects"])
-                    this.courseSubjects!.push(CourseSubject.fromJS(item));
-            }
-            if (Array.isArray(_data["learningProgresses"])) {
-                this.learningProgresses = [] as any;
-                for (let item of _data["learningProgresses"])
-                    this.learningProgresses!.push(LearningProgress.fromJS(item));
-            }
-            if (Array.isArray(_data["registerStudies"])) {
-                this.registerStudies = [] as any;
-                for (let item of _data["registerStudies"])
-                    this.registerStudies!.push(RegisterStudy.fromJS(item));
-            }
-            if (Array.isArray(_data["subjectDetails"])) {
-                this.subjectDetails = [] as any;
-                for (let item of _data["subjectDetails"])
-                    this.subjectDetails!.push(SubjectDetail.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): Subject {
-        data = typeof data === 'object' ? data : {};
-        let result = new Subject();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["name"] = this.name;
-        data["symbol"] = this.symbol;
-        data["isActive"] = this.isActive;
-        if (Array.isArray(this.courseSubjects)) {
-            data["courseSubjects"] = [];
-            for (let item of this.courseSubjects)
-                data["courseSubjects"].push(item.toJSON());
-        }
-        if (Array.isArray(this.learningProgresses)) {
-            data["learningProgresses"] = [];
-            for (let item of this.learningProgresses)
-                data["learningProgresses"].push(item.toJSON());
-        }
-        if (Array.isArray(this.registerStudies)) {
-            data["registerStudies"] = [];
-            for (let item of this.registerStudies)
-                data["registerStudies"].push(item.toJSON());
-        }
-        if (Array.isArray(this.subjectDetails)) {
-            data["subjectDetails"] = [];
-            for (let item of this.subjectDetails)
-                data["subjectDetails"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface ISubject {
-    id?: number;
-    name?: string;
-    symbol?: string;
-    isActive?: boolean;
-    courseSubjects?: CourseSubject[];
-    learningProgresses?: LearningProgress[];
-    registerStudies?: RegisterStudy[];
-    subjectDetails?: SubjectDetail[];
-}
-
-export class LearningProgress implements ILearningProgress {
-    id?: number;
-    userId?: number;
-    registerStudyId?: number;
-    currentSubjectId?: number;
-    user?: User;
-    registerStudy?: RegisterStudy;
-    currentSubject?: Subject;
-
-    constructor(data?: ILearningProgress) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.userId = _data["userId"];
-            this.registerStudyId = _data["registerStudyId"];
-            this.currentSubjectId = _data["currentSubjectId"];
-            this.user = _data["user"] ? User.fromJS(_data["user"]) : <any>undefined;
-            this.registerStudy = _data["registerStudy"] ? RegisterStudy.fromJS(_data["registerStudy"]) : <any>undefined;
-            this.currentSubject = _data["currentSubject"] ? Subject.fromJS(_data["currentSubject"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): LearningProgress {
-        data = typeof data === 'object' ? data : {};
-        let result = new LearningProgress();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["userId"] = this.userId;
-        data["registerStudyId"] = this.registerStudyId;
-        data["currentSubjectId"] = this.currentSubjectId;
-        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
-        data["registerStudy"] = this.registerStudy ? this.registerStudy.toJSON() : <any>undefined;
-        data["currentSubject"] = this.currentSubject ? this.currentSubject.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface ILearningProgress {
-    id?: number;
-    userId?: number;
-    registerStudyId?: number;
-    currentSubjectId?: number;
-    user?: User;
-    registerStudy?: RegisterStudy;
-    currentSubject?: Subject;
-}
-
-export class RegisterStudy implements IRegisterStudy {
-    id?: number;
-    userId?: number;
-    courseId?: number;
-    currentSubjectId?: number | undefined;
-    isFinished?: boolean;
-    registerTime?: Date;
-    percentComplete?: number;
-    doneTime?: Date;
-    isActive?: boolean;
-    user?: User;
-    course?: Course;
-    currentSubject?: Subject;
-    doHomeworks?: DoHomework[];
-    learningProgresses?: LearningProgress[];
-
-    constructor(data?: IRegisterStudy) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.userId = _data["userId"];
-            this.courseId = _data["courseId"];
-            this.currentSubjectId = _data["currentSubjectId"];
-            this.isFinished = _data["isFinished"];
-            this.registerTime = _data["registerTime"] ? new Date(_data["registerTime"].toString()) : <any>undefined;
-            this.percentComplete = _data["percentComplete"];
-            this.doneTime = _data["doneTime"] ? new Date(_data["doneTime"].toString()) : <any>undefined;
-            this.isActive = _data["isActive"];
-            this.user = _data["user"] ? User.fromJS(_data["user"]) : <any>undefined;
-            this.course = _data["course"] ? Course.fromJS(_data["course"]) : <any>undefined;
-            this.currentSubject = _data["currentSubject"] ? Subject.fromJS(_data["currentSubject"]) : <any>undefined;
-            if (Array.isArray(_data["doHomeworks"])) {
-                this.doHomeworks = [] as any;
-                for (let item of _data["doHomeworks"])
-                    this.doHomeworks!.push(DoHomework.fromJS(item));
-            }
-            if (Array.isArray(_data["learningProgresses"])) {
-                this.learningProgresses = [] as any;
-                for (let item of _data["learningProgresses"])
-                    this.learningProgresses!.push(LearningProgress.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): RegisterStudy {
-        data = typeof data === 'object' ? data : {};
-        let result = new RegisterStudy();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["userId"] = this.userId;
-        data["courseId"] = this.courseId;
-        data["currentSubjectId"] = this.currentSubjectId;
-        data["isFinished"] = this.isFinished;
-        data["registerTime"] = this.registerTime ? this.registerTime.toISOString() : <any>undefined;
-        data["percentComplete"] = this.percentComplete;
-        data["doneTime"] = this.doneTime ? this.doneTime.toISOString() : <any>undefined;
-        data["isActive"] = this.isActive;
-        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
-        data["course"] = this.course ? this.course.toJSON() : <any>undefined;
-        data["currentSubject"] = this.currentSubject ? this.currentSubject.toJSON() : <any>undefined;
-        if (Array.isArray(this.doHomeworks)) {
-            data["doHomeworks"] = [];
-            for (let item of this.doHomeworks)
-                data["doHomeworks"].push(item.toJSON());
-        }
-        if (Array.isArray(this.learningProgresses)) {
-            data["learningProgresses"] = [];
-            for (let item of this.learningProgresses)
-                data["learningProgresses"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface IRegisterStudy {
-    id?: number;
-    userId?: number;
-    courseId?: number;
-    currentSubjectId?: number | undefined;
-    isFinished?: boolean;
-    registerTime?: Date;
-    percentComplete?: number;
-    doneTime?: Date;
-    isActive?: boolean;
-    user?: User;
-    course?: Course;
-    currentSubject?: Subject;
-    doHomeworks?: DoHomework[];
-    learningProgresses?: LearningProgress[];
-}
-
-export class DoHomework implements IDoHomework {
-    id?: number;
-    practiceId?: number;
-    userId?: number;
-    homeworkStatus?: HomeworkStatus;
-    isFinished?: boolean;
-    actualOutput?: string;
-    doneTime?: Date | undefined;
-    registerStudyId?: number;
-    practice?: Practice;
-    user?: User;
-    registerStudy?: RegisterStudy;
-    runTestCases?: RunTestCase[];
-
-    constructor(data?: IDoHomework) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.practiceId = _data["practiceId"];
-            this.userId = _data["userId"];
-            this.homeworkStatus = _data["homeworkStatus"];
-            this.isFinished = _data["isFinished"];
-            this.actualOutput = _data["actualOutput"];
-            this.doneTime = _data["doneTime"] ? new Date(_data["doneTime"].toString()) : <any>undefined;
-            this.registerStudyId = _data["registerStudyId"];
-            this.practice = _data["practice"] ? Practice.fromJS(_data["practice"]) : <any>undefined;
-            this.user = _data["user"] ? User.fromJS(_data["user"]) : <any>undefined;
-            this.registerStudy = _data["registerStudy"] ? RegisterStudy.fromJS(_data["registerStudy"]) : <any>undefined;
-            if (Array.isArray(_data["runTestCases"])) {
-                this.runTestCases = [] as any;
-                for (let item of _data["runTestCases"])
-                    this.runTestCases!.push(RunTestCase.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): DoHomework {
-        data = typeof data === 'object' ? data : {};
-        let result = new DoHomework();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["practiceId"] = this.practiceId;
-        data["userId"] = this.userId;
-        data["homeworkStatus"] = this.homeworkStatus;
-        data["isFinished"] = this.isFinished;
-        data["actualOutput"] = this.actualOutput;
-        data["doneTime"] = this.doneTime ? this.doneTime.toISOString() : <any>undefined;
-        data["registerStudyId"] = this.registerStudyId;
-        data["practice"] = this.practice ? this.practice.toJSON() : <any>undefined;
-        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
-        data["registerStudy"] = this.registerStudy ? this.registerStudy.toJSON() : <any>undefined;
-        if (Array.isArray(this.runTestCases)) {
-            data["runTestCases"] = [];
-            for (let item of this.runTestCases)
-                data["runTestCases"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface IDoHomework {
-    id?: number;
-    practiceId?: number;
-    userId?: number;
-    homeworkStatus?: HomeworkStatus;
-    isFinished?: boolean;
-    actualOutput?: string;
-    doneTime?: Date | undefined;
-    registerStudyId?: number;
-    practice?: Practice;
-    user?: User;
-    registerStudy?: RegisterStudy;
-    runTestCases?: RunTestCase[];
-}
-
-export enum HomeworkStatus {
-    NotStarted = "NotStarted",
-    InProgress = "InProgress",
-    Completed = "Completed",
-    Overdue = "Overdue",
-}
-
-export class Practice implements IPractice {
-    id?: number;
-    subjectDetailId?: number;
-    level?: Level;
-    practiceCode?: string;
-    title?: string;
-    topic?: string;
-    expectOutput?: string;
-    languageProgrammingId?: number;
-    isRequired?: boolean;
-    createTime?: Date;
-    updateTime?: Date;
-    isDeleted?: boolean;
-    mediumScore?: number;
-    subjectDetail?: SubjectDetail;
-    programingLanguage?: ProgramingLanguage;
-    doHomeworks?: DoHomework[];
-    testCases?: TestCase[];
-
-    constructor(data?: IPractice) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.subjectDetailId = _data["subjectDetailId"];
-            this.level = _data["level"];
-            this.practiceCode = _data["practiceCode"];
-            this.title = _data["title"];
-            this.topic = _data["topic"];
-            this.expectOutput = _data["expectOutput"];
-            this.languageProgrammingId = _data["languageProgrammingId"];
-            this.isRequired = _data["isRequired"];
-            this.createTime = _data["createTime"] ? new Date(_data["createTime"].toString()) : <any>undefined;
-            this.updateTime = _data["updateTime"] ? new Date(_data["updateTime"].toString()) : <any>undefined;
-            this.isDeleted = _data["isDeleted"];
-            this.mediumScore = _data["mediumScore"];
-            this.subjectDetail = _data["subjectDetail"] ? SubjectDetail.fromJS(_data["subjectDetail"]) : <any>undefined;
-            this.programingLanguage = _data["programingLanguage"] ? ProgramingLanguage.fromJS(_data["programingLanguage"]) : <any>undefined;
-            if (Array.isArray(_data["doHomeworks"])) {
-                this.doHomeworks = [] as any;
-                for (let item of _data["doHomeworks"])
-                    this.doHomeworks!.push(DoHomework.fromJS(item));
-            }
-            if (Array.isArray(_data["testCases"])) {
-                this.testCases = [] as any;
-                for (let item of _data["testCases"])
-                    this.testCases!.push(TestCase.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): Practice {
-        data = typeof data === 'object' ? data : {};
-        let result = new Practice();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["subjectDetailId"] = this.subjectDetailId;
-        data["level"] = this.level;
-        data["practiceCode"] = this.practiceCode;
-        data["title"] = this.title;
-        data["topic"] = this.topic;
-        data["expectOutput"] = this.expectOutput;
-        data["languageProgrammingId"] = this.languageProgrammingId;
-        data["isRequired"] = this.isRequired;
-        data["createTime"] = this.createTime ? this.createTime.toISOString() : <any>undefined;
-        data["updateTime"] = this.updateTime ? this.updateTime.toISOString() : <any>undefined;
-        data["isDeleted"] = this.isDeleted;
-        data["mediumScore"] = this.mediumScore;
-        data["subjectDetail"] = this.subjectDetail ? this.subjectDetail.toJSON() : <any>undefined;
-        data["programingLanguage"] = this.programingLanguage ? this.programingLanguage.toJSON() : <any>undefined;
-        if (Array.isArray(this.doHomeworks)) {
-            data["doHomeworks"] = [];
-            for (let item of this.doHomeworks)
-                data["doHomeworks"].push(item.toJSON());
-        }
-        if (Array.isArray(this.testCases)) {
-            data["testCases"] = [];
-            for (let item of this.testCases)
-                data["testCases"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface IPractice {
-    id?: number;
-    subjectDetailId?: number;
-    level?: Level;
-    practiceCode?: string;
-    title?: string;
-    topic?: string;
-    expectOutput?: string;
-    languageProgrammingId?: number;
-    isRequired?: boolean;
-    createTime?: Date;
-    updateTime?: Date;
-    isDeleted?: boolean;
-    mediumScore?: number;
-    subjectDetail?: SubjectDetail;
-    programingLanguage?: ProgramingLanguage;
-    doHomeworks?: DoHomework[];
-    testCases?: TestCase[];
-}
-
-export enum Level {
-    Beginner = "Beginner",
-    Intermediate = "Intermediate",
-    Advanced = "Advanced",
-    Expert = "Expert",
-}
-
-export class SubjectDetail implements ISubjectDetail {
-    id?: number;
-    subjectId?: number;
-    name?: string;
-    isFinished?: boolean;
-    linkVideo?: string;
-    isActive?: boolean;
-    subject?: Subject;
-    makeQuestions?: MakeQuestion[];
-    practices?: Practice[];
-
-    constructor(data?: ISubjectDetail) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.subjectId = _data["subjectId"];
-            this.name = _data["name"];
-            this.isFinished = _data["isFinished"];
-            this.linkVideo = _data["linkVideo"];
-            this.isActive = _data["isActive"];
-            this.subject = _data["subject"] ? Subject.fromJS(_data["subject"]) : <any>undefined;
-            if (Array.isArray(_data["makeQuestions"])) {
-                this.makeQuestions = [] as any;
-                for (let item of _data["makeQuestions"])
-                    this.makeQuestions!.push(MakeQuestion.fromJS(item));
-            }
-            if (Array.isArray(_data["practices"])) {
-                this.practices = [] as any;
-                for (let item of _data["practices"])
-                    this.practices!.push(Practice.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): SubjectDetail {
-        data = typeof data === 'object' ? data : {};
-        let result = new SubjectDetail();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["subjectId"] = this.subjectId;
-        data["name"] = this.name;
-        data["isFinished"] = this.isFinished;
-        data["linkVideo"] = this.linkVideo;
-        data["isActive"] = this.isActive;
-        data["subject"] = this.subject ? this.subject.toJSON() : <any>undefined;
-        if (Array.isArray(this.makeQuestions)) {
-            data["makeQuestions"] = [];
-            for (let item of this.makeQuestions)
-                data["makeQuestions"].push(item.toJSON());
-        }
-        if (Array.isArray(this.practices)) {
-            data["practices"] = [];
-            for (let item of this.practices)
-                data["practices"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface ISubjectDetail {
-    id?: number;
-    subjectId?: number;
-    name?: string;
-    isFinished?: boolean;
-    linkVideo?: string;
-    isActive?: boolean;
-    subject?: Subject;
-    makeQuestions?: MakeQuestion[];
-    practices?: Practice[];
-}
-
-export class ProgramingLanguage implements IProgramingLanguage {
-    id?: number;
-    languageName?: string;
-    practices?: Practice[];
-    testCases?: TestCase[];
-
-    constructor(data?: IProgramingLanguage) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.languageName = _data["languageName"];
-            if (Array.isArray(_data["practices"])) {
-                this.practices = [] as any;
-                for (let item of _data["practices"])
-                    this.practices!.push(Practice.fromJS(item));
-            }
-            if (Array.isArray(_data["testCases"])) {
-                this.testCases = [] as any;
-                for (let item of _data["testCases"])
-                    this.testCases!.push(TestCase.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): ProgramingLanguage {
-        data = typeof data === 'object' ? data : {};
-        let result = new ProgramingLanguage();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["languageName"] = this.languageName;
-        if (Array.isArray(this.practices)) {
-            data["practices"] = [];
-            for (let item of this.practices)
-                data["practices"].push(item.toJSON());
-        }
-        if (Array.isArray(this.testCases)) {
-            data["testCases"] = [];
-            for (let item of this.testCases)
-                data["testCases"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface IProgramingLanguage {
-    id?: number;
-    languageName?: string;
-    practices?: Practice[];
-    testCases?: TestCase[];
-}
-
-export class TestCase implements ITestCase {
-    id?: number;
-    input?: string;
-    output?: string;
-    programingLanguageId?: number;
-    practiceId?: number;
-    programingLanguage?: ProgramingLanguage;
-    practice?: Practice;
-    runTestCases?: RunTestCase[];
-
-    constructor(data?: ITestCase) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.input = _data["input"];
-            this.output = _data["output"];
-            this.programingLanguageId = _data["programingLanguageId"];
-            this.practiceId = _data["practiceId"];
-            this.programingLanguage = _data["programingLanguage"] ? ProgramingLanguage.fromJS(_data["programingLanguage"]) : <any>undefined;
-            this.practice = _data["practice"] ? Practice.fromJS(_data["practice"]) : <any>undefined;
-            if (Array.isArray(_data["runTestCases"])) {
-                this.runTestCases = [] as any;
-                for (let item of _data["runTestCases"])
-                    this.runTestCases!.push(RunTestCase.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): TestCase {
-        data = typeof data === 'object' ? data : {};
-        let result = new TestCase();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["input"] = this.input;
-        data["output"] = this.output;
-        data["programingLanguageId"] = this.programingLanguageId;
-        data["practiceId"] = this.practiceId;
-        data["programingLanguage"] = this.programingLanguage ? this.programingLanguage.toJSON() : <any>undefined;
-        data["practice"] = this.practice ? this.practice.toJSON() : <any>undefined;
-        if (Array.isArray(this.runTestCases)) {
-            data["runTestCases"] = [];
-            for (let item of this.runTestCases)
-                data["runTestCases"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface ITestCase {
-    id?: number;
-    input?: string;
-    output?: string;
-    programingLanguageId?: number;
-    practiceId?: number;
-    programingLanguage?: ProgramingLanguage;
-    practice?: Practice;
-    runTestCases?: RunTestCase[];
-}
-
-export class RunTestCase implements IRunTestCase {
-    id?: number;
-    doHomeworkId?: number;
-    testCaseId?: number;
-    result?: string;
-    runTime?: number;
-    doHomework?: DoHomework;
-    testCase?: TestCase;
-
-    constructor(data?: IRunTestCase) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.doHomeworkId = _data["doHomeworkId"];
-            this.testCaseId = _data["testCaseId"];
-            this.result = _data["result"];
-            this.runTime = _data["runTime"];
-            this.doHomework = _data["doHomework"] ? DoHomework.fromJS(_data["doHomework"]) : <any>undefined;
-            this.testCase = _data["testCase"] ? TestCase.fromJS(_data["testCase"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): RunTestCase {
-        data = typeof data === 'object' ? data : {};
-        let result = new RunTestCase();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["doHomeworkId"] = this.doHomeworkId;
-        data["testCaseId"] = this.testCaseId;
-        data["result"] = this.result;
-        data["runTime"] = this.runTime;
-        data["doHomework"] = this.doHomework ? this.doHomework.toJSON() : <any>undefined;
-        data["testCase"] = this.testCase ? this.testCase.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface IRunTestCase {
-    id?: number;
-    doHomeworkId?: number;
-    testCaseId?: number;
-    result?: string;
-    runTime?: number;
-    doHomework?: DoHomework;
-    testCase?: TestCase;
-}
-
-export class Blog implements IBlog {
-    id?: number;
-    creatorId?: number;
-    content?: string;
-    title?: string;
-    numberOfLikes?: number;
-    numberOfComments?: number;
-    image?: string | undefined;
-    createTime?: Date;
-    updateTime?: Date;
-    creator?: User;
-    commentBlogs?: CommentBlog[];
-    likeBlogs?: LikeBlog[];
-
-    constructor(data?: IBlog) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.creatorId = _data["creatorId"];
-            this.content = _data["content"];
-            this.title = _data["title"];
-            this.numberOfLikes = _data["numberOfLikes"];
-            this.numberOfComments = _data["numberOfComments"];
-            this.image = _data["image"];
-            this.createTime = _data["createTime"] ? new Date(_data["createTime"].toString()) : <any>undefined;
-            this.updateTime = _data["updateTime"] ? new Date(_data["updateTime"].toString()) : <any>undefined;
-            this.creator = _data["creator"] ? User.fromJS(_data["creator"]) : <any>undefined;
-            if (Array.isArray(_data["commentBlogs"])) {
-                this.commentBlogs = [] as any;
-                for (let item of _data["commentBlogs"])
-                    this.commentBlogs!.push(CommentBlog.fromJS(item));
-            }
-            if (Array.isArray(_data["likeBlogs"])) {
-                this.likeBlogs = [] as any;
-                for (let item of _data["likeBlogs"])
-                    this.likeBlogs!.push(LikeBlog.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): Blog {
-        data = typeof data === 'object' ? data : {};
-        let result = new Blog();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["creatorId"] = this.creatorId;
-        data["content"] = this.content;
-        data["title"] = this.title;
-        data["numberOfLikes"] = this.numberOfLikes;
-        data["numberOfComments"] = this.numberOfComments;
-        data["image"] = this.image;
-        data["createTime"] = this.createTime ? this.createTime.toISOString() : <any>undefined;
-        data["updateTime"] = this.updateTime ? this.updateTime.toISOString() : <any>undefined;
-        data["creator"] = this.creator ? this.creator.toJSON() : <any>undefined;
-        if (Array.isArray(this.commentBlogs)) {
-            data["commentBlogs"] = [];
-            for (let item of this.commentBlogs)
-                data["commentBlogs"].push(item.toJSON());
-        }
-        if (Array.isArray(this.likeBlogs)) {
-            data["likeBlogs"] = [];
-            for (let item of this.likeBlogs)
-                data["likeBlogs"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface IBlog {
-    id?: number;
-    creatorId?: number;
-    content?: string;
-    title?: string;
-    numberOfLikes?: number;
-    numberOfComments?: number;
-    image?: string | undefined;
-    createTime?: Date;
-    updateTime?: Date;
-    creator?: User;
-    commentBlogs?: CommentBlog[];
-    likeBlogs?: LikeBlog[];
-}
-
-export class CommentBlog implements ICommentBlog {
-    id?: number;
-    blogId?: number;
-    userId?: number;
-    parentId?: number | undefined;
-    content?: string;
-    edited?: boolean;
-    replyCount?: number;
-    createTime?: Date;
-    updateTime?: Date;
-    blog?: Blog;
-    user?: User;
-    parent?: CommentBlog;
-    childs?: CommentBlog[];
-
-    constructor(data?: ICommentBlog) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.blogId = _data["blogId"];
-            this.userId = _data["userId"];
-            this.parentId = _data["parentId"];
-            this.content = _data["content"];
-            this.edited = _data["edited"];
-            this.replyCount = _data["replyCount"];
-            this.createTime = _data["createTime"] ? new Date(_data["createTime"].toString()) : <any>undefined;
-            this.updateTime = _data["updateTime"] ? new Date(_data["updateTime"].toString()) : <any>undefined;
-            this.blog = _data["blog"] ? Blog.fromJS(_data["blog"]) : <any>undefined;
-            this.user = _data["user"] ? User.fromJS(_data["user"]) : <any>undefined;
-            this.parent = _data["parent"] ? CommentBlog.fromJS(_data["parent"]) : <any>undefined;
-            if (Array.isArray(_data["childs"])) {
-                this.childs = [] as any;
-                for (let item of _data["childs"])
-                    this.childs!.push(CommentBlog.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): CommentBlog {
-        data = typeof data === 'object' ? data : {};
-        let result = new CommentBlog();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["blogId"] = this.blogId;
-        data["userId"] = this.userId;
-        data["parentId"] = this.parentId;
-        data["content"] = this.content;
-        data["edited"] = this.edited;
-        data["replyCount"] = this.replyCount;
-        data["createTime"] = this.createTime ? this.createTime.toISOString() : <any>undefined;
-        data["updateTime"] = this.updateTime ? this.updateTime.toISOString() : <any>undefined;
-        data["blog"] = this.blog ? this.blog.toJSON() : <any>undefined;
-        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
-        data["parent"] = this.parent ? this.parent.toJSON() : <any>undefined;
-        if (Array.isArray(this.childs)) {
-            data["childs"] = [];
-            for (let item of this.childs)
-                data["childs"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface ICommentBlog {
-    id?: number;
-    blogId?: number;
-    userId?: number;
-    parentId?: number | undefined;
-    content?: string;
-    edited?: boolean;
-    replyCount?: number;
-    createTime?: Date;
-    updateTime?: Date;
-    blog?: Blog;
-    user?: User;
-    parent?: CommentBlog;
-    childs?: CommentBlog[];
-}
-
-export class LikeBlog implements ILikeBlog {
-    id?: number;
-    userId?: number;
-    blogId?: number;
-    unlike?: boolean;
-    createTime?: Date;
-    updateTime?: Date;
-    user?: User;
-    blog?: Blog;
-
-    constructor(data?: ILikeBlog) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.userId = _data["userId"];
-            this.blogId = _data["blogId"];
-            this.unlike = _data["unlike"];
-            this.createTime = _data["createTime"] ? new Date(_data["createTime"].toString()) : <any>undefined;
-            this.updateTime = _data["updateTime"] ? new Date(_data["updateTime"].toString()) : <any>undefined;
-            this.user = _data["user"] ? User.fromJS(_data["user"]) : <any>undefined;
-            this.blog = _data["blog"] ? Blog.fromJS(_data["blog"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): LikeBlog {
-        data = typeof data === 'object' ? data : {};
-        let result = new LikeBlog();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["userId"] = this.userId;
-        data["blogId"] = this.blogId;
-        data["unlike"] = this.unlike;
-        data["createTime"] = this.createTime ? this.createTime.toISOString() : <any>undefined;
-        data["updateTime"] = this.updateTime ? this.updateTime.toISOString() : <any>undefined;
-        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
-        data["blog"] = this.blog ? this.blog.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface ILikeBlog {
-    id?: number;
-    userId?: number;
-    blogId?: number;
-    unlike?: boolean;
-    createTime?: Date;
-    updateTime?: Date;
-    user?: User;
-    blog?: Blog;
-}
-
-export class ConfirmEmail implements IConfirmEmail {
-    id?: number;
-    confirmCode?: string;
-    expiryTime?: Date;
-    userId?: number;
-    isConfirm?: boolean;
-    user?: User;
-
-    constructor(data?: IConfirmEmail) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.confirmCode = _data["confirmCode"];
-            this.expiryTime = _data["expiryTime"] ? new Date(_data["expiryTime"].toString()) : <any>undefined;
-            this.userId = _data["userId"];
-            this.isConfirm = _data["isConfirm"];
-            this.user = _data["user"] ? User.fromJS(_data["user"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): ConfirmEmail {
-        data = typeof data === 'object' ? data : {};
-        let result = new ConfirmEmail();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["confirmCode"] = this.confirmCode;
-        data["expiryTime"] = this.expiryTime ? this.expiryTime.toISOString() : <any>undefined;
-        data["userId"] = this.userId;
-        data["isConfirm"] = this.isConfirm;
-        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface IConfirmEmail {
-    id?: number;
-    confirmCode?: string;
-    expiryTime?: Date;
-    userId?: number;
-    isConfirm?: boolean;
-    user?: User;
-}
-
-export class Notification implements INotification {
-    id?: number;
-    userId?: number;
-    image?: string;
-    content?: string;
-    link?: string;
-    isSeen?: boolean;
-    createTime?: Date;
-    user?: User;
-
-    constructor(data?: INotification) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.userId = _data["userId"];
-            this.image = _data["image"];
-            this.content = _data["content"];
-            this.link = _data["link"];
-            this.isSeen = _data["isSeen"];
-            this.createTime = _data["createTime"] ? new Date(_data["createTime"].toString()) : <any>undefined;
-            this.user = _data["user"] ? User.fromJS(_data["user"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): Notification {
-        data = typeof data === 'object' ? data : {};
-        let result = new Notification();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["userId"] = this.userId;
-        data["image"] = this.image;
-        data["content"] = this.content;
-        data["link"] = this.link;
-        data["isSeen"] = this.isSeen;
-        data["createTime"] = this.createTime ? this.createTime.toISOString() : <any>undefined;
-        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface INotification {
-    id?: number;
-    userId?: number;
-    image?: string;
-    content?: string;
-    link?: string;
-    isSeen?: boolean;
-    createTime?: Date;
-    user?: User;
-}
-
-export class Permission implements IPermission {
-    id?: number;
-    userId?: number;
-    roleId?: number;
-    user?: User;
-    role?: Role;
-
-    constructor(data?: IPermission) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.userId = _data["userId"];
-            this.roleId = _data["roleId"];
-            this.user = _data["user"] ? User.fromJS(_data["user"]) : <any>undefined;
-            this.role = _data["role"] ? Role.fromJS(_data["role"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): Permission {
-        data = typeof data === 'object' ? data : {};
-        let result = new Permission();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["userId"] = this.userId;
-        data["roleId"] = this.roleId;
-        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
-        data["role"] = this.role ? this.role.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface IPermission {
-    id?: number;
-    userId?: number;
-    roleId?: number;
-    user?: User;
-    role?: Role;
-}
-
-export class Role implements IRole {
-    id?: number;
-    roleCode?: string;
-    roleName?: string;
-    permissions?: Permission[];
-
-    constructor(data?: IRole) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.roleCode = _data["roleCode"];
-            this.roleName = _data["roleName"];
-            if (Array.isArray(_data["permissions"])) {
-                this.permissions = [] as any;
-                for (let item of _data["permissions"])
-                    this.permissions!.push(Permission.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): Role {
-        data = typeof data === 'object' ? data : {};
-        let result = new Role();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["roleCode"] = this.roleCode;
-        data["roleName"] = this.roleName;
-        if (Array.isArray(this.permissions)) {
-            data["permissions"] = [];
-            for (let item of this.permissions)
-                data["permissions"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface IRole {
-    id?: number;
-    roleCode?: string;
-    roleName?: string;
-    permissions?: Permission[];
-}
-
-export class RefreshToken implements IRefreshToken {
-    id?: number;
-    token?: string;
-    expiryTime?: Date;
-    userId?: number;
-    user?: User;
-
-    constructor(data?: IRefreshToken) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.token = _data["token"];
-            this.expiryTime = _data["expiryTime"] ? new Date(_data["expiryTime"].toString()) : <any>undefined;
-            this.userId = _data["userId"];
-            this.user = _data["user"] ? User.fromJS(_data["user"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): RefreshToken {
-        data = typeof data === 'object' ? data : {};
-        let result = new RefreshToken();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["token"] = this.token;
-        data["expiryTime"] = this.expiryTime ? this.expiryTime.toISOString() : <any>undefined;
-        data["userId"] = this.userId;
-        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface IRefreshToken {
-    id?: number;
-    token?: string;
-    expiryTime?: Date;
-    userId?: number;
-    user?: User;
+    user?: UserInfo;
 }
 
 export class AnswersCreate implements IAnswersCreate {
@@ -9196,118 +7241,6 @@ export interface IPagingModelOfBillMapping {
     hasNextPage?: boolean;
 }
 
-export class BillMapping implements IBillMapping {
-    id?: number;
-    userId?: number;
-    courseId?: number;
-    price?: number;
-    tradingCode?: string;
-    createTime?: Date;
-    billStatusId?: number;
-    billStatus?: BillStatusMapping;
-    user?: UserMapping;
-    course?: CourseMapping;
-
-    constructor(data?: IBillMapping) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.userId = _data["userId"];
-            this.courseId = _data["courseId"];
-            this.price = _data["price"];
-            this.tradingCode = _data["tradingCode"];
-            this.createTime = _data["createTime"] ? new Date(_data["createTime"].toString()) : <any>undefined;
-            this.billStatusId = _data["billStatusId"];
-            this.billStatus = _data["billStatus"] ? BillStatusMapping.fromJS(_data["billStatus"]) : <any>undefined;
-            this.user = _data["user"] ? UserMapping.fromJS(_data["user"]) : <any>undefined;
-            this.course = _data["course"] ? CourseMapping.fromJS(_data["course"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): BillMapping {
-        data = typeof data === 'object' ? data : {};
-        let result = new BillMapping();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["userId"] = this.userId;
-        data["courseId"] = this.courseId;
-        data["price"] = this.price;
-        data["tradingCode"] = this.tradingCode;
-        data["createTime"] = this.createTime ? this.createTime.toISOString() : <any>undefined;
-        data["billStatusId"] = this.billStatusId;
-        data["billStatus"] = this.billStatus ? this.billStatus.toJSON() : <any>undefined;
-        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
-        data["course"] = this.course ? this.course.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface IBillMapping {
-    id?: number;
-    userId?: number;
-    courseId?: number;
-    price?: number;
-    tradingCode?: string;
-    createTime?: Date;
-    billStatusId?: number;
-    billStatus?: BillStatusMapping;
-    user?: UserMapping;
-    course?: CourseMapping;
-}
-
-export class BillStatusMapping implements IBillStatusMapping {
-    id?: number;
-    name?: string;
-
-    constructor(data?: IBillStatusMapping) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.name = _data["name"];
-        }
-    }
-
-    static fromJS(data: any): BillStatusMapping {
-        data = typeof data === 'object' ? data : {};
-        let result = new BillStatusMapping();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["name"] = this.name;
-        return data;
-    }
-}
-
-export interface IBillStatusMapping {
-    id?: number;
-    name?: string;
-}
-
 export class BillUpdate implements IBillUpdate {
     id?: number;
     userId?: number;
@@ -9587,9 +7520,9 @@ export class BlogMapping implements IBlogMapping {
     title?: string;
     numberOfLikes?: number;
     numberOfComments?: number;
-    isLiked?: boolean;
     createTime?: Date;
     updateTime?: Date;
+    isLiked?: boolean;
     creator?: UserMapping;
 
     constructor(data?: IBlogMapping) {
@@ -9609,9 +7542,9 @@ export class BlogMapping implements IBlogMapping {
             this.title = _data["title"];
             this.numberOfLikes = _data["numberOfLikes"];
             this.numberOfComments = _data["numberOfComments"];
-            this.isLiked = _data["isLiked"];
             this.createTime = _data["createTime"] ? new Date(_data["createTime"].toString()) : <any>undefined;
             this.updateTime = _data["updateTime"] ? new Date(_data["updateTime"].toString()) : <any>undefined;
+            this.isLiked = _data["isLiked"];
             this.creator = _data["creator"] ? UserMapping.fromJS(_data["creator"]) : <any>undefined;
         }
     }
@@ -9631,9 +7564,9 @@ export class BlogMapping implements IBlogMapping {
         data["title"] = this.title;
         data["numberOfLikes"] = this.numberOfLikes;
         data["numberOfComments"] = this.numberOfComments;
-        data["isLiked"] = this.isLiked;
         data["createTime"] = this.createTime ? this.createTime.toISOString() : <any>undefined;
         data["updateTime"] = this.updateTime ? this.updateTime.toISOString() : <any>undefined;
+        data["isLiked"] = this.isLiked;
         data["creator"] = this.creator ? this.creator.toJSON() : <any>undefined;
         return data;
     }
@@ -9646,9 +7579,9 @@ export interface IBlogMapping {
     title?: string;
     numberOfLikes?: number;
     numberOfComments?: number;
-    isLiked?: boolean;
     createTime?: Date;
     updateTime?: Date;
+    isLiked?: boolean;
     creator?: UserMapping;
 }
 
@@ -10496,6 +8429,142 @@ export interface ICourseSubjectMapping {
     subject?: SubjectMapping;
 }
 
+export class SubjectMapping implements ISubjectMapping {
+    id?: number;
+    name?: string;
+    symbol?: string;
+    isActive?: boolean;
+    subjectDetails?: SubjectDetailMapping[];
+    learningProgresses?: LearningProgressMapping[];
+
+    constructor(data?: ISubjectMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.symbol = _data["symbol"];
+            this.isActive = _data["isActive"];
+            if (Array.isArray(_data["subjectDetails"])) {
+                this.subjectDetails = [] as any;
+                for (let item of _data["subjectDetails"])
+                    this.subjectDetails!.push(SubjectDetailMapping.fromJS(item));
+            }
+            if (Array.isArray(_data["learningProgresses"])) {
+                this.learningProgresses = [] as any;
+                for (let item of _data["learningProgresses"])
+                    this.learningProgresses!.push(LearningProgressMapping.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): SubjectMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new SubjectMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["symbol"] = this.symbol;
+        data["isActive"] = this.isActive;
+        if (Array.isArray(this.subjectDetails)) {
+            data["subjectDetails"] = [];
+            for (let item of this.subjectDetails)
+                data["subjectDetails"].push(item.toJSON());
+        }
+        if (Array.isArray(this.learningProgresses)) {
+            data["learningProgresses"] = [];
+            for (let item of this.learningProgresses)
+                data["learningProgresses"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ISubjectMapping {
+    id?: number;
+    name?: string;
+    symbol?: string;
+    isActive?: boolean;
+    subjectDetails?: SubjectDetailMapping[];
+    learningProgresses?: LearningProgressMapping[];
+}
+
+export class SubjectDetailMapping implements ISubjectDetailMapping {
+    id?: number;
+    subjectId?: number;
+    name?: string;
+    isFinished?: boolean;
+    linkVideo?: string;
+    isActive?: boolean;
+    subject?: SubjectMapping;
+    completed?: boolean;
+
+    constructor(data?: ISubjectDetailMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.subjectId = _data["subjectId"];
+            this.name = _data["name"];
+            this.isFinished = _data["isFinished"];
+            this.linkVideo = _data["linkVideo"];
+            this.isActive = _data["isActive"];
+            this.subject = _data["subject"] ? SubjectMapping.fromJS(_data["subject"]) : <any>undefined;
+            this.completed = _data["completed"];
+        }
+    }
+
+    static fromJS(data: any): SubjectDetailMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new SubjectDetailMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["subjectId"] = this.subjectId;
+        data["name"] = this.name;
+        data["isFinished"] = this.isFinished;
+        data["linkVideo"] = this.linkVideo;
+        data["isActive"] = this.isActive;
+        data["subject"] = this.subject ? this.subject.toJSON() : <any>undefined;
+        data["completed"] = this.completed;
+        return data;
+    }
+}
+
+export interface ISubjectDetailMapping {
+    id?: number;
+    subjectId?: number;
+    name?: string;
+    isFinished?: boolean;
+    linkVideo?: string;
+    isActive?: boolean;
+    subject?: SubjectMapping;
+    completed?: boolean;
+}
+
 export class CourseUpdate implements ICourseUpdate {
     id!: number;
     name!: string;
@@ -10880,6 +8949,345 @@ export interface IDistrictUpdate {
     name: string;
 }
 
+export class PagingModelOfDoHomeworkMapping implements IPagingModelOfDoHomeworkMapping {
+    items?: DoHomeworkMapping[];
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    pageSize?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPagingModelOfDoHomeworkMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(DoHomeworkMapping.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.pageSize = _data["pageSize"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PagingModelOfDoHomeworkMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new PagingModelOfDoHomeworkMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["pageSize"] = this.pageSize;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPagingModelOfDoHomeworkMapping {
+    items?: DoHomeworkMapping[];
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    pageSize?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class DoHomeworkMapping implements IDoHomeworkMapping {
+    id?: number;
+    practiceId?: number;
+    userId?: number;
+    homeworkStatus?: HomeworkStatus;
+    isFinished?: boolean;
+    actualOutput?: string;
+    doneTime?: Date | undefined;
+    registerStudyId?: number;
+    testCases?: RunTestCaseMapping[];
+
+    constructor(data?: IDoHomeworkMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.practiceId = _data["practiceId"];
+            this.userId = _data["userId"];
+            this.homeworkStatus = _data["homeworkStatus"];
+            this.isFinished = _data["isFinished"];
+            this.actualOutput = _data["actualOutput"];
+            this.doneTime = _data["doneTime"] ? new Date(_data["doneTime"].toString()) : <any>undefined;
+            this.registerStudyId = _data["registerStudyId"];
+            if (Array.isArray(_data["testCases"])) {
+                this.testCases = [] as any;
+                for (let item of _data["testCases"])
+                    this.testCases!.push(RunTestCaseMapping.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): DoHomeworkMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new DoHomeworkMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["practiceId"] = this.practiceId;
+        data["userId"] = this.userId;
+        data["homeworkStatus"] = this.homeworkStatus;
+        data["isFinished"] = this.isFinished;
+        data["actualOutput"] = this.actualOutput;
+        data["doneTime"] = this.doneTime ? this.doneTime.toISOString() : <any>undefined;
+        data["registerStudyId"] = this.registerStudyId;
+        if (Array.isArray(this.testCases)) {
+            data["testCases"] = [];
+            for (let item of this.testCases)
+                data["testCases"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IDoHomeworkMapping {
+    id?: number;
+    practiceId?: number;
+    userId?: number;
+    homeworkStatus?: HomeworkStatus;
+    isFinished?: boolean;
+    actualOutput?: string;
+    doneTime?: Date | undefined;
+    registerStudyId?: number;
+    testCases?: RunTestCaseMapping[];
+}
+
+export enum HomeworkStatus {
+    NotStarted = "NotStarted",
+    InProgress = "InProgress",
+    Completed = "Completed",
+    Overdue = "Overdue",
+}
+
+export class RunTestCaseMapping implements IRunTestCaseMapping {
+    id?: number;
+    doHomeworkId?: number;
+    testCaseId?: number;
+    result?: string;
+    runTime?: number;
+
+    constructor(data?: IRunTestCaseMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.doHomeworkId = _data["doHomeworkId"];
+            this.testCaseId = _data["testCaseId"];
+            this.result = _data["result"];
+            this.runTime = _data["runTime"];
+        }
+    }
+
+    static fromJS(data: any): RunTestCaseMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new RunTestCaseMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["doHomeworkId"] = this.doHomeworkId;
+        data["testCaseId"] = this.testCaseId;
+        data["result"] = this.result;
+        data["runTime"] = this.runTime;
+        return data;
+    }
+}
+
+export interface IRunTestCaseMapping {
+    id?: number;
+    doHomeworkId?: number;
+    testCaseId?: number;
+    result?: string;
+    runTime?: number;
+}
+
+export class DoHomeworkCreate implements IDoHomeworkCreate {
+    practiceId?: number;
+    userId?: number;
+    homeworkStatus?: HomeworkStatus;
+    isFinished?: boolean;
+    actualOutput?: string;
+    doneTime?: Date | undefined;
+    registerStudyId?: number;
+
+    constructor(data?: IDoHomeworkCreate) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.practiceId = _data["practiceId"];
+            this.userId = _data["userId"];
+            this.homeworkStatus = _data["homeworkStatus"];
+            this.isFinished = _data["isFinished"];
+            this.actualOutput = _data["actualOutput"];
+            this.doneTime = _data["doneTime"] ? new Date(_data["doneTime"].toString()) : <any>undefined;
+            this.registerStudyId = _data["registerStudyId"];
+        }
+    }
+
+    static fromJS(data: any): DoHomeworkCreate {
+        data = typeof data === 'object' ? data : {};
+        let result = new DoHomeworkCreate();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["practiceId"] = this.practiceId;
+        data["userId"] = this.userId;
+        data["homeworkStatus"] = this.homeworkStatus;
+        data["isFinished"] = this.isFinished;
+        data["actualOutput"] = this.actualOutput;
+        data["doneTime"] = this.doneTime ? this.doneTime.toISOString() : <any>undefined;
+        data["registerStudyId"] = this.registerStudyId;
+        return data;
+    }
+}
+
+export interface IDoHomeworkCreate {
+    practiceId?: number;
+    userId?: number;
+    homeworkStatus?: HomeworkStatus;
+    isFinished?: boolean;
+    actualOutput?: string;
+    doneTime?: Date | undefined;
+    registerStudyId?: number;
+}
+
+export class DoHomeworkUpdate implements IDoHomeworkUpdate {
+    id?: number;
+    practiceId?: number;
+    userId?: number;
+    homeworkStatus?: HomeworkStatus;
+    isFinished?: boolean;
+    actualOutput?: string;
+    doneTime?: Date | undefined;
+    registerStudyId?: number;
+    testCases?: RunTestCaseMapping[];
+
+    constructor(data?: IDoHomeworkUpdate) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.practiceId = _data["practiceId"];
+            this.userId = _data["userId"];
+            this.homeworkStatus = _data["homeworkStatus"];
+            this.isFinished = _data["isFinished"];
+            this.actualOutput = _data["actualOutput"];
+            this.doneTime = _data["doneTime"] ? new Date(_data["doneTime"].toString()) : <any>undefined;
+            this.registerStudyId = _data["registerStudyId"];
+            if (Array.isArray(_data["testCases"])) {
+                this.testCases = [] as any;
+                for (let item of _data["testCases"])
+                    this.testCases!.push(RunTestCaseMapping.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): DoHomeworkUpdate {
+        data = typeof data === 'object' ? data : {};
+        let result = new DoHomeworkUpdate();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["practiceId"] = this.practiceId;
+        data["userId"] = this.userId;
+        data["homeworkStatus"] = this.homeworkStatus;
+        data["isFinished"] = this.isFinished;
+        data["actualOutput"] = this.actualOutput;
+        data["doneTime"] = this.doneTime ? this.doneTime.toISOString() : <any>undefined;
+        data["registerStudyId"] = this.registerStudyId;
+        if (Array.isArray(this.testCases)) {
+            data["testCases"] = [];
+            for (let item of this.testCases)
+                data["testCases"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IDoHomeworkUpdate {
+    id?: number;
+    practiceId?: number;
+    userId?: number;
+    homeworkStatus?: HomeworkStatus;
+    isFinished?: boolean;
+    actualOutput?: string;
+    doneTime?: Date | undefined;
+    registerStudyId?: number;
+    testCases?: RunTestCaseMapping[];
+}
+
 export class PagingModelOfLearningProgressMapping implements IPagingModelOfLearningProgressMapping {
     items?: LearningProgressMapping[];
     pageNumber?: number;
@@ -10946,54 +9354,6 @@ export interface IPagingModelOfLearningProgressMapping {
     pageSize?: number;
     hasPreviousPage?: boolean;
     hasNextPage?: boolean;
-}
-
-export class LearningProgressMapping implements ILearningProgressMapping {
-    id?: number;
-    userId?: number;
-    registerStudyId?: number;
-    currentSubjectId?: number;
-
-    constructor(data?: ILearningProgressMapping) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.userId = _data["userId"];
-            this.registerStudyId = _data["registerStudyId"];
-            this.currentSubjectId = _data["currentSubjectId"];
-        }
-    }
-
-    static fromJS(data: any): LearningProgressMapping {
-        data = typeof data === 'object' ? data : {};
-        let result = new LearningProgressMapping();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["userId"] = this.userId;
-        data["registerStudyId"] = this.registerStudyId;
-        data["currentSubjectId"] = this.currentSubjectId;
-        return data;
-    }
-}
-
-export interface ILearningProgressMapping {
-    id?: number;
-    userId?: number;
-    registerStudyId?: number;
-    currentSubjectId?: number;
 }
 
 export class LearningProgressCreate implements ILearningProgressCreate {
@@ -11368,70 +9728,6 @@ export interface IPagingModelOfMakeQuestionMapping {
     hasNextPage?: boolean;
 }
 
-export class MakeQuestionMapping implements IMakeQuestionMapping {
-    id?: number;
-    userId?: number;
-    subjectDetailId?: number;
-    question?: string;
-    numberOfAnswers?: number;
-    createTime?: Date;
-    updateTime?: Date;
-    user?: UserMapping;
-
-    constructor(data?: IMakeQuestionMapping) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.userId = _data["userId"];
-            this.subjectDetailId = _data["subjectDetailId"];
-            this.question = _data["question"];
-            this.numberOfAnswers = _data["numberOfAnswers"];
-            this.createTime = _data["createTime"] ? new Date(_data["createTime"].toString()) : <any>undefined;
-            this.updateTime = _data["updateTime"] ? new Date(_data["updateTime"].toString()) : <any>undefined;
-            this.user = _data["user"] ? UserMapping.fromJS(_data["user"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): MakeQuestionMapping {
-        data = typeof data === 'object' ? data : {};
-        let result = new MakeQuestionMapping();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["userId"] = this.userId;
-        data["subjectDetailId"] = this.subjectDetailId;
-        data["question"] = this.question;
-        data["numberOfAnswers"] = this.numberOfAnswers;
-        data["createTime"] = this.createTime ? this.createTime.toISOString() : <any>undefined;
-        data["updateTime"] = this.updateTime ? this.updateTime.toISOString() : <any>undefined;
-        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface IMakeQuestionMapping {
-    id?: number;
-    userId?: number;
-    subjectDetailId?: number;
-    question?: string;
-    numberOfAnswers?: number;
-    createTime?: Date;
-    updateTime?: Date;
-    user?: UserMapping;
-}
-
 export class MakeQuestionCreate implements IMakeQuestionCreate {
     subjectDetailId?: number;
     question?: string;
@@ -11598,8 +9894,7 @@ export class PracticeMapping implements IPracticeMapping {
     updateTime?: Date;
     isDeleted?: boolean;
     mediumScore?: number;
-    subjectDetail?: SubjectDetailMapping;
-    programingLanguage?: ProgramingLanguageMapping;
+    testCases?: TestCaseMapping[];
 
     constructor(data?: IPracticeMapping) {
         if (data) {
@@ -11625,8 +9920,11 @@ export class PracticeMapping implements IPracticeMapping {
             this.updateTime = _data["updateTime"] ? new Date(_data["updateTime"].toString()) : <any>undefined;
             this.isDeleted = _data["isDeleted"];
             this.mediumScore = _data["mediumScore"];
-            this.subjectDetail = _data["subjectDetail"] ? SubjectDetailMapping.fromJS(_data["subjectDetail"]) : <any>undefined;
-            this.programingLanguage = _data["programingLanguage"] ? ProgramingLanguageMapping.fromJS(_data["programingLanguage"]) : <any>undefined;
+            if (Array.isArray(_data["testCases"])) {
+                this.testCases = [] as any;
+                for (let item of _data["testCases"])
+                    this.testCases!.push(TestCaseMapping.fromJS(item));
+            }
         }
     }
 
@@ -11652,8 +9950,11 @@ export class PracticeMapping implements IPracticeMapping {
         data["updateTime"] = this.updateTime ? this.updateTime.toISOString() : <any>undefined;
         data["isDeleted"] = this.isDeleted;
         data["mediumScore"] = this.mediumScore;
-        data["subjectDetail"] = this.subjectDetail ? this.subjectDetail.toJSON() : <any>undefined;
-        data["programingLanguage"] = this.programingLanguage ? this.programingLanguage.toJSON() : <any>undefined;
+        if (Array.isArray(this.testCases)) {
+            data["testCases"] = [];
+            for (let item of this.testCases)
+                data["testCases"].push(item.toJSON());
+        }
         return data;
     }
 }
@@ -11672,8 +9973,74 @@ export interface IPracticeMapping {
     updateTime?: Date;
     isDeleted?: boolean;
     mediumScore?: number;
-    subjectDetail?: SubjectDetailMapping;
+    testCases?: TestCaseMapping[];
+}
+
+export enum Level {
+    Beginner = "Beginner",
+    Intermediate = "Intermediate",
+    Advanced = "Advanced",
+    Expert = "Expert",
+}
+
+export class TestCaseMapping implements ITestCaseMapping {
+    id?: number;
+    input?: string;
+    output?: string;
+    programingLanguageId?: number;
+    practiceId?: number;
     programingLanguage?: ProgramingLanguageMapping;
+    practice?: PracticeMapping;
+
+    constructor(data?: ITestCaseMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.input = _data["input"];
+            this.output = _data["output"];
+            this.programingLanguageId = _data["programingLanguageId"];
+            this.practiceId = _data["practiceId"];
+            this.programingLanguage = _data["programingLanguage"] ? ProgramingLanguageMapping.fromJS(_data["programingLanguage"]) : <any>undefined;
+            this.practice = _data["practice"] ? PracticeMapping.fromJS(_data["practice"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): TestCaseMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new TestCaseMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["input"] = this.input;
+        data["output"] = this.output;
+        data["programingLanguageId"] = this.programingLanguageId;
+        data["practiceId"] = this.practiceId;
+        data["programingLanguage"] = this.programingLanguage ? this.programingLanguage.toJSON() : <any>undefined;
+        data["practice"] = this.practice ? this.practice.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ITestCaseMapping {
+    id?: number;
+    input?: string;
+    output?: string;
+    programingLanguageId?: number;
+    practiceId?: number;
+    programingLanguage?: ProgramingLanguageMapping;
+    practice?: PracticeMapping;
 }
 
 export class ProgramingLanguageMapping implements IProgramingLanguageMapping {
@@ -12272,6 +10639,7 @@ export class RegisterStudyUpdate implements IRegisterStudyUpdate {
     id!: number;
     isFinished?: boolean;
     isActive?: boolean;
+    learningProgresses?: LearningProgressMapping[];
 
     constructor(data?: IRegisterStudyUpdate) {
         if (data) {
@@ -12287,6 +10655,11 @@ export class RegisterStudyUpdate implements IRegisterStudyUpdate {
             this.id = _data["id"];
             this.isFinished = _data["isFinished"];
             this.isActive = _data["isActive"];
+            if (Array.isArray(_data["learningProgresses"])) {
+                this.learningProgresses = [] as any;
+                for (let item of _data["learningProgresses"])
+                    this.learningProgresses!.push(LearningProgressMapping.fromJS(item));
+            }
         }
     }
 
@@ -12302,6 +10675,11 @@ export class RegisterStudyUpdate implements IRegisterStudyUpdate {
         data["id"] = this.id;
         data["isFinished"] = this.isFinished;
         data["isActive"] = this.isActive;
+        if (Array.isArray(this.learningProgresses)) {
+            data["learningProgresses"] = [];
+            for (let item of this.learningProgresses)
+                data["learningProgresses"].push(item.toJSON());
+        }
         return data;
     }
 }
@@ -12310,6 +10688,7 @@ export interface IRegisterStudyUpdate {
     id: number;
     isFinished?: boolean;
     isActive?: boolean;
+    learningProgresses?: LearningProgressMapping[];
 }
 
 export class PagingModelOfRoleMapping implements IPagingModelOfRoleMapping {
@@ -12378,6 +10757,50 @@ export interface IPagingModelOfRoleMapping {
     pageSize?: number;
     hasPreviousPage?: boolean;
     hasNextPage?: boolean;
+}
+
+export class RoleMapping implements IRoleMapping {
+    id?: number;
+    roleCode?: string;
+    roleName?: string;
+
+    constructor(data?: IRoleMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.roleCode = _data["roleCode"];
+            this.roleName = _data["roleName"];
+        }
+    }
+
+    static fromJS(data: any): RoleMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoleMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["roleCode"] = this.roleCode;
+        data["roleName"] = this.roleName;
+        return data;
+    }
+}
+
+export interface IRoleMapping {
+    id?: number;
+    roleCode?: string;
+    roleName?: string;
 }
 
 export class RoleCreate implements IRoleCreate {
@@ -12868,66 +11291,6 @@ export interface IPagingModelOfTestCaseMapping {
     hasNextPage?: boolean;
 }
 
-export class TestCaseMapping implements ITestCaseMapping {
-    id?: number;
-    input?: string;
-    output?: string;
-    programingLanguageId?: number;
-    practiceId?: number;
-    programingLanguage?: ProgramingLanguageMapping;
-    practice?: PracticeMapping;
-
-    constructor(data?: ITestCaseMapping) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.input = _data["input"];
-            this.output = _data["output"];
-            this.programingLanguageId = _data["programingLanguageId"];
-            this.practiceId = _data["practiceId"];
-            this.programingLanguage = _data["programingLanguage"] ? ProgramingLanguageMapping.fromJS(_data["programingLanguage"]) : <any>undefined;
-            this.practice = _data["practice"] ? PracticeMapping.fromJS(_data["practice"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): TestCaseMapping {
-        data = typeof data === 'object' ? data : {};
-        let result = new TestCaseMapping();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["input"] = this.input;
-        data["output"] = this.output;
-        data["programingLanguageId"] = this.programingLanguageId;
-        data["practiceId"] = this.practiceId;
-        data["programingLanguage"] = this.programingLanguage ? this.programingLanguage.toJSON() : <any>undefined;
-        data["practice"] = this.practice ? this.practice.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface ITestCaseMapping {
-    id?: number;
-    input?: string;
-    output?: string;
-    programingLanguageId?: number;
-    practiceId?: number;
-    programingLanguage?: ProgramingLanguageMapping;
-    practice?: PracticeMapping;
-}
-
 export class TestCaseCreate implements ITestCaseCreate {
     input!: string;
     output!: string;
@@ -13190,6 +11553,54 @@ export interface IUserCreate {
     password?: string;
     userStatus?: UserStatus;
     permissions?: PermissionMapping[];
+}
+
+export class PermissionMapping implements IPermissionMapping {
+    id?: number;
+    userId?: number;
+    roleId?: number;
+    role?: RoleMapping;
+
+    constructor(data?: IPermissionMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.userId = _data["userId"];
+            this.roleId = _data["roleId"];
+            this.role = _data["role"] ? RoleMapping.fromJS(_data["role"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): PermissionMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new PermissionMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["userId"] = this.userId;
+        data["roleId"] = this.roleId;
+        data["role"] = this.role ? this.role.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IPermissionMapping {
+    id?: number;
+    userId?: number;
+    roleId?: number;
+    role?: RoleMapping;
 }
 
 export class UserUpdate implements IUserUpdate {

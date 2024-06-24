@@ -17,7 +17,7 @@ export default function DashboardRegisterStudy() {
       )}
       deleteAction={(id) => RegisterStudyService.deleteEntity(id)}
       fetchAction={(filters, sorts, page, pageSize) =>
-        RegisterStudyService.getEntities(filters, sorts, page, pageSize)
+        RegisterStudyService.getEntities(null, filters, sorts, page, pageSize)
       }
     />
   );

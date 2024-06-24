@@ -25,7 +25,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Logo from "../../Logo/Logo";
 import { useSelector } from "react-redux";
-import { UserMapping } from "../../../app/web-api-client";
+import { UserInfo } from "../../../app/web-api-client";
 import { usePathname } from "next/navigation";
 
 const mockdata = [
@@ -47,11 +47,6 @@ const mockdata = [
     ],
   },
   {
-    label: "Đăng Ký Học",
-    icon: IconAnalyze,
-    link: "/dashboard/register-study",
-  },
-  {
     label: "Hóa Đơn",
     icon: IconAnalyze,
     links: [
@@ -62,16 +57,12 @@ const mockdata = [
   {
     label: "Khóa Học",
     icon: IconNotes,
-    initiallyOpened: true,
-    links: [{ label: "Khóa Học", link: "/dashboard/course" }],
+    link: "/dashboard/course",
   },
   {
     label: "Chủ Đề",
     icon: IconAperture,
-    links: [
-      { label: "Chủ Đề", link: "/dashboard/subject" },
-      { label: "Chi Tiết Chủ Đề", link: "/dashboard/subject-detail" },
-    ],
+    link: "/dashboard/subject",
   },
   {
     label: "Chứng Chỉ",
@@ -88,10 +79,6 @@ const mockdata = [
       {
         label: "Bài Tập",
         link: "/dashboard/practice",
-      },
-      {
-        label: "Test Case",
-        link: "/dashboard/test-case",
       },
       {
         label: "Ngôn Ngữ",
@@ -204,7 +191,7 @@ export function LinksGroup({
 }
 
 export function DashboardNavbar({ burger }: { burger: React.ReactNode }) {
-  const user = useSelector((state: any) => state.auth.user) as UserMapping;
+  const user = useSelector((state: any) => state.auth.user) as UserInfo;
 
   const links = mockdata.map((item) => (
     <LinksGroup {...item} key={item.label} />
