@@ -14,7 +14,7 @@ export default function DashboardCourse() {
       )}
       deleteAction={(id) => CourseService.deleteEntity(id)}
       fetchAction={(filters, sorts, page, pageSize) =>
-        CourseService.getEntities(filters, sorts, page, pageSize)
+        CourseService.getEntities(null, filters, sorts, page, pageSize)
       }
     />
   );

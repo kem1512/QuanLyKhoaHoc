@@ -4,7 +4,7 @@
     {
         public ApplicationMapping()
         {
-            CreateMap<Subject, SubjectMapping>();
+            CreateMap<Subject, SubjectMapping>().ReverseMap();
             CreateMap<Subject, SubjectCreate>().ReverseMap();
             CreateMap<Subject, SubjectUpdate>().ReverseMap();
 
@@ -106,7 +106,7 @@
             CreateMap<CertificateType, CertificateTypeCreate>().ReverseMap();
             CreateMap<CertificateType, CertificateTypeUpdate>().ReverseMap();
 
-            CreateMap<CourseSubject, CourseSubjectMapping>().ReverseMap();
+            CreateMap<CourseSubject, CourseSubjectMapping>().MaxDepth(1).ReverseMap();
             CreateMap<CourseSubject, CourseSubjectCreate>().ReverseMap();
             CreateMap<CourseSubject, CourseSubjectUpdate>().ReverseMap();
 

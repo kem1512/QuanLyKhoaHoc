@@ -1965,8 +1965,10 @@ export class CourseClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    getEntities(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfCourseMapping> {
+    getEntities(includes: boolean | null | undefined, filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagingModelOfCourseMapping> {
         let url_ = this.baseUrl + "/api/Course?";
+        if (includes !== undefined && includes !== null)
+            url_ += "Includes=" + encodeURIComponent("" + includes) + "&";
         if (filters !== undefined && filters !== null)
             url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
         if (sorts !== undefined && sorts !== null)
@@ -6245,6 +6247,7 @@ export class CourseMapping implements ICourseMapping {
     numberOfStudent?: number;
     numberOfPurchases?: number;
     bill?: BillMapping;
+    courseSubjects?: CourseSubjectMapping[];
 
     constructor(data?: ICourseMapping) {
         if (data) {
@@ -6268,6 +6271,11 @@ export class CourseMapping implements ICourseMapping {
             this.numberOfStudent = _data["numberOfStudent"];
             this.numberOfPurchases = _data["numberOfPurchases"];
             this.bill = _data["bill"] ? BillMapping.fromJS(_data["bill"]) : <any>undefined;
+            if (Array.isArray(_data["courseSubjects"])) {
+                this.courseSubjects = [] as any;
+                for (let item of _data["courseSubjects"])
+                    this.courseSubjects!.push(CourseSubjectMapping.fromJS(item));
+            }
         }
     }
 
@@ -6291,6 +6299,11 @@ export class CourseMapping implements ICourseMapping {
         data["numberOfStudent"] = this.numberOfStudent;
         data["numberOfPurchases"] = this.numberOfPurchases;
         data["bill"] = this.bill ? this.bill.toJSON() : <any>undefined;
+        if (Array.isArray(this.courseSubjects)) {
+            data["courseSubjects"] = [];
+            for (let item of this.courseSubjects)
+                data["courseSubjects"].push(item.toJSON());
+        }
         return data;
     }
 }
@@ -6307,6 +6320,7 @@ export interface ICourseMapping {
     numberOfStudent?: number;
     numberOfPurchases?: number;
     bill?: BillMapping;
+    courseSubjects?: CourseSubjectMapping[];
 }
 
 export class BillMapping implements IBillMapping {
@@ -6510,6 +6524,194 @@ export enum UserStatus {
     Inactive = "Inactive",
     Banned = "Banned",
     Pending = "Pending",
+}
+
+export class CourseSubjectMapping implements ICourseSubjectMapping {
+    id?: number;
+    courseId?: number;
+    subjectId?: number;
+    course?: CourseMapping;
+    subject?: SubjectMapping;
+
+    constructor(data?: ICourseSubjectMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.courseId = _data["courseId"];
+            this.subjectId = _data["subjectId"];
+            this.course = _data["course"] ? CourseMapping.fromJS(_data["course"]) : <any>undefined;
+            this.subject = _data["subject"] ? SubjectMapping.fromJS(_data["subject"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): CourseSubjectMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new CourseSubjectMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["courseId"] = this.courseId;
+        data["subjectId"] = this.subjectId;
+        data["course"] = this.course ? this.course.toJSON() : <any>undefined;
+        data["subject"] = this.subject ? this.subject.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ICourseSubjectMapping {
+    id?: number;
+    courseId?: number;
+    subjectId?: number;
+    course?: CourseMapping;
+    subject?: SubjectMapping;
+}
+
+export class SubjectMapping implements ISubjectMapping {
+    id?: number;
+    name?: string;
+    symbol?: string;
+    isActive?: boolean;
+    subjectDetails?: SubjectDetailMapping[];
+    learningProgresses?: LearningProgressMapping[];
+
+    constructor(data?: ISubjectMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.symbol = _data["symbol"];
+            this.isActive = _data["isActive"];
+            if (Array.isArray(_data["subjectDetails"])) {
+                this.subjectDetails = [] as any;
+                for (let item of _data["subjectDetails"])
+                    this.subjectDetails!.push(SubjectDetailMapping.fromJS(item));
+            }
+            if (Array.isArray(_data["learningProgresses"])) {
+                this.learningProgresses = [] as any;
+                for (let item of _data["learningProgresses"])
+                    this.learningProgresses!.push(LearningProgressMapping.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): SubjectMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new SubjectMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["symbol"] = this.symbol;
+        data["isActive"] = this.isActive;
+        if (Array.isArray(this.subjectDetails)) {
+            data["subjectDetails"] = [];
+            for (let item of this.subjectDetails)
+                data["subjectDetails"].push(item.toJSON());
+        }
+        if (Array.isArray(this.learningProgresses)) {
+            data["learningProgresses"] = [];
+            for (let item of this.learningProgresses)
+                data["learningProgresses"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ISubjectMapping {
+    id?: number;
+    name?: string;
+    symbol?: string;
+    isActive?: boolean;
+    subjectDetails?: SubjectDetailMapping[];
+    learningProgresses?: LearningProgressMapping[];
+}
+
+export class SubjectDetailMapping implements ISubjectDetailMapping {
+    id?: number;
+    subjectId?: number;
+    name?: string;
+    isFinished?: boolean;
+    linkVideo?: string;
+    isActive?: boolean;
+    subject?: SubjectMapping;
+    completed?: boolean;
+
+    constructor(data?: ISubjectDetailMapping) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.subjectId = _data["subjectId"];
+            this.name = _data["name"];
+            this.isFinished = _data["isFinished"];
+            this.linkVideo = _data["linkVideo"];
+            this.isActive = _data["isActive"];
+            this.subject = _data["subject"] ? SubjectMapping.fromJS(_data["subject"]) : <any>undefined;
+            this.completed = _data["completed"];
+        }
+    }
+
+    static fromJS(data: any): SubjectDetailMapping {
+        data = typeof data === 'object' ? data : {};
+        let result = new SubjectDetailMapping();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["subjectId"] = this.subjectId;
+        data["name"] = this.name;
+        data["isFinished"] = this.isFinished;
+        data["linkVideo"] = this.linkVideo;
+        data["isActive"] = this.isActive;
+        data["subject"] = this.subject ? this.subject.toJSON() : <any>undefined;
+        data["completed"] = this.completed;
+        return data;
+    }
+}
+
+export interface ISubjectDetailMapping {
+    id?: number;
+    subjectId?: number;
+    name?: string;
+    isFinished?: boolean;
+    linkVideo?: string;
+    isActive?: boolean;
+    subject?: SubjectMapping;
+    completed?: boolean;
 }
 
 export class LearningProgressMapping implements ILearningProgressMapping {
@@ -8375,194 +8577,6 @@ export interface ICourseCreate {
     numberOfStudent?: number;
     numberOfPurchases?: number;
     courseSubjects?: CourseSubjectMapping[];
-}
-
-export class CourseSubjectMapping implements ICourseSubjectMapping {
-    id?: number;
-    courseId?: number;
-    subjectId?: number;
-    course?: CourseMapping;
-    subject?: SubjectMapping;
-
-    constructor(data?: ICourseSubjectMapping) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.courseId = _data["courseId"];
-            this.subjectId = _data["subjectId"];
-            this.course = _data["course"] ? CourseMapping.fromJS(_data["course"]) : <any>undefined;
-            this.subject = _data["subject"] ? SubjectMapping.fromJS(_data["subject"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): CourseSubjectMapping {
-        data = typeof data === 'object' ? data : {};
-        let result = new CourseSubjectMapping();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["courseId"] = this.courseId;
-        data["subjectId"] = this.subjectId;
-        data["course"] = this.course ? this.course.toJSON() : <any>undefined;
-        data["subject"] = this.subject ? this.subject.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface ICourseSubjectMapping {
-    id?: number;
-    courseId?: number;
-    subjectId?: number;
-    course?: CourseMapping;
-    subject?: SubjectMapping;
-}
-
-export class SubjectMapping implements ISubjectMapping {
-    id?: number;
-    name?: string;
-    symbol?: string;
-    isActive?: boolean;
-    subjectDetails?: SubjectDetailMapping[];
-    learningProgresses?: LearningProgressMapping[];
-
-    constructor(data?: ISubjectMapping) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.name = _data["name"];
-            this.symbol = _data["symbol"];
-            this.isActive = _data["isActive"];
-            if (Array.isArray(_data["subjectDetails"])) {
-                this.subjectDetails = [] as any;
-                for (let item of _data["subjectDetails"])
-                    this.subjectDetails!.push(SubjectDetailMapping.fromJS(item));
-            }
-            if (Array.isArray(_data["learningProgresses"])) {
-                this.learningProgresses = [] as any;
-                for (let item of _data["learningProgresses"])
-                    this.learningProgresses!.push(LearningProgressMapping.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): SubjectMapping {
-        data = typeof data === 'object' ? data : {};
-        let result = new SubjectMapping();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["name"] = this.name;
-        data["symbol"] = this.symbol;
-        data["isActive"] = this.isActive;
-        if (Array.isArray(this.subjectDetails)) {
-            data["subjectDetails"] = [];
-            for (let item of this.subjectDetails)
-                data["subjectDetails"].push(item.toJSON());
-        }
-        if (Array.isArray(this.learningProgresses)) {
-            data["learningProgresses"] = [];
-            for (let item of this.learningProgresses)
-                data["learningProgresses"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface ISubjectMapping {
-    id?: number;
-    name?: string;
-    symbol?: string;
-    isActive?: boolean;
-    subjectDetails?: SubjectDetailMapping[];
-    learningProgresses?: LearningProgressMapping[];
-}
-
-export class SubjectDetailMapping implements ISubjectDetailMapping {
-    id?: number;
-    subjectId?: number;
-    name?: string;
-    isFinished?: boolean;
-    linkVideo?: string;
-    isActive?: boolean;
-    subject?: SubjectMapping;
-    completed?: boolean;
-
-    constructor(data?: ISubjectDetailMapping) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.subjectId = _data["subjectId"];
-            this.name = _data["name"];
-            this.isFinished = _data["isFinished"];
-            this.linkVideo = _data["linkVideo"];
-            this.isActive = _data["isActive"];
-            this.subject = _data["subject"] ? SubjectMapping.fromJS(_data["subject"]) : <any>undefined;
-            this.completed = _data["completed"];
-        }
-    }
-
-    static fromJS(data: any): SubjectDetailMapping {
-        data = typeof data === 'object' ? data : {};
-        let result = new SubjectDetailMapping();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["subjectId"] = this.subjectId;
-        data["name"] = this.name;
-        data["isFinished"] = this.isFinished;
-        data["linkVideo"] = this.linkVideo;
-        data["isActive"] = this.isActive;
-        data["subject"] = this.subject ? this.subject.toJSON() : <any>undefined;
-        data["completed"] = this.completed;
-        return data;
-    }
-}
-
-export interface ISubjectDetailMapping {
-    id?: number;
-    subjectId?: number;
-    name?: string;
-    isFinished?: boolean;
-    linkVideo?: string;
-    isActive?: boolean;
-    subject?: SubjectMapping;
-    completed?: boolean;
 }
 
 export class CourseUpdate implements ICourseUpdate {

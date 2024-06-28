@@ -51,7 +51,7 @@
                     CourseId = c.Id,
                     CourseName = c.Name,
                     TotalRevenue = c.Bills.Where(b => b.CreateTime >= startDate && b.CreateTime <= endDate).Sum(b => b.Price),
-                    NumberOfPurchases = c.Bills.Count(b => b.CreateTime >= startDate && b.CreateTime <= endDate)
+                    NumberOfPurchases = c.NumberOfPurchases
                 })
                 .ToListAsync();
 

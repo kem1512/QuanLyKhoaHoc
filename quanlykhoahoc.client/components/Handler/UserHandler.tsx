@@ -1,6 +1,6 @@
 "use client";
 
-import { Checkbox, Grid, Select, TextInput } from "@mantine/core";
+import { Checkbox, Grid, Select } from "@mantine/core";
 import DashboardLayout from "../../components/Layout/DashboardLayout/DashboardLayout";
 import {
   IUserMapping,
@@ -9,24 +9,23 @@ import {
   UserUpdate,
 } from "../../app/web-api-client";
 import { handleSubmit } from "../../lib/helper";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import useSWR from "swr";
-import { DateTimePicker } from "@mantine/dates";
-import {
-  CertificateSelect,
-  DistrictSelect,
-  ProvinceSelect,
-  RoleSelect,
-  WardSelect,
-} from "../Helper/AppSelect";
+import { CertificateSelect } from "../Helper/AppSelect";
 import ActionButton from "../Helper/ActionButton";
 import RegisterStudyHandler from "./RegisterStudyHandler";
 
 export default function UserHandler({ id }: { id?: number }) {
   const UserService = new UserClient();
 
-  const { data, mutate } = useSWR(`/api/user/${id}`, () =>
-    UserService.getEntity(id)
+  const { data, mutate } = useSWR(
+    `/api/user/${id}`,
+    () => UserService.getEntity(id),
+    {
+      revalidateOnFocus: false,
+      revalidateIfStale: false,
+      revalidateOnReconnect: false,
+    }
   );
 
   const [user, setUser] = useState<IUserMapping>({
@@ -79,6 +78,7 @@ export default function UserHandler({ id }: { id?: number }) {
             action={() =>
               handleSubmit(
                 () => {
+                  delete user.certificate;
                   return UserService.updateEntity(user.id, user as UserUpdate);
                 },
                 "Sửa Thành Công",

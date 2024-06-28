@@ -85,7 +85,7 @@ export default function Study({ params }: { params: { id: number } }) {
                       (c, i) =>
                         `// Input: ${c.input} // Output: ${c.output} ${
                           doHomeWorkData &&
-                          `, Kết Quả Của Bạn: ${doHomeWorkData.testCases[i].result} - Thời Gian Chạy: ${doHomeWorkData.testCases[i].runTime} ms`
+                          `, Kết Quả Của Bạn: ${doHomeWorkData.testCases[i].result} - Thời Gian Chạy: ${doHomeWorkData.testCases[i].runTime} ms - Trạng Thái: ${doHomeWorkData.homeworkStatus}`
                         }`
                     )
                     .join("\n")}

@@ -86,7 +86,7 @@
 
         public override async Task<UserMapping?> Get(int id, CancellationToken cancellation)
         {
-            var user = await _context.Users.Include(c => c.Province).Include(c => c.District).Include(c => c.Ward).Include(c => c.Certificate).Include(c => c.Permissions).ThenInclude(c => c.Role).FirstOrDefaultAsync(c => c.Id == id, cancellation);
+            var user = await _context.Users.Include(c => c.Province).Include(c => c.District).Include(c => c.Ward).Include(c => c.Permissions).ThenInclude(c => c.Role).Include(c => c.Certificate).AsNoTracking().FirstOrDefaultAsync(c => c.Id == id, cancellation);
 
             if (user == null)
             {

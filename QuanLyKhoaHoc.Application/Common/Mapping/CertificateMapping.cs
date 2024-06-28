@@ -11,8 +11,6 @@
         public string Description { get; set; } = default!;
 
         public string Image { get; set; } = default!;
-
-        public CertificateTypeMapping CertificateType { get; set; } = default!;
     }
 
     public class CertificateQuery : QueryModel { }

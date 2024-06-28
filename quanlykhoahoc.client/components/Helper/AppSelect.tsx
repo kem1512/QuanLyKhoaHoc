@@ -1,4 +1,11 @@
-import { MultiSelect, Select } from "@mantine/core";
+import {
+  Group,
+  MultiSelect,
+  MultiSelectProps,
+  Select,
+  Text,
+  Tooltip,
+} from "@mantine/core";
 import useSWR from "swr";
 import {
   BillStatusClient,
@@ -37,6 +44,7 @@ import {
   WardMapping,
 } from "../../app/web-api-client";
 import { useState } from "react";
+import { IconCheck, IconEye, IconFlagCheck } from "@tabler/icons-react";
 
 function useFetchData<T>(url: string, fetcher: () => Promise<T>) {
   const { data, error } = useSWR(url, fetcher, {
@@ -96,6 +104,23 @@ function Selectable<T>({
   );
 }
 
+const renderMultiSelectOption: MultiSelectProps["renderOption"] = ({
+  option,
+  checked,
+}) => (
+  <Group gap="sm" justify="space-between" w={"100%"}>
+    <Group>
+      {checked && <IconCheck width={18} height={18} />}
+      <Text size="sm">{option.value}</Text>
+    </Group>
+    {checked && (
+      <Tooltip label="Đánh Dấu Là Đã Hoàn Thành">
+        <IconFlagCheck width={18} height={18} />
+      </Tooltip>
+    )}
+  </Group>
+);
+
 export function SubjectSelect({ value = [], onChange, courseId }) {
   const SubjectService = new SubjectClient();
 
@@ -105,13 +130,13 @@ export function SubjectSelect({ value = [], onChange, courseId }) {
 
   const subjects = data?.items || [];
   const selectedSubjects = subjects.filter((subject) =>
-    value.some((item) => item.currentSubjectId === subject.id)
+    value.some((item) => item.currentSubjectId === subject.id || item.subject?.id === subject.id)
   );
 
   const handleChange = (selectedNames) => {
     const updatedValues = selectedNames.map((name) => {
       const subject = subjects.find((subject) => subject.name === name);
-      return { currentSubjectId: subject.id };
+      return courseId === null ? { subjectId: subject.id, subject: subject } : { currentSubjectId: subject.id };
     });
     onChange(updatedValues);
   };
@@ -119,10 +144,12 @@ export function SubjectSelect({ value = [], onChange, courseId }) {
   return (
     <MultiSelect
       label="Chủ Đề"
+      searchable
       placeholder="Chọn Chủ Đề"
       data={subjects.map((subject) => subject.name)}
       value={selectedSubjects.map((subject) => subject.name)}
       onChange={handleChange}
+      renderOption={renderMultiSelectOption}
     />
   );
 }

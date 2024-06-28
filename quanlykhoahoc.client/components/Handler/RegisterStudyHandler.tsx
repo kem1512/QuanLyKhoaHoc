@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Grid, TextInput, Title } from "@mantine/core";
+import { Button, Grid, Text, TextInput, Title } from "@mantine/core";
 import {
   IRegisterStudyMapping,
   RegisterStudyClient,
@@ -75,7 +75,9 @@ export default function RegisterStudyHandler({ userId }: { userId?: number }) {
             />
           </Grid.Col>
           <Grid.Col span={{ base: 6, lg: 3 }}>
+            <Text mb={3}>&nbsp;</Text>
             <Button
+              size="xs"
               onClick={() =>
                 handleSubmit(
                   () =>

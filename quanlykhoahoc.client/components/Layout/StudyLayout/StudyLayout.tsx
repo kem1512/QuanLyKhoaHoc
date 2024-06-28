@@ -95,10 +95,12 @@ export default function StudyLayout({
             </Tabs.Tab>
           </Tabs.List>
           <Tabs.Panel value="practice">{children}</Tabs.Panel>
-          <Tabs.Panel value="video">
-            <AspectRatio>
+          <Tabs.Panel value="video" my={"sm"}>
+            <AspectRatio ratio={16 / 9}>
               {subjectId && subjectDetailId && (
                 <ReactPlayer
+                  width={"100%"}
+                  height={"100%"}
                   url={
                     data.items
                       .find((c) => c.id.toString() == subjectId)
@@ -110,7 +112,7 @@ export default function StudyLayout({
               )}
             </AspectRatio>
           </Tabs.Panel>
-          <Tabs.Panel value="question">
+          <Tabs.Panel value="question" my={"sm"}>
             <Question subjectDetailId={Number(subjectDetailId)} />
           </Tabs.Panel>
         </Tabs>

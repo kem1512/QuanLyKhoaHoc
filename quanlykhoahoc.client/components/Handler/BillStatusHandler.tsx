@@ -1,6 +1,6 @@
 "use client";
 
-import { Grid, TextInput } from "@mantine/core";
+import { Flex, Grid, Text, TextInput } from "@mantine/core";
 import DashboardLayout from "../../components/Layout/DashboardLayout/DashboardLayout";
 import {
   IBillStatusMapping,
@@ -42,7 +42,8 @@ export default function BillStatusHandler({ id }: { id?: number }) {
             labelProps={{ style: { marginBottom: 6 } }}
           />
         </Grid.Col>
-        <Grid.Col span={12}>
+        <Grid.Col span={{ base: 12, lg: 6 }}>
+          <Text mb={6}>&nbsp;</Text>
           <ActionButton
             size="xs"
             action={() =>

@@ -73,6 +73,7 @@ export default function CourseHandler({ id }: { id?: number }) {
         </Grid.Col>
         <Grid.Col span={{ base: 12, lg: 6 }}>
           <SubjectSelect
+            courseId={null}
             value={course.courseSubjects}
             onChange={(e: []) =>
               setCourse((prev) => ({
@@ -156,14 +157,19 @@ export default function CourseHandler({ id }: { id?: number }) {
           <ActionButton
             size="xs"
             action={() =>
-              handleSubmit(() => {
-                return id
-                  ? CourseService.updateEntity(
-                      course.id,
-                      course as CourseUpdate
-                    )
-                  : CourseService.createEntity((course) as CourseCreate);
-              }, `${id ? "Sửa" : "Thêm"} Thành Công`, mutate)
+              handleSubmit(
+                () => {
+                  delete course.bill;
+                  return id
+                    ? CourseService.updateEntity(
+                        course.id,
+                        course as CourseUpdate
+                      )
+                    : CourseService.createEntity(course as CourseCreate);
+                },
+                `${id ? "Sửa" : "Thêm"} Thành Công`,
+                mutate
+              )
             }
           >
             Xác Nhận

@@ -20,6 +20,8 @@
                 var course = _mapper.Map<Course>(entity);
 
                 course.CreatorId = int.Parse(_user.Id);
+                course.NumberOfStudent += 1;
+                course.NumberOfPurchases += 1;
 
                 await _context.Courses.AddAsync(course, cancellation);
 
@@ -87,12 +89,20 @@
                 .ProjectTo<CourseMapping>(_mapper.ConfigurationProvider)
                 .ToListAsync(cancellation);
 
+            if(query.Includes == null || query.Includes == false)
+            {
+                foreach (var item in data)
+                {
+                    item.CourseSubjects = [];
+                }
+            }
+
             return new PagingModel<CourseMapping>(data, totalCount, query.Page ?? 1, query.PageSize ?? 10);
         }
 
         public override async Task<CourseMapping?> Get(int id, CancellationToken cancellation)
         {
-            var course = await _context.Courses.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id, cancellation);
+            var course = await _context.Courses.Include(c => c.CourseSubjects).ThenInclude(c => c.Subject).AsNoTracking().FirstOrDefaultAsync(c => c.Id == id, cancellation);
 
             if (course == null)
             {

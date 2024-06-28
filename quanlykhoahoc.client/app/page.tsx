@@ -18,6 +18,7 @@ export default function Home() {
     `/api/course/${new URLSearchParams(query as any)}`,
     () =>
       CourseService.getEntities(
+        null,
         query.filters,
         query.sorts,
         query.page ? parseInt(query.page) : 1,

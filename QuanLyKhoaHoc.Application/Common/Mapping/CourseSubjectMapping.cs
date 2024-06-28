@@ -8,7 +8,7 @@
 
         public int SubjectId { get; set; }
 
-        public CourseMapping Course { get; set; } = default!;
+        public CourseMapping? Course { get; set; } = default!;
 
         public SubjectMapping Subject { get; set; } = default!;
     }

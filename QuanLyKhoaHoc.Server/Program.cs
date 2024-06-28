@@ -1,4 +1,6 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using Microsoft.Extensions.Options;
+
+var builder = WebApplication.CreateBuilder(args);
 
 // Cấu Hình Các Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -17,6 +19,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers().AddJsonOptions(x =>
 {
     x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 
 builder.Services.AddScoped<IEmailService, EmailService>();

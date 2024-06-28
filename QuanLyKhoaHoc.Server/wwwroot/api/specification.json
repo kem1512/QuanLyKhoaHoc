@@ -1728,13 +1728,22 @@
         "operationId": "Course_GetEntities",
         "parameters": [
           {
+            "name": "Includes",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
             "name": "Filters",
             "in": "query",
             "schema": {
               "type": "string",
               "nullable": true
             },
-            "x-position": 1
+            "x-position": 2
           },
           {
             "name": "Sorts",
@@ -1743,7 +1752,7 @@
               "type": "string",
               "nullable": true
             },
-            "x-position": 2
+            "x-position": 3
           },
           {
             "name": "Page",
@@ -1755,7 +1764,7 @@
               "minimum": 1.0,
               "nullable": true
             },
-            "x-position": 3
+            "x-position": 4
           },
           {
             "name": "PageSize",
@@ -1767,7 +1776,7 @@
               "minimum": 1.0,
               "nullable": true
             },
-            "x-position": 4
+            "x-position": 5
           }
         ],
         "responses": {
@@ -5611,6 +5620,12 @@
           },
           "bill": {
             "$ref": "#/components/schemas/BillMapping"
+          },
+          "courseSubjects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseSubjectMapping"
+            }
           }
         }
       },
@@ -5730,6 +5745,93 @@
           "Banned",
           "Pending"
         ]
+      },
+      "CourseSubjectMapping": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subjectId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "course": {
+            "$ref": "#/components/schemas/CourseMapping"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/SubjectMapping"
+          }
+        }
+      },
+      "SubjectMapping": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "subjectDetails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubjectDetailMapping"
+            }
+          },
+          "learningProgresses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LearningProgressMapping"
+            }
+          }
+        }
+      },
+      "SubjectDetailMapping": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subjectId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "isFinished": {
+            "type": "boolean"
+          },
+          "linkVideo": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/SubjectMapping"
+          },
+          "completed": {
+            "type": "boolean"
+          }
+        }
       },
       "LearningProgressMapping": {
         "type": "object",
@@ -6668,93 +6770,6 @@
             "items": {
               "$ref": "#/components/schemas/CourseSubjectMapping"
             }
-          }
-        }
-      },
-      "CourseSubjectMapping": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "courseId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "subjectId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "course": {
-            "$ref": "#/components/schemas/CourseMapping"
-          },
-          "subject": {
-            "$ref": "#/components/schemas/SubjectMapping"
-          }
-        }
-      },
-      "SubjectMapping": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "name": {
-            "type": "string"
-          },
-          "symbol": {
-            "type": "string"
-          },
-          "isActive": {
-            "type": "boolean"
-          },
-          "subjectDetails": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/SubjectDetailMapping"
-            }
-          },
-          "learningProgresses": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/LearningProgressMapping"
-            }
-          }
-        }
-      },
-      "SubjectDetailMapping": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "subjectId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "name": {
-            "type": "string"
-          },
-          "isFinished": {
-            "type": "boolean"
-          },
-          "linkVideo": {
-            "type": "string"
-          },
-          "isActive": {
-            "type": "boolean"
-          },
-          "subject": {
-            "$ref": "#/components/schemas/SubjectMapping"
-          },
-          "completed": {
-            "type": "boolean"
           }
         }
       },

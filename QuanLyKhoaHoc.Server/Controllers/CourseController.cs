@@ -6,6 +6,7 @@
     {
         public CourseController(ApplicationServiceBase<CourseMapping, CourseQuery, CourseCreate, CourseUpdate> context) : base(context)
         {
+
         }
 
         [AllowAnonymous]

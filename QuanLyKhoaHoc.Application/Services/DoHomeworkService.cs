@@ -1,6 +1,5 @@
 ﻿using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
-using QuanLyKhoaHoc.Domain.Entities;
 
 namespace QuanLyKhoaHoc.Application.Services
 {
@@ -187,6 +186,7 @@ namespace QuanLyKhoaHoc.Application.Services
                     stopwatch.Stop();
 
                     var runTestCaseString = runTestCase?.ToString() ?? "";
+
                     output += "," + runTestCaseString;
 
                     if (doHomework.RunTestCases == null)
@@ -211,6 +211,7 @@ namespace QuanLyKhoaHoc.Application.Services
                 else
                 {
                     doHomework.HomeworkStatus = HomeworkStatus.InProgress;
+                    doHomework.IsFinished = false;
                 }
 
                 _context.DoHomeworks.Update(_mapper.Map(entity, doHomework));

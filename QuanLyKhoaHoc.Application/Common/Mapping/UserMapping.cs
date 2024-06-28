@@ -86,7 +86,7 @@
 
         public UserStatus UserStatus { get; set; }
 
-        public ICollection<PermissionMapping> Permissions { get; set; } = default!;
+        public ICollection<PermissionMapping>? Permissions { get; set; } = default!;
     }
 
     public class PermissionMapping

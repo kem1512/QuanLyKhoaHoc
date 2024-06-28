@@ -23,9 +23,13 @@
         public int NumberOfPurchases { get; set; }
 
         public BillMapping Bill { get; set; } = default!;
+
+        public ICollection<CourseSubjectMapping> CourseSubjects { get; set; } = default!;
     }
 
-    public class CourseQuery : QueryModel { }
+    public class CourseQuery : QueryModel{
+        public bool? Includes { get; set; }
+    }
 
     public class CourseCreate
     {
